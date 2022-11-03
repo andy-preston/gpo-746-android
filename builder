@@ -15,15 +15,19 @@ case $1 in
         platforms;android-31 build-tools;31.0.0"
     CONT_NAME='android'
     ;;
-'build')
+'buildapp')
     COMMAND="${GRADLE} build"
     CONT_NAME='android'
     ;;
-'test')
+'testapp')
     COMMAND="${GRADLE} test"
     CONT_NAME='android'
     ;;
 'assembly')
+    COMMAND="bash"
+    CONT_NAME="gavrasm"
+    ;;
+'buildavr')
     COMMAND="make"
     CONT_NAME="gavrasm"
     ;;
@@ -36,7 +40,7 @@ case $1 in
     exit
     ;;
 *)
-    echo "./builder android|sdk|build|test|clean"
+    echo "./builder android|sdk|buildapp|testapp|assembly|buildavr|upload|clean"
     exit
     ;;
 esac

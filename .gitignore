@@ -1,8 +1,6 @@
-attiny/*.hex
-attiny/*.lst
-attiny/*.pro
+attiny/tests/*.hex
+attiny/tests/*.lst
 attiny/lib/prescale.asm
-attiny/logfile.txt
 attiny/obsolete
 android-share/*
 android-share/.knowPackages
@@ -20,4 +18,3 @@ android/kotlin-profile
 android/native
 android/notifications
 android/workers
-

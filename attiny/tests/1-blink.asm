@@ -1,24 +1,23 @@
     .device ATTiny2313
 
     .org 0x0000   ; reset vector
-    jmp progStart
+    rjmp progStart
 
     .org 0x003E
-    .include "../lib/registers.asm"
-    .include "../lib/ports.asm"
-    .include "../lib/blink.asm"
-    .include "./util/delay.asm"
+    .include "lib/registers.asm"
+    .include "lib/ports.asm"
+    .include "lib/blink.asm"
+    .include "lib/prescale.asm"
+    .include "lib/timer.asm"
 
 progStart:
-    cli
-    setupStackAndReg
-    setupBlink
+    SetupStackAndReg
+    SetupBlink
 seqStart:
-    ldi countReg, 0x20
+    ldi _count, 0x20
 loop:
-    blink
-    delayLoopR countReg
-
-    dec countReg
+    Blink
+    TestDelay _count
+    dec _count
     brne loop
     rjmp seqStart

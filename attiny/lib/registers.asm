@@ -1,18 +1,18 @@
-    ; r1 - reserved for test utilities
-    ; r2 - reserved for test utilities
-    ; r3 - reserved for test utilities
-    .def ioReg, r4
-    .def dummyZeroReg = r15
-    .def quickReg = r16
+    .def _zero = r1
+    .def _check = r2
+    .def _quick = r16
+    .def _count = r17
+    .def _io =  r18
+    .def _digit = r19
     ; r26 r27 - X
     ; r28 r29 - Y
     ; r30 r31 - Z
 
-.macro setupStackAndReg
+.macro SetupStackAndReg
     cli
-    ldi quickReg, high(RAMEND)
-    out SPH, quickReg
-    ldi quickReg, low(RAMEND)
-    out SPL, quickReg
-    clr dummyZeroReg
+    ; There's only SPL here ecause ATTiny2313 doesn't have enough RAM
+    ; To need SPH
+    ldi _quick, RAMEND
+    out SPL, _quick
+    clr _zero
 .endMacro

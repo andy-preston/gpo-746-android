@@ -5,14 +5,14 @@
 
     .org 0x003E
     .include "lib/registers.asm"
-    .include "lib/ports.asm"
-    .include "lib/blink.asm"
+    .include "lib/gpio.asm"
     .include "lib/prescale.asm"
     .include "lib/timer.asm"
 
 progStart:
     SetupStackAndReg
     SetupBlink
+    SetupTimer
 seqStart:
     ldi _count, 0x20
 loop:

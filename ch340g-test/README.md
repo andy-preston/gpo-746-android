@@ -30,7 +30,7 @@ echo blacklist ch341 > /etc/modprobe.d/blacklist-ch341.conf
 This is just a simple single C file, and you can compile it with:
 
 ```bash
-gcc ch340g.c `pkg-config libusb-1.0 --libs --cflags` -o ch340g
+gcc prototype.c `pkg-config libusb-1.0 --libs --cflags` -o test
 ```
 
 You'll either have to run this as `su` or sort out the privileges to run it.

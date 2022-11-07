@@ -1,17 +1,19 @@
 export default function(cpuClockFrequency, baudRate) {
-    const baudRateMultiplier = baudRate * 16;
-    const baudPrescale = Math.round(cpuClockFrequency / baudRateMultiplier) - 1
-    const derivedBaud = cpuClockFrequency / (16 * (baudPrescale + 1))
+    const multiplier = baudRate * 16;
+    const prescale = Math.round(cpuClockFrequency / multiplier) - 1
+    const derived = cpuClockFrequency / (16 * (prescale + 1))
+     if (derived != baudRate) {
+        throw RangeError("Imperfect baud rate");
+    }
     return [
         "",
         "    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;",
         "",
         "    ; Baud Rate = " + baudRate,
         "    ; CPU Clock Frequency = " + cpuClockFrequency,
-        "    ; Baud Rate * 16 = " + baudRateMultiplier,
-        "    ; baudPrescale = (" + cpuClockFrequency + " / " +
-            baudRateMultiplier + ") - 1",
-        "    ; Derived Baud Rate = " + derivedBaud,
-        "    .equ baudPrescale = " + baudPrescale
+        "    ; Baud Rate * 16 = " + multiplier,
+        "    ; Prescale = (" + cpuClockFrequency + " / " + multiplier + ") - 1",
+        "    ; Derived Baud Rate = " + derived,
+        "    .equ baudPrescale = " + prescale
     ];
 }

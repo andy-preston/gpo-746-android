@@ -19,7 +19,6 @@ export default function(cpuClockFrequency) {
     if (ringerTicks > 0xffff || ringerTicks < 1) {
         throw RangeError("ringerTicks > 0xffff or < 1");
     }
-
     return [
         "",
         "    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;",

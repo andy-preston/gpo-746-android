@@ -4,6 +4,8 @@
     .def _count = r17
     .def _io =  r18
     .def _digit = r19
+    .def _iol = r18
+    .def _ioh = r19
     ; r26 r27 - X
     ; r28 r29 - Y
     ; r30 r31 - Z

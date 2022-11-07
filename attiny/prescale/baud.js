@@ -1,7 +1,7 @@
 export default function(cpuClockFrequency, baudRate) {
     const baudRateMultiplier = baudRate * 16;
     const baudPrescale = Math.round(cpuClockFrequency / baudRateMultiplier) - 1
-    const derivedBaud = Math.round(cpuClockFrequency / (16 * (baudPrescale + 1)))
+    const derivedBaud = cpuClockFrequency / (16 * (baudPrescale + 1))
     return [
         "",
         "    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;",

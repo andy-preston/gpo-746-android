@@ -10,6 +10,16 @@ scan the dial when the receiver is lifted.
 PCB details: https://easyeda.com/edgeeffect/phone
 (The PCB is unfinished - I'm working on stripboard until it's nearer finished)
 
+Testing
+-------
+
+For testing the USB/Serial communication there's a LibUSB C program that I've
+been running on a Raspberry Pi to eliminate the need for mucking about with
+Android during the early testing phases.
+
+https://gitlab.com/edgeeffect/gpo-746-android/-/blob/master/attiny/tests/2-serial.asm
+https://gitlab.com/edgeeffect/gpo-746-android/-/tree/master/ch340g-test
+
 Notes
 -----
 

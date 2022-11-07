@@ -33,7 +33,43 @@ This is just a simple single C file, and you can compile it with:
 gcc prototype.c `pkg-config libusb-1.0 --libs --cflags` -o test
 ```
 
+### Running The Test
+
 You'll either have to run this as `su` or sort out the privileges to run it.
+
+### CH340G Board To Test Against
+
+This can either be connected to the board described in this project which shoud
+be running the code in:
+https://gitlab.com/edgeeffect/gpo-746-android/-/blob/master/attiny/tests/2-serial.asm
+
+Or if you're not interested in this project and just want to play with a CH340G,
+you can use an Arduino Nano (with a built in CH340G) running this sketch:
+```cpp
+void setup() {
+    Serial.begin(9600);
+    while (!Serial) {  }
+}
+
+void loop() {
+    if (Serial.available() > 0) {
+        switch(Serial.read()) {
+            case '1':
+                Serial.write("one\n");
+                break;
+            case '2':
+                Serial.write("two\n");
+                break;
+            case '3':
+                Serial.write("three\n");
+                break;
+            case '4':
+                Serial.write("four\n");
+                break;
+        }
+    }
+}
+```
 
 ## Other Chip Variants
 

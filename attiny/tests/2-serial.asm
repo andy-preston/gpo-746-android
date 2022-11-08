@@ -21,10 +21,17 @@
 progStart:
     SetupStackAndReg
     SetupBlink
+    SetupRTS
     SetupTimer
     SetupSerial
 
 checkSerial:
+    SkipOnRI
+    rjmp noRI
+    LoadZ ring
+    rjmp serialOut
+
+noRI:
     ReadSerial
 
     cpi _digit, '1'
@@ -51,9 +58,14 @@ notThree:
     rjmp serialOut
 
 notFour:
+    cpi _digit, 'R'
+    brne notRTS
+    SetRTS
+    rjmp checkSerial
+
+notRTS:
     Blink
     TestDelay 0x20
-    rjmp checkSerial
 
 serialOut:
     lpm _io, Z+
@@ -62,11 +74,13 @@ serialOut:
     brne serialOut
     rjmp checkSerial
 
+ring:
+    .db "ring\m\j"
 one:
-    .db "one\m\j\j"
+    .db "one\m\j\@"
 two:
-    .db "two\m\j\j"
+    .db "two\m\j\@"
 three:
-    .db "three\m\j\j"
+    .db "three\m\j\@"
 four:
     .db "four\m\j"

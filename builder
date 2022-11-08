@@ -23,37 +23,40 @@ case $1 in
     COMMAND="${GRADLE} test"
     CONT_NAME='android'
     ;;
-'assembly')
-    COMMAND="bash"
-    CONT_NAME="gavrasm"
-    ;;
-'buildavr')
-    COMMAND="make"
-    CONT_NAME="gavrasm"
-    ;;
-'upload')
+'install')
     $ADB install android/app/build/outputs/apk/debug/app-debug.apk
     exit
     ;;
+'buildavr')
+    cd attiny
+    make
+    cd ..
+    exit
+    ;;
+'upload')
+    cd attiny
+    for JOB in w v
+    do
+        echo TODO: avrdude $JOB
+    done
+    cd ..
+    exit
 'clean')
     rm -rf $(cat .gitignore) gradlew* .gitattributes
     exit
     ;;
 *)
-    echo "./builder android|sdk|buildapp|testapp|assembly|buildavr|upload|clean"
+    echo "./builder android|sdk|buildapp|testapp|install|buildavr|upload|clean"
     exit
     ;;
 esac
 
-DOCKER_DIR="$(dirname $0)/docker/${CONT_NAME}"
-RUN_NAME="run-${CONT_NAME}"
-
-docker build --tag ${CONT_NAME} ${DOCKER_DIR}
+docker build --tag android_gpo "$(dirname $0)/docker"
 
 docker run \
     --rm --interactive --tty \
     --volume $(pwd):/usr/local/src \
     --volume $(pwd)/share:${SDK_ROOT} \
     --user $(id -u):$(id -g) \
-    --name ${RUN_NAME} \
-    ${CONT_NAME} ${COMMAND}
+    --name android_gpo_run \
+    android_gpo ${COMMAND}

@@ -1,0 +1,14 @@
+#!/bin bash
+
+BINARY_DIR=basename($0)
+
+wget --progress=bar:force --output-document=/var/tmp/gavrasm.zip \
+    http://www.avr-asm-tutorial.net/gavrasm/v54/gavrasm_lin_i386_x64_en_54.zip
+unzip -d $BINARY_DIR /var/tmp/gavrasm.zip gavrasm_lin_i386_x64_en_v54
+mv gavrasm_lin_i386_x64_en_v54 gavrasm
+
+wget --progress=bar:force --output-document=/var/tmp/deno.zip \
+    https://github.com/denoland/deno/releases/download/v1.27.0/deno-x86_64-unknown-linux-gnu.zip
+unzip -d $BINARY_DIR /var/tmp/deno.zip
+
+chmod a+x $BINARY_DIR/*

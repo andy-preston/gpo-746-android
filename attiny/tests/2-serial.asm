@@ -5,11 +5,10 @@
 
     .org 0x003E
     .include "lib/registers.asm"
-    .include "lib/ports.asm"
+    .include "lib/gpio.asm"
     .include "lib/prescale.asm"
-    .include "lib/serial.asm"
     .include "lib/timer.asm"
-    .include "lib/blink.asm"
+    .include "lib/serial.asm"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -22,6 +21,7 @@
 progStart:
     SetupStackAndReg
     SetupBlink
+    SetupTimer
     SetupSerial
 
 checkSerial:
@@ -29,29 +29,25 @@ checkSerial:
 
     cpi _digit, '1'
     brne notOne
-    ldi ZL, low(one)
-    ldi ZH, high(one)
+    LoadZ one
     rjmp serialOut
 
 notOne:
     cpi _digit, '2'
     brne notTwo
-    ldi ZL, low(two)
-    ldi ZH, high(two)
+    LoadZ two
     rjmp serialOut
 
 notTwo:
     cpi _digit, '3'
     brne notThree
-    ldi ZL, low(three)
-    ldi ZH, high(three)
+    LoadZ three
     rjmp serialOut
 
 notThree:
     cpi _digit, '4'
     brne notFour
-    ldi ZL, low(four)
-    ldi ZH, high(four)
+    LoadZ four
     rjmp serialOut
 
 notFour:
@@ -61,16 +57,16 @@ notFour:
 
 serialOut:
     lpm _io, Z+
-    WriteSerialCharacter
-    cpi _io, '\n'
+    WriteSerial
+    cpi _io, '\j'
     brne serialOut
     rjmp checkSerial
 
 one:
-    .db "one\n"
+    .db "one\m\j\j"
 two:
-    .db "two\n"
+    .db "two\m\j\j"
 three:
-    .db "three\n"
+    .db "three\m\j\j"
 four:
-    .db "four\n\n"
+    .db "four\m\j"

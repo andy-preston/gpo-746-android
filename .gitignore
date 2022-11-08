@@ -1,4 +1,5 @@
 attiny/tests/*.hex
+attiny/tests/*.err
 attiny/tests/*.lst
 attiny/lib/prescale.asm
 attiny/obsolete

@@ -1,18 +1,17 @@
- 
-.macro SetupSerial
-    ldi _ioh, high(baudPrescale)         ; Set Baud rate.
-    ldi _iol, low(baudPrescale)          ; Always set high before low!
-    out UBRRH, _ioh                      ; Writing UBRRL triggers an immediate
-    out UBRRL, _iol                      ; update of the baud rate prescaler.
-    
-    ldi _io, 0                     
-    out UCSRA, _io                       ; Clear TXC. Disable U2X. Disable MPCM.
+ .macro SetupSerial
+    ldi _io, high(baudPrescale)          ; Set Baud rate.
+    out UBRRH, _io                       ; Always set high before low!
+    ldi _io, low(baudPrescale)           ; Writing UBRRL triggers an immediate
+    out UBRRL, _io                       ; update of the baud rate prescaler.
 
-	ldi	_io, (1 << RXEN) | (1 << TXEN)   ; Disable Interrupts. Enable TX & RX.
-	out	UCSRB, _io                       ; Clear UCSZ2 (No 9 bits). Clear TXB8.
+    ldi _io, 0                           ; Clear TXC.
+    out UCSRA, _io                       ; Disable U2X & MPCM.
+
+    ldi	_io, (1 << RXEN) | (1 << TXEN)   ; Disable Interrupts. Enable TX & RX.
+    out	UCSRB, _io                       ; Clear UCSZ2 (No 9 bits). Clear TXB8.
 
     ldi _io, (1 << UCSZ0) | (1 << UCSZ1) ; UMSEL = Async. UPM = No parity.
-    out USSRC, _io                       ; USBS = 1 Stop Bit. UCSZ1:0 = 8 bits.
+    out UCSRC, _io                       ; USBS = 1 Stop Bit. UCSZ1:0 = 8 bits.
 .endmacro
 
 .macro ReadSerial
@@ -23,9 +22,9 @@
 finished:
 .endmacro
 
-.macro WriteSerialCharacter              ; expects char in _io
-waitForUART:
+.macro WriteSerial                       ; expects char in _io
+bufferWait:
     sbis UCSRA, UDRE                     ; If buffer is empty, don't wait
-    rjmp waitForUART
-    sts	UDR, _io
+    rjmp bufferWait
+    out	UDR, _io                         ; Returns data in _io
 .endmacro

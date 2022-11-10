@@ -15,7 +15,7 @@
 // Registers
 #define BAUDRATE_1 0x1312
 #define LCR 0x2518
-#define STATUS 0x0706
+#define GCL 0x0706
 #define BAUDRATE_2 0x0F2C
 
 // LCR Bits
@@ -30,10 +30,9 @@
 #define CS6 0x01
 #define CS5 0x00
 
+
 static struct libusb_device_handle *device = NULL;
 
-uint8_t dtr = 0;
-uint8_t rts = 0;
 char sendChar = '1';
 unsigned char buffer[128];
 int status = 0;
@@ -64,13 +63,43 @@ int controlOut(int requestCode, int value, int index) {
     );
 }
 
+int controlIn(int requestCode, int value) {
+    return libusb_control_transfer(
+        device,
+        LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_IN,
+        requestCode,
+        value,
+        0,
+        buffer,
+        180,
+        USB_TIMEOUT
+    );
+}
 
-void setHandshake(void) {
+
+void setHandshake(uint8_t dtr, uint8_t rts) {
     status = controlOut(VENDOR_MODEM_OUT, ~((dtr ? 1 << 5 : 0) | (rts ? 1 << 6 : 0)), 0);
     if (status < 0) {
         fprintf(stderr, "Failed to set handshake\n");
         return;
     }
+}
+
+void getHandshake(uint8_t* cts, uint8_t* dsr, uint8_t* ri, uint8_t* dcd) {
+    // We get 2 bytes from the status register
+    // but I'm still unsure of what the second byte is for
+    uint8_t bytes = controlIn(VENDOR_READ, GCL);
+    if (bytes < 2) {
+        status = -1;
+        fprintf(stderr, "Failed to get handshake\n");
+        return;
+    }
+    // Other drivers seem to use the Low byte,
+    // but I'm getting these in the high bytes
+    *cts = (buffer[0] & 0x10) == 0;
+    *dsr = (buffer[0] & 0x20) == 0;
+    *ri = (buffer[0] & 0x40) == 0;
+    *dcd = (buffer[0] & 0x80) == 0;
 }
 
 void initialise() {
@@ -114,14 +143,11 @@ void initialise() {
         fprintf(stderr, "Failed to set BAUDRATE_1\n");
         return;
     }
-    setHandshake();
+    setHandshake(0, 0);
 }
 
 void send() {
     int transferred;
-    if (++sendChar > '4') {
-        sendChar = '1';
-    }
     buffer[0] = sendChar;
     buffer[1] = 0;
     status = libusb_bulk_transfer(
@@ -160,15 +186,34 @@ void receive() {
 }
 
 int main(int argc, char **argv) {
+    uint8_t rts;
+    uint8_t ri;
+    uint8_t iDontCare;
     if (libusb_init(NULL) < 0) {
         fprintf(stderr, "Failed to initialise libusb\n");
     } else {
         if (setup() == 0) {
             initialise();
-            while (status == 0) {
-                send();
+            rts = 0;
+            while (1) {
+                if (status != 0) {
+                    fprintf(stderr, "unknown error - non zero status %x\n", status);
+                    break;
+                }
+                if (status == 0) {
+                    send();
+                }
+                if (status == 0) {
+                    getHandshake(&iDontCare, &iDontCare, &ri, &iDontCare);
+                    fputs (ri ? "RI " : "   ", stdout);
+                }
                 if (status == 0) {
                     receive();
+                }
+                if (++sendChar > '4') {
+                    sendChar = '1';
+                    rts = !rts;
+                    if (status == 0) setHandshake(0, rts);
                 }
             }
             libusb_release_interface(device, 0);

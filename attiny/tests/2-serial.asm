@@ -20,67 +20,88 @@
 
 progStart:
     SetupStackAndReg
-    SetupBlink
-    SetupRTS
+    SetupOutputs
     SetupTimer
     SetupSerial
 
+checkRI:
+    SkipOnRTS
+    rjmp noRTS
+    LoadZ rtsYes
+    rjmp statusOut
+
+noRTS:
+    loadZ rtsNo
+
+statusOut:
+    lpm _io, Z+
+    WriteSerial
+    cpi _io, ' '
+    brne statusOut
+
 checkSerial:
-    SkipOnRI
-    rjmp noRI
-    LoadZ ring
-    rjmp serialOut
-
-noRI:
     ReadSerial
+    cpi _digit, 0
+    brne checkOne
 
+    Blink
+    TestDelay 0x10
+    rjmp checkSerial
+
+checkOne:
     cpi _digit, '1'
     brne notOne
     LoadZ one
-    rjmp serialOut
+    rjmp numberOut
 
 notOne:
     cpi _digit, '2'
     brne notTwo
     LoadZ two
-    rjmp serialOut
+    rjmp numberOut
 
 notTwo:
     cpi _digit, '3'
     brne notThree
+
+    sbic outputPort, pinRTS  ; Toggle RTS everytime we get to "3"
+    rjmp setRTS
+    sbi outputPort, pinRTS
+    rjmp endRTS
+setRTS:
+    cbi outputPort, pinRTS
+endRTS:
+
     LoadZ three
-    rjmp serialOut
+    rjmp numberOut
 
 notThree:
     cpi _digit, '4'
     brne notFour
     LoadZ four
-    rjmp serialOut
+    rjmp numberOut
 
 notFour:
-    cpi _digit, 'R'
-    brne notRTS
-    SetRTS
-    rjmp checkSerial
+    LoadZ unknown
 
-notRTS:
-    Blink
-    TestDelay 0x20
-
-serialOut:
+numberOut:
     lpm _io, Z+
     WriteSerial
     cpi _io, '\j'
-    brne serialOut
-    rjmp checkSerial
+    brne numberOut
+    rjmp checkRI
 
-ring:
-    .db "ring\m\j"
+rtsYes:
+    .db "RTS "
+rtsNo:
+    .db "--- "
 one:
-    .db "one\m\j\@"
+    .db "   one\m\j"
 two:
-    .db "two\m\j\@"
+    .db "   two\m\j"
 three:
-    .db "three\m\j\@"
+    .db " three\m\j"
 four:
-    .db "four\m\j"
+    .db "  four\m\j"
+unknown:
+    .db "  ????\m\j"

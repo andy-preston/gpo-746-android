@@ -94,8 +94,8 @@ void getHandshake(uint8_t* cts, uint8_t* dsr, uint8_t* ri, uint8_t* dcd) {
         fprintf(stderr, "Failed to get handshake\n");
         return;
     }
-    // Other drivers seem to use the Low byte,
-    // but I'm getting these in the high bytes
+    // Other drivers seem to use the Low nybble,
+    // but I'm getting these in the high nybble!
     *cts = (buffer[0] & 0x10) == 0;
     *dsr = (buffer[0] & 0x20) == 0;
     *ri = (buffer[0] & 0x40) == 0;

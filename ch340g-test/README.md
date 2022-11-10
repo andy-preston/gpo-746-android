@@ -39,12 +39,28 @@ You'll either have to run this as `su` or sort out the privileges to run it.
 
 ### CH340G Board To Test Against
 
-This can either be connected to the board described in this project which shoud
+This can either be connected to the board described in this project which should
 be running the code in:
 https://gitlab.com/edgeeffect/gpo-746-android/-/blob/master/attiny/tests/2-serial.asm
 
+```lang-none
+
++----------------------------+    +--------------+
+| Test Board or Arduino Nano |    | Raspberry Pi |
+|                            |    |              |
+| +-----+      +--------+    |    |              |
+| |     |--TX->|        |         |              |
+| | AVR |      | CH340G |<--USB-->|              |
+| |     |<-RX--|        |         |              |
+| +-----+      +--------+    |    |              |
+|                            |    |              |
++----------------------------+    +--------------+
+
+```
+
 Or if you're not interested in this project and just want to play with a CH340G,
 you can use an Arduino Nano (with a built in CH340G) running this sketch:
+
 ```cpp
 void setup() {
     Serial.begin(9600);

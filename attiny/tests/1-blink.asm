@@ -11,7 +11,7 @@
 
 progStart:
     SetupStackAndReg
-    SetupBlink
+    SetupOutputs
     SetupTimer
 seqStart:
     ldi _count, 0x20

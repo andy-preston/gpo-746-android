@@ -2,45 +2,42 @@
     .equ outputDDR = DDRB
 
     .equ pinBlink = 3
-    .equ pinRTS = 0
+    .equ pinRI = 0
 
     .equ inputPort = PORTD
     .equ inputPins = PIND
     .equ inputDDR = DDRD
 
-    .equ pinRI = 0
+    .equ pinRTS = 6
 
-.macro SetupBlink
-    sbi outputDDR, pinBlink
+.macro SetupOutputs
+    ldi _io, (1 << pinBlink) | (1 << pinRI)
+    out outputDDR, _io
     sbi outputPort, pinBlink
 .endMacro
 
 .macro Blink
-    sbic outputPort, pinBlink
-    rjmp blinkSet
-    sbi outputPort, pinBlink
+    sbic outputPort, pinBlink  ; If LED is clear/off
+    rjmp blinkOff              ; don't switch it off
+    sbi outputPort, pinBlink   ; switch it on instead
     rjmp blinkEnd
-blinkSet:
-    cbi outputPort, pinBlink
+blinkOff:
+    cbi outputPort, pinBlink   ; If it was set/on, switch it off
 blinkEnd:
 .endMacro
 
-.macro SetupRTS
-    sbi outputDDR, pinRTS
+.macro SetRI
+    sbi outputPort, pinRI
 .endmacro
 
-.macro SetRTS
-    sbi outputPort, pinRTS
+.macro ResetRI
+    cbi outputPort, pinRI
 .endmacro
 
-.macro ResetRTS
-    cbi outputPort, pinRTS
+.macro SkipOnRTS
+    sbis inputPins, pinRTS
 .endmacro
 
-.macro SkipOnRI
-    sbis inputPins, pinRI
-.endmacro
-
-.macro SkipOnNoRI
-    sbic inputPins, pinRI
+.macro SkipOnNoRTS
+    sbic inputPins, pinRTS
 .endmacro

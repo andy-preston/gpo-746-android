@@ -33,20 +33,19 @@ case $1 in
     cd ..
     exit
     ;;
-'upload')
-    cd attiny
+'program')
     for JOB in w v
     do
-        echo TODO: avrdude $JOB
+        avrdude -c usbasp -p t2313 -V -U "flash:${JOB}:${2}:i"
     done
-    cd ..
     exit
+    ;;
 'clean')
     rm -rf $(cat .gitignore) gradlew* .gitattributes
     exit
     ;;
 *)
-    echo "./builder android|sdk|buildapp|testapp|install|buildavr|upload|clean"
+    echo "./builder android|sdk|buildapp|testapp|install|buildavr|program|clean"
     exit
     ;;
 esac

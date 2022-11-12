@@ -31,7 +31,7 @@ checkRI:
     rjmp statusOut
 
 noRTS:
-    loadZ rtsNo
+    LoadZ rtsNo
 
 statusOut:
     lpm _io, Z+

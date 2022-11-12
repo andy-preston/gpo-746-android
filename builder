@@ -27,9 +27,9 @@ case $1 in
     $ADB install android/app/build/outputs/apk/debug/app-debug.apk
     exit
     ;;
-'buildavr')
+'assemble')
     cd attiny
-    make
+    make "${2}"
     cd ..
     exit
     ;;
@@ -45,7 +45,7 @@ case $1 in
     exit
     ;;
 *)
-    echo "./builder android|sdk|buildapp|testapp|install|buildavr|program|clean"
+    echo "./builder android | sdk | buildapp | testapp | install | assemble target | program hex-file | clean"
     exit
     ;;
 esac

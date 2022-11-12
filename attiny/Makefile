@@ -1,4 +1,12 @@
-all: tests/1-blink.hex tests/2-serial.hex
+all: blink serial hook active
+
+blink: tests/1-blink.hex
+
+serial: tests/2-serial.hex
+
+hook: tests/3-hook.hex
+
+active: tests/4-dial-active.hex
 
 lib/prescale.asm: prescale/*
 	./bin/deno run prescale/calculate.js >lib/prescale.asm

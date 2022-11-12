@@ -1,13 +1,16 @@
     .equ outputPort = PORTB
     .equ outputDDR = DDRB
 
-    .equ pinBlink = 3
     .equ pinRI = 0
+    .equ pinBlink = 3
 
     .equ inputPort = PORTD
     .equ inputPins = PIND
     .equ inputDDR = DDRD
 
+    .equ pinHook = 3
+    .equ pinDialPink = 4      ; Dial pulse - organge (GND) -> pink low
+    .equ pinDialGrey = 5      ; Dial active - blue (VCC) -> grey high
     .equ pinRTS = 6
 
 .macro SetupOutputs
@@ -16,28 +19,48 @@
     sbi outputPort, pinBlink
 .endMacro
 
+.macro BlinkOn
+    sbi outputPort, pinBlink
+.endMacro
+
+.macro BlinkOff
+    cbi outputPort, pinBlink
+.endMacro
+
 .macro Blink
     sbic outputPort, pinBlink  ; If LED is clear/off
     rjmp blinkOff              ; don't switch it off
-    sbi outputPort, pinBlink   ; switch it on instead
+    BlinkOn                    ; switch it on instead
     rjmp blinkEnd
 blinkOff:
-    cbi outputPort, pinBlink   ; If it was set/on, switch it off
+    BlinkOff                   ; If it was set/on, switch it off
 blinkEnd:
 .endMacro
 
 .macro SetRI
     sbi outputPort, pinRI
-.endmacro
+.endMacro
 
 .macro ResetRI
     cbi outputPort, pinRI
-.endmacro
+.endMacro
 
 .macro SkipOnRTS
     sbis inputPins, pinRTS
-.endmacro
+.endMacro
 
 .macro SkipOnNoRTS
     sbic inputPins, pinRTS
-.endmacro
+.endMacro
+
+.macro SkipOnHook
+    sbis inputPins, pinHook
+.endMacro
+
+.macro SkipOffHook
+    sbic inputPins, pinHook
+.endMacro
+
+.macro SkipDialInactive
+    sbic inputPins, pinDialGrey
+.endMacro

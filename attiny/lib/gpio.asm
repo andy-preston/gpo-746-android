@@ -30,16 +30,6 @@
     cbi outputPort, pinBlink
 .endMacro
 
-.macro BlinkFlip
-    sbic outputPort, pinBlink  ; If LED is clear/off
-    rjmp blinkOff              ; don't switch it off
-    BlinkOn                    ; switch it on instead
-    rjmp blinkEnd
-blinkOff:
-    BlinkOff                   ; If it was set/on, switch it off
-blinkEnd:
-.endMacro
-
 .macro SetRI
     sbi outputPort, pinRI
 .endMacro
@@ -64,6 +54,6 @@ blinkEnd:
     sbic inputPins, pinHook
 .endMacro
 
-.macro SkipDialActive
-    sbis inputPins, pinDialGrey
+.macro SkipDialInactive
+    sbic inputPins, pinDialGrey
 .endMacro

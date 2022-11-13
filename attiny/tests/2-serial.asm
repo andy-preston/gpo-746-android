@@ -9,6 +9,7 @@
     .include "lib/prescale.asm"
     .include "lib/timer.asm"
     .include "lib/serial.asm"
+    .include "lib/blinks.asm"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;

@@ -12,12 +12,12 @@ progStart:
     SetupOutputs
     BlinkOff
 checkDial:
-    SkipDialActive
-    rjmp inactive
+    SkipDialInactive
+    rjmp active
 
-    BlinkOn
+    BlinkOff
     rjmp checkDial
 
-inactive:
-    BlinkOff
+active:
+    BlinkOn
     rjmp checkDial

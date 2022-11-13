@@ -8,7 +8,7 @@
     .include "lib/gpio.asm"
     .include "lib/prescale.asm"
     .include "lib/timer.asm"
-    .include "tests/blink-count.asm"
+    .include "lib/blinks.asm"
 
 progStart:
     SetupStackAndReg

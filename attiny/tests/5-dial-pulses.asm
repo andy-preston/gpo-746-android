@@ -9,6 +9,7 @@
     .include "lib/prescale.asm"
     .include "lib/timer.asm"
     .include "lib/dial.asm"
+    .include "lib/blinks.asm"
 
 progStart:
     SetupStackAndReg
@@ -18,10 +19,8 @@ progStart:
     BlinkOff
 
 checkDial:
-    SkipDialActive               ; If the dial is inactive
-    rjmp checkDial               ; flash out the count we may have accumulated
-
     GetDialPulseCount
+    tst _count             ; Skip counting pulses if there are none
+    breq checkDial         ; so we don't waste time with unnecessary delay loops
     BlinkCount
     rjmp checkDial
-

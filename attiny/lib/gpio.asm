@@ -8,6 +8,9 @@
     .equ inputPins = PIND
     .equ inputDDR = DDRD
 
+    ; D4 is included here only for completeness.
+    ; It's not used as a GPIO. See ./dial.asm for usage details.
+
     .equ pinHook = 3
     .equ pinDialPink = 4      ; Dial pulse - organge (GND) -> pink low
     .equ pinDialGrey = 5      ; Dial active - blue (VCC) -> grey high
@@ -27,7 +30,7 @@
     cbi outputPort, pinBlink
 .endMacro
 
-.macro Blink
+.macro BlinkFlip
     sbic outputPort, pinBlink  ; If LED is clear/off
     rjmp blinkOff              ; don't switch it off
     BlinkOn                    ; switch it on instead
@@ -61,6 +64,6 @@ blinkEnd:
     sbic inputPins, pinHook
 .endMacro
 
-.macro SkipDialInactive
-    sbic inputPins, pinDialGrey
+.macro SkipDialActive
+    sbis inputPins, pinDialGrey
 .endMacro

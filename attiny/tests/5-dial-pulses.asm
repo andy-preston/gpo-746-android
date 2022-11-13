@@ -8,14 +8,20 @@
     .include "lib/gpio.asm"
     .include "lib/prescale.asm"
     .include "lib/timer.asm"
-    .include "tests/blink-count.asm"
+    .include "lib/dial.asm"
 
 progStart:
     SetupStackAndReg
     SetupOutputs
     SetupTimer
-seqStart:
-    ldi _count, 5
-loop:
+    SetupDial
+    BlinkOff
+
+checkDial:
+    SkipDialActive               ; If the dial is inactive
+    rjmp checkDial               ; flash out the count we may have accumulated
+
+    GetDialPulseCount
     BlinkCount
-    rjmp seqStart
+    rjmp checkDial
+

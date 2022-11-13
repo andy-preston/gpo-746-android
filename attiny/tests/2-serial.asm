@@ -44,7 +44,7 @@ checkSerial:
     cpi _digit, 0
     brne checkOne
 
-    Blink
+    BlinkFlip
     TestDelay 0x10
     rjmp checkSerial
 

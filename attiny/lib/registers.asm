@@ -4,6 +4,7 @@
     .def _count = r17
     .def _io =  r18
     .def _digit = r19
+    .def _asciiZero = r20
     ; r26 r27 - X
     ; r28 r29 - Y
     ; r30 r31 - Z

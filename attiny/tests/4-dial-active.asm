@@ -10,13 +10,14 @@
 progStart:
     SetupStackAndReg
     SetupOutputs
-checkDial:
-    SkipDialInactive
-    rjmp active
-
     BlinkOff
+checkDial:
+    SkipDialActive
+    rjmp inactive
+
+    BlinkOn
     rjmp checkDial
 
-active:
-    BlinkOn
+inactive:
+    BlinkOff
     rjmp checkDial

@@ -3,13 +3,10 @@
 
 .macro SetupTimer
     out TCCR1A, _zero           ; Normal mode
-
     ldi _io, timer1Prescalar
     out TCCR1B, _io
-
     ldi _io, high(ringerTicks)
     out OCR1AH, _io
-
     ldi _io, low(ringerTicks)
     out OCR1AL, _io
 .endmacro
@@ -25,7 +22,7 @@ waitForTimer1:
     rjmp waitForTimer1
 .endmacro
 
-.macro TestDelay ; parameter = number of loops - 40 for one second
+.macro TestDelay                ; parameter = number of loops - 40 for 1 second
     ldi _quick, @0
 delay:
     WaitForRingerTicks

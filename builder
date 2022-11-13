@@ -4,6 +4,7 @@ GRADLE='/opt/gradle/gradle-7.0.2/bin/gradle'
 SDK_MANAGER='/opt/android/cmdline-tools/bin/sdkmanager'
 SDK_ROOT='/usr/local/share/android'
 ADB='./share/platform-tools/adb'
+AVRDUDE='avrdude -c usbasp -p t2313 -V'
 
 case $1 in
 'android')
@@ -36,8 +37,12 @@ case $1 in
 'program')
     for JOB in w v
     do
-        avrdude -c usbasp -p t2313 -V -U "flash:${JOB}:${2}:i"
+        $AVRDUDE -U "flash:${JOB}:${2}:i"
     done
+    exit
+    ;;
+'fuses')
+    $AVRDUDE -U "lfuse:w:0x${2}:m" -U "hfuse:w:0x${3}:m" -U "efuse:w:0x${4}:m"
     exit
     ;;
 'clean')

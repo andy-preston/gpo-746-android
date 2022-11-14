@@ -9,20 +9,19 @@
     .include "lib/prescale.asm"
     .include "lib/timer.asm"
     .include "lib/dial.asm"
-    .include "lib/blinks.asm"
+    .include "lib/serial.asm"
 
 progStart:
     SetupStackAndReg
     SetupOutputs
     SetupTimer
     SetupDial
-    BlinkOff
+    SetupSerial
 
 checkDial:
-    GetDialPulseCount
-    tst _digit
-    breq checkDial
-
-    mov _count, _digit
-    BlinkCount
+    GetAsciiPulseCount
+    tst _digit             ; Skip counting pulses if there are none
+    breq checkDial         ; we don't want to output "nothing"
+    mov _io, _digit
+    WriteSerial
     rjmp checkDial

@@ -1,16 +1,14 @@
+# Only include files here if you're prepared to have them deleted
+# by `builder clean`
 attiny/tests/*.hex
 attiny/tests/*.err
 attiny/tests/*.lst
 attiny/lib/prescale.asm
-attiny/obsolete
-android-share/*
-android-share/.knowPackages
-!android-share/.gitkeep
+ch340g-test/test
 android/.gradle
 android/.tmp
 android/app/build
 android/app/libs
-android/app/src/androidTest
 android/build
 android/caches
 android/daemon
@@ -19,4 +17,3 @@ android/kotlin-profile
 android/native
 android/notifications
 android/workers
-ch340g-test/test

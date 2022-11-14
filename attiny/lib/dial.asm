@@ -12,27 +12,26 @@
 .macro SetupDial
     SetupTimerCounter0
     ldi _asciiZero, '0'
+    clr _digit
 .endMacro
 
 .macro GetDialPulseCount
+    clr _digit
     SkipDialInactive
-    rjmp countPulses
-    clr _count
-    rjmp endPulseCount
-countPulses:
-    in _count, TCNT0          ; get pulses from the counter
+    rjmp gotPulseCount
+    in _digit, TCNT0          ; get pulses from the counter
     out TCNT0, _zero          ; Clear counter, ready for next time
-endPulseCount:
+gotPulseCount:
 .endMacro
 
 .macro GetAsciiPulseCount
     GetDialPulseCount
-    tst _count
-    brne endAsciiCount
-    cpi _count, 10            ; if it's not 10 pulses ("0" digit)
+    tst _digit
+    breq endAsciiCount
+    cpi _digit, 10            ; if it's not 10 pulses ("0" digit)
     brne digitFound           ; ... it's just an ordinary digit
-    clr _count                ; ... otherewise use a zero
+    clr _digit                ; ... otherewise use a zero
 digitFound:
-    add _count, _asciiZero    ; convert integer to ASCII char
+    add _digit, _asciiZero    ; convert integer to ASCII char
 endAsciiCount:
 .endMacro

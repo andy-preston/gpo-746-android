@@ -1,4 +1,4 @@
-all: blink serial hook active pulse
+all: blink serial hook active pulses ascii
 
 blink: tests/1-blink.hex
 
@@ -8,7 +8,9 @@ hook: tests/3-hook.hex
 
 active: tests/4-dial-active.hex
 
-pulse: tests/5-dial-pulses.hex
+pulses: tests/5-dial-pulses.hex
+
+ascii: tests/6-dial-ascii.hex
 
 lib/prescale.asm: prescale/*
 	./bin/deno run prescale/calculate.js >lib/prescale.asm

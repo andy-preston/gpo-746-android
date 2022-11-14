@@ -3,7 +3,7 @@
 attiny/tests/*.hex
 attiny/tests/*.err
 attiny/tests/*.lst
-attiny/lib/prescale.asm
+attiny/modules/prescale.asm
 ch340g-test/test
 android/.gradle
 android/.tmp

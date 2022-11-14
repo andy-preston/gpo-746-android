@@ -4,12 +4,12 @@
     rjmp progStart
 
     .org 0x003E
-    .include "lib/registers.asm"
-    .include "lib/gpio.asm"
-    .include "lib/prescale.asm"
-    .include "lib/timer.asm"
-    .include "lib/dial.asm"
-    .include "lib/serial.asm"
+    .include "modules/registers.asm"
+    .include "modules/gpio.asm"
+    .include "modules/prescale.asm"
+    .include "modules/timer.asm"
+    .include "modules/dial.asm"
+    .include "modules/serial.asm"
 
 progStart:
     SetupStackAndReg

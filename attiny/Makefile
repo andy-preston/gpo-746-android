@@ -12,8 +12,8 @@ pulses: tests/5-dial-pulses.hex
 
 ascii: tests/6-dial-ascii.hex
 
-lib/prescale.asm: prescale/*
-	./bin/deno run prescale/calculate.js >lib/prescale.asm
+modules/prescale.asm: prescale/*
+	./bin/deno run prescale/calculate.js >modules/prescale.asm
 
-%.hex: %.asm lib/prescale.asm lib/*.asm
+%.hex: %.asm modules/*.asm
 	./bin/gavrasm -A -E -S -M $<

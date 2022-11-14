@@ -4,8 +4,8 @@
     rjmp progStart
 
     .org 0x003E
-    .include "lib/registers.asm"
-    .include "lib/gpio.asm"
+    .include "modules/registers.asm"
+    .include "modules/gpio.asm"
 
 progStart:
     SetupStackAndReg

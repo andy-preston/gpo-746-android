@@ -35,3 +35,8 @@ digitFound:
     add _digit, _asciiZero    ; convert integer to ASCII char
 endAsciiCount:
 .endMacro
+
+.macro AbortPulseCount
+    clr _digit                ; Throw away any pulses counted
+    out TCNT0, _digit         ; and any that are "hidden" in the counter
+.endMacro

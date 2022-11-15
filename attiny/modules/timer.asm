@@ -23,9 +23,9 @@ waitForTimer1:
 .endmacro
 
 .macro TestDelay                ; parameter = number of loops - 40 for 1 second
-    ldi _quick, @0
+    ldi _loops, @0
 delay:
     WaitForRingerTicks
-    dec _quick
+    dec _loops
     brne delay
 .endmacro

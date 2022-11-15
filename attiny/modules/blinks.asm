@@ -10,13 +10,13 @@ blinkEnd:
 
 .macro BlinkCount
 blinkLoop:
-    tst _count                 ; If there's nothing left to count
+    tst _digit                 ; If there's nothing left to count
     breq blinkEnd              ; There's nothing to show!
     BlinkOn
     TestDelay 0x10
     BlinkOff
     TestDelay 0x10
-    dec _count
+    dec _digit
     rjmp blinkLoop
 blinkEnd:
     TestDelay 0x20

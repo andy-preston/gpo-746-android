@@ -35,9 +35,9 @@ noRTS:
     LoadZ rtsNo
 
 statusOut:
-    lpm _io, Z+
+    lpm _digit, Z+
     WriteSerial
-    cpi _io, ' '
+    cpi _digit, ' '
     brne statusOut
 
 checkSerial:
@@ -86,9 +86,9 @@ notFour:
     LoadZ unknown
 
 numberOut:
-    lpm _io, Z+
+    lpm _digit, Z+
     WriteSerial
-    cpi _io, '\j'
+    cpi _digit, '\j'
     brne numberOut
     rjmp checkRI
 

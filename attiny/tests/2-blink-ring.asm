@@ -9,13 +9,13 @@
     .include "modules/prescale.asm"
     .include "modules/timer.asm"
     .include "modules/blinks.asm"
+    .include "modules/ring.asm"
 
 progStart:
     SetupStackAndReg
     SetupOutputs
     SetupTimer
 seqStart:
-    ldi _digit, 5
-loop:
-    BlinkCount
+    BlinkFlip
+    RingDelay
     rjmp seqStart

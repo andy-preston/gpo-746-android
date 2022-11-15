@@ -19,9 +19,9 @@
 finished:
 .endmacro
 
-.macro WriteSerial                       ; expects char in _io
+.macro WriteSerial                       ; expects char in _digit
 bufferWait:
     sbis UCSRA, UDRE                     ; If buffer is empty, don't wait
     rjmp bufferWait
-    out	UDR, _io                         ; Returns data in _io
+    out	UDR, _digit
 .endmacro

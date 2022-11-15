@@ -2,6 +2,8 @@
     .equ outputDDR = DDRB
 
     .equ pinRI = 0
+    .equ pinDing = 1
+    .equ pinDong = 2
     .equ pinBlink = 3
 
     .equ inputPort = PORTD
@@ -17,7 +19,7 @@
     .equ pinRTS = 6
 
 .macro SetupOutputs
-    ldi _io, (1 << pinBlink) | (1 << pinRI)
+    ldi _io, (1 << pinBlink) | (1 << pinRI) | (1 << pinDing) | (1 << pinDong)
     out outputDDR, _io
     sbi outputPort, pinBlink
 .endMacro

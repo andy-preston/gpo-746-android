@@ -22,6 +22,5 @@ checkDial:
     GetAsciiPulseCount
     tst _digit             ; Skip counting pulses if there are none
     breq checkDial         ; we don't want to output "nothing"
-    mov _io, _digit
     WriteSerial
     rjmp checkDial

@@ -22,7 +22,5 @@ checkDial:
     GetDialPulseCount
     tst _digit
     breq checkDial
-
-    mov _count, _digit
     BlinkCount
     rjmp checkDial

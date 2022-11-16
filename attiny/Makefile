@@ -2,9 +2,9 @@ all: 1 2 3 4 5 6 7
 
 1: tests/1-blink5.hex
 
-2: tests/2-blink-ring.hex
+2: tests/2-hook.hex
 
-3: tests/3-hook.hex
+3: tests/3-blink-ring.hex
 
 4: tests/4-dial-active.hex
 

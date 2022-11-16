@@ -7,15 +7,21 @@
     .include "modules/registers.asm"
     .include "modules/gpio.asm"
     .include "modules/prescale.asm"
+    .include "modules/dial.asm"
     .include "modules/timer.asm"
-    .include "modules/blinks.asm"
     .include "modules/ring.asm"
+    .include "modules/blinks.asm"
 
 progStart:
     SetupStackAndReg
     SetupOutputs
     SetupTimer
-seqStart:
-    BlinkFlip
-    RingDelay
-    rjmp seqStart
+testLoop:
+    Ringing
+    TestDelay 0x40
+    rjmp testLoop
+
+    .equ ding = 1 << pinBlink
+    .equ dong = 0
+ringSequence:
+    RingData

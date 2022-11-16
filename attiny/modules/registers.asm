@@ -1,6 +1,5 @@
     .def _zero = r1
     .def _check = r2
-    .def _seqenceByte = r3
     .def _loops = r16
     .def _io =  r17
     .def _digit = r18

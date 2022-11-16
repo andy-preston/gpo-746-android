@@ -52,6 +52,10 @@
     sbis inputPins, pinHook
 .endMacro
 
+.macro SkipOnHook
+    sbic inputPins, pinHook
+.endMacro
+
 .macro SkipDialInactive
     sbic inputPins, pinDialGrey
 .endMacro

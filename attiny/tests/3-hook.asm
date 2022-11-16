@@ -11,12 +11,12 @@ progStart:
     SetupStackAndReg
     SetupOutputs
 checkHook:
-    SkipOnHook
-    rjmp offHook
+    SkipOffHook
+    rjmp onHook
 
     BlinkOn
     rjmp checkHook
 
-offHook:
+onHook:
     BlinkOff
     rjmp checkHook

@@ -48,12 +48,8 @@
     sbic inputPins, pinRTS
 .endMacro
 
-.macro SkipOnHook
-    sbis inputPins, pinHook
-.endMacro
-
 .macro SkipOffHook
-    sbic inputPins, pinHook
+    sbis inputPins, pinHook
 .endMacro
 
 .macro SkipDialInactive

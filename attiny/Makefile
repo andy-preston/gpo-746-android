@@ -1,21 +1,21 @@
-all: blink5 blinkr serial hook active pulses ascii
+all: 1 2 3 4 5 6 7
 
-blink5: tests/1-blink5.hex
+1: tests/1-blink5.hex
 
-blinkr: tests/2-blink-ring.hex
+2: tests/2-blink-ring.hex
 
-serial: tests/3-serial.hex
+3: tests/3-hook.hex
 
-hook: tests/4-hook.hex
+4: tests/4-dial-active.hex
 
-active: tests/5-dial-active.hex
+5: tests/5-dial-pulses.hex
 
-pulses: tests/6-dial-pulses.hex
+6: tests/6-serial.hex
 
-ascii: tests/7-dial-ascii.hex
+7: tests/7-dial-ascii.hex
 
 modules/prescale.asm: prescale/*
 	./bin/deno run prescale/calculate.js >modules/prescale.asm
 
-%.hex: %.asm modules/*.asm modules/prescale.asm
+%.hex: %.asm modules/prescale.asm modules/*.asm
 	./bin/gavrasm -A -E -S -M $<

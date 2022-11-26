@@ -15,14 +15,14 @@ State Machine
 
 ```mermaid
 graph TD
-    W[Wait] -->|Pick Up| D[Dial]
+    W[Wait] -->|Pick Up| S1[/Signal/] --> D[Dial]
     D -->|Dial Active| C[Count]
     C -->|Dial Inactive| S[Send Digit]
     S -->|Sent| D
     D --->|Ring Signal| A[Amp On]
     W -->|Ring Signal| R[Ring]
-    R -->|Pick Up| A
-    A -->|Put Down| W
+    R -->|Pick Up| S2[/Signal/] --> A
+    A -->|Put Down| S3[/Signal/] --> W    
 ```
 
 Testing

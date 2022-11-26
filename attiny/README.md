@@ -10,6 +10,21 @@ scan the dial when the receiver is lifted.
 PCB details: https://easyeda.com/edgeeffect/phone
 (The PCB is unfinished - I'm working on stripboard until it's nearer finished)
 
+State Machine
+-------------
+
+```mermaid
+graph TD
+    W[Wait] -->|Pick Up| D[Dial]
+    D -->|Dial Active| C[Count]
+    C -->|Dial Inactive| S[Send Digit]
+    S -->|Sent| D
+    D --->|Ring Signal| A[Amp On]
+    W -->|Ring Signal| R[Ring]
+    R -->|Pick Up| A
+    A -->|Put Down| W
+```
+
 Testing
 -------
 

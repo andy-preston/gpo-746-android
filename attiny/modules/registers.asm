@@ -2,8 +2,9 @@
     .def _check = r2
     .def _loops = r16
     .def _io =  r17
-    .def _digit = r18
-    .def _asciiZero = r19
+    .def _bell = r18
+    .def _digit = r19
+    .def _asciiZero = r20
     ; r26 r27 - X
     ; r28 r29 - Y
     ; r30 r31 - Z

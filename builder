@@ -4,7 +4,10 @@ GRADLE='/opt/gradle/gradle-7.0.2/bin/gradle'
 SDK_MANAGER='/opt/android/cmdline-tools/bin/sdkmanager'
 SDK_ROOT='/usr/local/share/android'
 ADB='./share/platform-tools/adb'
-AVRDUDE='avrdude -c usbasp -p t2313 -V'
+#PROGRAMMER='-c usbasp'
+#PROGRAMMER='-c stk500v1 -P /dev/ttyUSB0 -b 19200'
+PROGRAMMER='-c stk500v1 -P net:avrnude.lan:5000'
+AVRDUDE="avrdude ${PROGRAMMER} -p t2313 -V"
 
 case $1 in
 'android')
@@ -12,8 +15,7 @@ case $1 in
     CONT_NAME='android'
     ;;
 'sdk')
-    COMMAND="${SDK_MANAGER} --sdk_root=${SDK_ROOT} \
-        platforms;android-31 build-tools;31.0.0"
+    COMMAND="${SDK_MANAGER} --sdk_root=${SDK_ROOT} platforms;android-31 build-tools;31.0.0"
     CONT_NAME='android'
     ;;
 'buildapp')
@@ -29,20 +31,16 @@ case $1 in
     exit
     ;;
 'assemble')
-    cd attiny
-    make "${2}"
-    cd ..
+    (cd attiny ; make "${2}")
     exit
     ;;
 'program')
-    for JOB in w v
-    do
-        $AVRDUDE -U "flash:${JOB}:${2}:i"
-    done
+    HEX=$(awk -v t=$2 '$1 ~ t { print "attiny/" $2}' attiny/Makefile)
+    $AVRDUDE -U "flash:w:${HEX}:i" -U "flash:v:${HEX}:i"
     exit
     ;;
 'fuses')
-    $AVRDUDE -U "lfuse:w:0x${2}:m" -U "hfuse:w:0x${3}:m" -U "efuse:w:0x${4}:m"
+    $AVRDUDE -U "lfuse:w:0xFF:m" -U "hfuse:w:0xDF:m" -U "efuse:w:0xFF:m"
     exit
     ;;
 'clean')
@@ -50,7 +48,20 @@ case $1 in
     exit
     ;;
 *)
-    echo "./builder android | sdk | buildapp | testapp | install | assemble target | program hex-file | clean"
+    echo -e "Android App\n"
+    echo "./builder android            - shell in build container"
+    echo "./builder sdk                - install SDK"
+    echo "./builder buildapp           - compile android app"
+    echo "./builder testapp            - compile and run tests for app"
+    echo "./builder install            - install APK file to android device"
+    echo -e "\nATTiny firmware\n"
+    echo "./builder assemble {target}  - assemble given target"
+    echo "./builder program {target}   - program hex code into ATTiny"
+    echo "./builder fuses              - program fuses into new ATTiny"
+    echo -e "\nGeneral\n"
+    echo "./builder clean              - clear out temporary files"
+    echo -e "\nAssembly targets\n"
+    grep -E ^[0-9]: attiny/Makefile
     exit
     ;;
 esac

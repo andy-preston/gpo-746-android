@@ -10,17 +10,15 @@ ringSeqWait:
 .endMacro
 
 .macro Ringing
-    out outputPort, _zero            ; Clear the blinky
-    AbortPulseCount
 restartRingSequence:
     LoadZ ringSequence               ; ring sequence table in 20ms steps
 getNextRingSeqByte:
-    lpm _io, Z+
-    sbrc _io, endDataFlag
-    breq restartRingSequence
+    lpm _bell, Z+
+    sbrc _bell, endDataFlag          ; skip restart if no endDataFlag
+    rjmp restartRingSequence
     RingDelay
-    out outputPort, _io              ; flip the bells (or don't)
-    SkipOnHook
+    out outputPort, _bell            ; flip the bells (or don't)
+    SkipOffHook
     rjmp getNextRingSeqByte
 .endMacro
 

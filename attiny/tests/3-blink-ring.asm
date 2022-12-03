@@ -7,10 +7,8 @@
     .include "modules/registers.asm"
     .include "modules/gpio.asm"
     .include "modules/prescale.asm"
-    .include "modules/dial.asm"
     .include "modules/timer.asm"
     .include "modules/ring.asm"
-    .include "modules/blinks.asm"
 
 progStart:
     SetupStackAndReg

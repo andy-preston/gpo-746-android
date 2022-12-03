@@ -1,6 +1,8 @@
 Drive an old GPO 746 Telephone with ATtiny2313
 ==============================================
 
+ATtiny2313, 14745600 crystal version
+
 The long term aim is to have the phone provide input to an Android App for
 making a receiving mobile calls through the handset.
 
@@ -34,15 +36,5 @@ Android during the early testing phases.
 
 https://gitlab.com/edgeeffect/gpo-746-android/-/blob/master/attiny/tests/2-serial.asm
 https://gitlab.com/edgeeffect/gpo-746-android/-/tree/master/ch340g-test
-
-Notes
------
-
-avrnude: https://gitlab.com/-/snippets/2009682
-
-Fuses (L, H, E)
-ATtiny2313, 14745600 crystal version:
-
-    avrnude t2313 FF DF FF
 
 For testing the serial/USB link on a Raspberry Pi see ../ch340g-prototype/

@@ -32,28 +32,24 @@
     cbi outputPort, pinBlink
 .endMacro
 
-.macro SetRI
+.macro SendOffHookSignal
     sbi outputPort, pinRI
 .endMacro
 
-.macro ResetRI
+.macro SendOnHookSignal
     cbi outputPort, pinRI
 .endMacro
 
-.macro SkipOnRTS
+.macro SkipOnIncomming
     sbis inputPins, pinRTS
 .endMacro
 
-.macro SkipOnNoRTS
+.macro SkipOnNoIncomming
     sbic inputPins, pinRTS
 .endMacro
 
 .macro SkipOffHook
     sbis inputPins, pinHook
-.endMacro
-
-.macro SkipOnHook
-    sbic inputPins, pinHook
 .endMacro
 
 .macro SkipDialInactive

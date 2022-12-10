@@ -10,6 +10,8 @@
     .include "modules/timer.asm"
     .include "modules/dial.asm"
     .include "modules/serial.asm"
+    .include "states/dialing.asm"
+    .include "states/ringing.asm"
 
 progStart:
     SetupStackAndReg
@@ -23,18 +25,18 @@ theBeggining:
     rjmp onHook
 
 offHook:
-    SetRI                     ; Tell Android we're off hook
+    SendOffHookSignal
     ; ActivateAmplifier
-    DialState                 ; Get and send a digit
+    GetAndSendADigit
     rjmp theBeggining
 
 onHook:
-    ResetRI                   ; Tell Android we're on hook
+    SendOnHookSignal
     ; DeactivateAmplifier
-    SkipOnNoRTS               ; No incoming call?
+    SkipOnNoIncoming
     rjmp theBeggining
 
-    Ringing                   ; Ring until pick up
+    RingUntilPickedUp
     rjmp theBeggining
 
     .equ ding = 1 << pinDing

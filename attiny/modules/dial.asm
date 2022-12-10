@@ -26,8 +26,8 @@ gotPulseCount:
 
 .macro GetAsciiPulseCount
     GetDialPulseCount
-    tst _digit
-    breq endAsciiCount
+    tst _digit                ; If digit is zero
+    breq endAsciiCount        ; ...there's nothing worth having
     cpi _digit, 10            ; if it's not 10 pulses ("0" digit)
     brne digitFound           ; ... it's just an ordinary digit
     clr _digit                ; ... otherewise use a zero

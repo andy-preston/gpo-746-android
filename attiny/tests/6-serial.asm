@@ -26,12 +26,12 @@ progStart:
     SetupSerial
 
 checkRI:
-    SkipOnRTS
-    rjmp noRTS
-    LoadZ rtsYes
+    SkipOnNoIncomming          ; TODO: better if this can be SkipOnNoIncomming
+    rjmp yesIncomming          ; As that's what main code uses
+    LoadZ rtsNo
     rjmp statusOut
 
-noRTS:
+yesIncomming:
     LoadZ rtsNo
 
 statusOut:

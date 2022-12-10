@@ -4,12 +4,12 @@
     rjmp progStart
 
     .org 0x003E
-    .include "modules/registers.asm"
-    .include "modules/gpio.asm"
-    .include "modules/prescale.asm"
-    .include "modules/timer.asm"
-    .include "modules/serial.asm"
-    .include "modules/blinks.asm"
+    .include "attiny/modules/registers.asm"
+    .include "attiny/modules/gpio.asm"
+    .include "attiny/modules/prescale.asm"
+    .include "attiny/modules/timer.asm"
+    .include "attiny/modules/serial.asm"
+    .include "attiny/modules/blinks.asm"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -25,7 +25,7 @@ progStart:
     SetupTimer
     SetupSerial
 
-checkRI:
+checkRTS:
     SkipOnNoIncomming          ; TODO: better if this can be SkipOnNoIncomming
     rjmp yesIncomming          ; As that's what main code uses
     LoadZ rtsNo
@@ -65,6 +65,12 @@ notTwo:
     cpi _digit, '3'
     brne notThree
 
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;
+    ; TODO: RI is our output not RTS
+    ; And this is just crap!
+    ;
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     sbic outputPort, pinRTS  ; Toggle RTS everytime we get to "3"
     rjmp setRTS
     sbi outputPort, pinRTS
@@ -90,7 +96,7 @@ numberOut:
     WriteSerial
     cpi _digit, '\j'
     brne numberOut
-    rjmp checkRI
+    rjmp checkRTS
 
 rtsYes:
     .db "RTS "

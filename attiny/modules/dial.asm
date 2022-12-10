@@ -36,7 +36,7 @@ digitFound:
 endAsciiCount:
 .endMacro
 
-.macro AbortPulseCount
+.macro AbortDialing
     clr _digit                ; Throw away any pulses counted
     out TCNT0, _digit         ; and any that are "hidden" in the counter
 .endMacro

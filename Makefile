@@ -12,6 +12,8 @@ test6: attiny/tests/6-serial.hex
 
 test7: attiny/tests/7-dial-ascii.hex
 
+attiny: attiny/main/phone.hex
+
 attiny/modules/prescale.asm: attiny/prescale/*
 	./bin/deno run attiny/prescale/calculate.js >attiny/modules/prescale.asm
 

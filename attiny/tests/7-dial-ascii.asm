@@ -10,6 +10,7 @@
     .include "modules/timer.asm"
     .include "modules/dial.asm"
     .include "modules/serial.asm"
+    .include "states/dialing.asm"
 
 progStart:
     SetupStackAndReg
@@ -19,8 +20,5 @@ progStart:
     SetupSerial
 
 checkDial:
-    GetAsciiPulseCount
-    tst _digit             ; Skip counting pulses if there are none
-    breq checkDial         ; we don't want to output "nothing"
-    WriteSerial
+    DialState
     rjmp checkDial

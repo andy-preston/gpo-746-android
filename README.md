@@ -21,20 +21,41 @@ Temporarily we need the Arduino environment to build a prototype of the
 serial/USB microcontroller code... but this will end up in the assembler source
 code before long.
 
-## Get the SDK
+## Build
 
-Because of annoying "You accepted the license" shenanigans, this can't be
-part of the container build.
+Getting the Android SDK
 
-  ./builder sdk
+```sh
+make sdk
+```
 
-## Building the Android app
+The Android app can be built or have it's test run with
 
-  ./builder buildapp
+```sh
+make build
+make test
+```
 
-## Running the Kotlin and Android tests
+The tests for the ATTiny code are run with. See Makefile for more targets.
 
-  ./builder testapp
+```sh
+make test1
+```
+
+## Uploading
+
+```sh
+bin/avrdude {target}
+```
+
+Where `{target}` is any Makefile target that produces a `.hex` file (or "fuses"
+to set an ATTiny's fuses).
+
+```sh
+bin/adb-install
+```
+
+To upload a compiled app to an android device.
 
 ## References
 

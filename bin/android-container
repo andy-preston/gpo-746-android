@@ -1,0 +1,29 @@
+#!/bin/bash
+
+SDK_ROOT=/usr/local/share/android
+
+case $1 in
+'sdk')
+    COMMAND=/opt/android/cmdline-tools/bin/sdkmanager
+    COMMAND+=" --sdk_root=${SDK_ROOT}"
+    COMMAND+=" platforms;android-31"
+    COMMAND+=" build-tools;31.0.0"
+    echo $COMMAND
+    ;;
+'build' | 'test')
+    COMMAND="/opt/gradle/gradle-7.0.2/bin/gradle ${1}"
+    ;;
+*)
+    COMMAND='bash'
+    ;;
+esac
+
+docker build --tag android_gpo ./docker
+
+docker run \
+    --rm --interactive --tty \
+    --volume $(pwd):/usr/local/src \
+    --volume $(pwd)/share:${SDK_ROOT} \
+    --user $(id -u):$(id -g) \
+    --name android_gpo_run \
+    android_gpo ${COMMAND}

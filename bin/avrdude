@@ -1,0 +1,22 @@
+#!/bin/bash
+
+#PROGRAMMER='-c usbasp'
+#PROGRAMMER='-c stk500v1 -P /dev/ttyUSB0 -b 19200'
+PROGRAMMER='-c stk500v1 -P net:avrnude.lan:5000'
+AVRDUDE="avrdude ${PROGRAMMER} -p t2313 -V"
+
+if [ -z "$1" ]
+then
+    echo ./bin/avrdude {make_target}
+    echo ./bin/avrdude fuses
+    exit
+fi
+
+if [ "$1" = "fuses" ]
+then
+    ${AVRDUDE} -U lfuse:w:0xFF:m -U  hfuse:w:0xDF:m -U efuse:w:0xFF:m
+    exit
+fi
+
+HEX=$(awk -v t=${2} '$1 ~ t { print $2}' Makefile)
+${AVRDUDE} -U "flash:w:${HEX}:i" -U "flash:v:${HEX}:i"

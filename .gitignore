@@ -1,19 +1,19 @@
 # Only include files here if you're prepared to have them deleted
-# by `builder clean`
+# by `make clean`
 attiny/tests/*.hex
 attiny/tests/*.err
 attiny/tests/*.lst
 attiny/modules/prescale.asm
 ch340g-test/test
 android/.gradle
-android/.tmp
+.tmp
 android/app/build
 android/app/libs
 android/build
-android/caches
-android/daemon
-android/jdks
-android/kotlin-profile
-android/native
-android/notifications
+caches
+daemon
+jdks
+kotlin-profile
+native
+notifications
 android/workers

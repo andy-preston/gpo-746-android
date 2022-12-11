@@ -35,7 +35,6 @@ getNextRingSeqByte:
         .equ ding = 1 << pinDing
         .equ dong = 1 << pinDong
     .endIf
-
     ; 400mS ring, 200mS silence, 400mS ring, 2000mS silence (3 second total)
     ; The ringing frequency of the bells is 25Hz (half-period = 20mS)
     .db ding, dong, ding, dong, ding, dong, ding, dong, ding, dong ; 20X20

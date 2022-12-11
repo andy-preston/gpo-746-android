@@ -8,12 +8,11 @@
     .include "attiny/modules/gpio.asm"
     .include "attiny/modules/prescale.asm"
     .include "attiny/modules/timer.asm"
+    .include "attiny/modules/ring.asm"
     .include "attiny/modules/dial.asm"
     .include "attiny/modules/serial.asm"
-    .include "attiny/modules/ring.asm"
-    .include "attiny/states/dialing.asm"
-    .include "attiny/states/pickup.asm"
-    .include "attiny/states/putdown.asm"
+    .include "attiny/modules/dial-serial.asm"
+    .include "attiny/modules/hook.asm"
 
 progStart:
     SetupStackAndReg

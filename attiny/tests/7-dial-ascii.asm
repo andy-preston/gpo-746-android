@@ -10,7 +10,7 @@
     .include "attiny/modules/timer.asm"
     .include "attiny/modules/dial.asm"
     .include "attiny/modules/serial.asm"
-    .include "attiny/states/dialing.asm"
+    .include "attiny/states/dial-serial.asm"
 
 progStart:
     SetupStackAndReg

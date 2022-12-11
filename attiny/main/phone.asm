@@ -39,7 +39,5 @@ onHook:
     Ringing
     rjmp theBeggining
 
-    .equ ding = 1 << pinDing
-    .equ dong = 1 << pinDong
 ringSequence:
-    RingData
+    RingData realRing

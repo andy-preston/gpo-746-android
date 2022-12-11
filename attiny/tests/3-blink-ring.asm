@@ -19,7 +19,5 @@ testLoop:
     TestDelay 0x40
     rjmp testLoop
 
-    .equ ding = 1 << pinBlink
-    .equ dong = 0
 ringSequence:
-    RingData
+    RingData emulatedRing

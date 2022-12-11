@@ -22,14 +22,20 @@ getNextRingSeqByte:
     rjmp getNextRingSeqByte
 .endMacro
 
-    ; To set the pins to ring on:
-    ; .equ ding = 1 << pinDing
-    ; .equ dong = 1 << pinDong
-
     .equ endDataFlag = 7             ; dummy output bit used to make end of
     .equ endData = 1 << endDataFlag  ; ... sequence data
+    .equ emulatedRing = 1
+    .equ realRing = 2
 
 .macro RingData
+    .if @0 == emulatedRing
+        .equ ding = 1 << pinBlink
+        .equ dong = 0
+    .else
+        .equ ding = 1 << pinDing
+        .equ dong = 1 << pinDong
+    .endIf
+
     ; 400mS ring, 200mS silence, 400mS ring, 2000mS silence (3 second total)
     ; The ringing frequency of the bells is 25Hz (half-period = 20mS)
     .db ding, dong, ding, dong, ding, dong, ding, dong, ding, dong ; 20X20

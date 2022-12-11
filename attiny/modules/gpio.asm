@@ -14,8 +14,8 @@
     ; It's not used as a GPIO. See ./dial.asm for usage details.
 
     .equ pinHook = 3
-    .equ pinDialPink = 4      ; Dial pulse - organge (GND) -> pink low
-    .equ pinDialGrey = 5      ; Dial active - blue (VCC) -> grey high
+    .equ pinDialPink = 4                 ; Pulse - organge (GND) -> pink low
+    .equ pinDialGrey = 5                 ; Active - blue (VCC) -> grey high
     .equ pinRTS = 6
 
 .macro SetupOutputs

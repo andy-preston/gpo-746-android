@@ -1,3 +1,5 @@
+    .device ATTiny2313
+
     .def _zero = r1
     .def _check = r2
     .def _loops = r16
@@ -9,13 +11,16 @@
     ; r28 r29 - Y
     ; r30 r31 - Z
 
-.macro SetupStackAndReg
+    .org 0x0000                          ; reset vector
+    rjmp progStart
+
+    .org 0x003E
+progStart:
     cli
     ; There's only SPL because ATTiny2313 doesn't have enough RAM to need SPH
     ldi _io, RAMEND
     out SPL, _io
     clr _zero
-.endMacro
 
 .macro LoadZ
     ldi ZL, low(@0 << 1)

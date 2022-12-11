@@ -18,5 +18,5 @@ then
     exit
 fi
 
-HEX=$(awk -v t=${2} '$1 ~ t { print $2}' Makefile)
+HEX=$(awk -v t=${1} '$1 ~ t { print $2}' Makefile)
 ${AVRDUDE} -U "flash:w:${HEX}:i" -U "flash:v:${HEX}:i"

@@ -1,10 +1,4 @@
-    .device ATTiny2313
-
-    .org 0x0000   ; reset vector
-    rjmp progStart
-
-    .org 0x003E
-    .include "attiny/modules/registers.asm"
+    .include "attiny/modules/prelude.asm"
     .include "attiny/modules/gpio.asm"
     .include "attiny/modules/prescale.asm"
     .include "attiny/modules/timer.asm"
@@ -19,20 +13,19 @@
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-progStart:
-    SetupStackAndReg
     SetupOutputs
     SetupTimer
     SetupSerial
 
 checkRTS:
-    SkipOnNoIncomming          ; TODO: better if this can be SkipOnNoIncomming
-    rjmp yesIncomming          ; As that's what main code uses
+    SkipOnNoIncomming
+    rjmp yesIncomming
+
     LoadZ rtsNo
     rjmp statusOut
 
 yesIncomming:
-    LoadZ rtsNo
+    LoadZ rtsYes
 
 statusOut:
     lpm _digit, Z+
@@ -52,12 +45,14 @@ checkSerial:
 checkOne:
     cpi _digit, '1'
     brne notOne
+
     LoadZ one
     rjmp numberOut
 
 notOne:
     cpi _digit, '2'
     brne notTwo
+
     LoadZ two
     rjmp numberOut
 
@@ -65,19 +60,14 @@ notTwo:
     cpi _digit, '3'
     brne notThree
 
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;
-    ; TODO: RI is our output not RTS
-    ; And this is just crap!
-    ;
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    sbic outputPort, pinRTS  ; Toggle RTS everytime we get to "3"
-    rjmp setRTS
-    sbi outputPort, pinRTS
-    rjmp endRTS
-setRTS:
-    cbi outputPort, pinRTS
-endRTS:
+    sbic outputPort, pinRI               ; Toggle RTS everytime we get to "3"
+    rjmp setRI
+
+    SendOffHookSignal
+    rjmp endRI
+setRI:
+    SendOnHookSignal
+endRI:
 
     LoadZ three
     rjmp numberOut

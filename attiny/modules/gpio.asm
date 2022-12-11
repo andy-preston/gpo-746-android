@@ -10,8 +10,8 @@
     .equ inputPins = PIND
     .equ inputDDR = DDRD
 
-    ; D4 is included here only for completeness.
-    ; It's not used as a GPIO. See ./dial.asm for usage details.
+    ; D4 is included here only for completeness. It's not used as a GPIO.
+    ; See ./dial.asm `SetupTimerCounter0` for usage details.
 
     .equ pinHook = 3
     .equ pinDialPink = 4                 ; Pulse - organge (GND) -> pink low
@@ -38,10 +38,6 @@
 
 .macro SendOnHookSignal
     cbi outputPort, pinRI
-.endMacro
-
-.macro SkipOnIncomming
-    sbis inputPins, pinRTS
 .endMacro
 
 .macro SkipOnNoIncomming

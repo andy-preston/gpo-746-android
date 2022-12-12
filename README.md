@@ -8,18 +8,11 @@ Docker container for the Android build environment.
 
 The ATTiny code needs GAVRAsm
 <http://www.avr-asm-tutorial.net/gavrasm/index_en.html>
+which can be downloaded with the script in `bin/get-binaries`
 
-We also use Deno <https://deno.land/> to pre-calculate some constants before
-assembling.
-
-Both of these can be easily downloaded with the script in
-`attiny/bin/get-binaries`
+The build system also uses `make`, `bc`, `awk` and `avrdude`
 
 We also need GNU C to build a prototype CH340G controller.
-
-Temporarily we need the Arduino environment to build a prototype of the
-serial/USB microcontroller code... but this will end up in the assembler source
-code before long.
 
 ## Build
 

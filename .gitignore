@@ -1,9 +1,9 @@
 # Only include files here if you're prepared to have them deleted
 # by `make clean`
-attiny/tests/*.hex
-attiny/tests/*.err
-attiny/tests/*.lst
-attiny/modules/prescale.asm
+attiny/*/*.hex
+attiny/*/*.err
+attiny/*/*.lst
+attiny/modules/timer1_prescalar.asm
 ch340g-test/test
 android/.gradle
 .tmp

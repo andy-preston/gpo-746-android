@@ -14,10 +14,26 @@ test7: attiny/tests/7-dial-ascii.hex
 
 attiny: attiny/main/phone.hex
 
-attiny/modules/prescale.asm: attiny/prescale/*
-	./bin/deno run attiny/prescale/calculate.js >attiny/modules/prescale.asm
+CPU_FREQUENCY = 14745600
+RING_HALF_PERIOD = 20
+TIMER1_PRESCALAR_VALUE = 256
+TIMER1_FREQUENCY = ${shell echo $(CPU_FREQUENCY) / $(TIMER1_PRESCALAR_VALUE) | bc}
+TIMER1_PERIOD = ${shell echo 1 / $(TIMER1_FREQUENCY) | bc -l}
+TIMER1_TICK=${shell echo ${TIMER1_PERIOD} \* 1000 | bc -l}
+RINGER_TICKS=${shell echo ${RING_HALF_PERIOD} / ${TIMER1_TICK} | bc}
 
-%.hex: %.asm attiny/modules/prescale.asm attiny/modules/*.asm
+attiny/modules/timer1_prescalar.asm: Makefile
+	${shell echo "\
+    .equ cpuFrequency = $(CPU_FREQUENCY)\n\
+    .equ timer1PrescalarValue = $(TIMER1_PRESCALAR_VALUE)\n\
+    ; ringHalfPeriod = $(RING_HALF_PERIOD)\n\
+    ; timer1Frequency = $(TIMER1_FREQUENCY) ; cpuFrequency / timer1Prescalar\n\
+    ; timer1Period = $(TIMER1_PERIOD) ; 1 / timer1Frequency\n\
+    ; timer1Tick = $(TIMER1_TICK) ; tmerPeriod * 1000\n\
+    .equ ringerTicks = $(RINGER_TICKS) ; ringHalfPeriod / timer1Tick"\
+	> attiny/modules/timer1_prescalar.asm}
+
+%.hex: %.asm attiny/modules/timer1_prescalar.asm attiny/modules/*.asm
 	./bin/gavrasm -A -E -S -M $<
 
 sdk:

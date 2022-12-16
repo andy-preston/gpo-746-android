@@ -36,15 +36,15 @@ class MainActivity : AppCompatActivity() {
     private fun openDevice(device: UsbDevice) {
         val connection: UsbDeviceConnection = usbManager.openDevice(device)
         try {
-            val usbSerial = UsbSerial(device, connection)
-            val result = usbSerial.openInterfaces()
+            val ch340g = CH340G(device, connection)
+            val result = ch340g.openInterfaces()
             when (result) {
-                is MyResult.Success -> {
+                is IntegerResult.Success -> {
                     val vendorId = device.getVendorId()
                     val productId = device.getProductId()
                     textView.apply { text = "$vendorId - $productId" }
                 }
-                is MyResult.Error -> {
+                is IntegerResult.Error -> {
                     textView.apply { text = result.message }
                 }
             }

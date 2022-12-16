@@ -24,14 +24,13 @@ RINGER_TICKS=${shell echo ${RING_HALF_PERIOD} / ${TIMER1_TICK} | bc}
 
 attiny/modules/timer1_prescalar.asm: Makefile
 	${shell echo "\
-    .equ cpuFrequency = $(CPU_FREQUENCY)\n\
+	.equ cpuFrequency = $(CPU_FREQUENCY)\n\
     .equ timer1PrescalarValue = $(TIMER1_PRESCALAR_VALUE)\n\
     ; ringHalfPeriod = $(RING_HALF_PERIOD)\n\
     ; timer1Frequency = $(TIMER1_FREQUENCY) ; cpuFrequency / timer1Prescalar\n\
     ; timer1Period = $(TIMER1_PERIOD) ; 1 / timer1Frequency\n\
     ; timer1Tick = $(TIMER1_TICK) ; tmerPeriod * 1000\n\
-    .equ ringerTicks = $(RINGER_TICKS) ; ringHalfPeriod / timer1Tick"\
-	> attiny/modules/timer1_prescalar.asm}
+    .equ ringerTicks = $(RINGER_TICKS) ; ringHalfPeriod / timer1Tick" > $@}
 
 %.hex: %.asm attiny/modules/timer1_prescalar.asm attiny/modules/*.asm
 	./bin/gavrasm -A -E -S -M $<

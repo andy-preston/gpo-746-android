@@ -30,7 +30,6 @@
 #define CS6 0x01
 #define CS5 0x00
 
-
 static struct libusb_device_handle *device = NULL;
 
 char sendChar = '1';
@@ -76,7 +75,6 @@ int controlIn(int requestCode, int value) {
     );
 }
 
-
 void setHandshake(uint8_t dtr, uint8_t rts) {
     status = controlOut(VENDOR_MODEM_OUT, ~((dtr ? 1 << 5 : 0) | (rts ? 1 << 6 : 0)), 0);
     if (status < 0) {
@@ -121,9 +119,7 @@ void initialise() {
         return;
     }
     */
-
     #define BAUD_RATE 9600
-
     int baud1 = 0, baud2 = 0;
     switch (BAUD_RATE) {
         case 2400: baud1 = 0xd901; baud2 = 0x0038; break;

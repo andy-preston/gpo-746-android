@@ -6,8 +6,10 @@ calls on a mobile network.
 
 Docker container for the Android build environment.
 
-The ATTiny code needs GAVRAsm
-<http://www.avr-asm-tutorial.net/gavrasm/index_en.html>
+## Requirements
+
+The ATTiny code needs
+[GAVRAsm](http://www.avr-asm-tutorial.net/gavrasm/index_en.html)
 which can be downloaded with the script in `bin/get-binaries`
 
 The build system also uses `make`, `bc`, `awk` and `avrdude`

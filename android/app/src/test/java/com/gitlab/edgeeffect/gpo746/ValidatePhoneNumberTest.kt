@@ -1,8 +1,9 @@
 package com.gitlab.edgeeffect.gpo746
 
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertFalse
+import kotlin.test.assertSame
 
-import org.junit.Assert.*
 
 class ValidatePhoneNumberTest {
 

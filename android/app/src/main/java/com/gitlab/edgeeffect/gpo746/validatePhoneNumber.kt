@@ -1,6 +1,6 @@
 package com.gitlab.edgeeffect.gpo746
 
-fun validatePhoneNumber(phoneNumber : String) : Boolean {
+fun validatePhoneNumber(phoneNumber : String): Boolean {
     if (phoneNumber.length > 0 && phoneNumber.startsWith("0")) {
         linkedMapOf(
             "0800" to 10,

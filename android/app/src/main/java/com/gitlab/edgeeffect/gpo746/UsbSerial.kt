@@ -1,10 +1,10 @@
 package com.gitlab.edgeeffect.gpo746
 
+import android.hardware.usb.UsbConstants
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbDeviceConnection
-import android.hardware.usb.UsbInterface
 import android.hardware.usb.UsbEndpoint
-import android.hardware.usb.UsbConstants
+import android.hardware.usb.UsbInterface
 
 sealed class IntegerResult {
     data class Success(val value: Int): IntegerResult()
@@ -12,12 +12,15 @@ sealed class IntegerResult {
 }
 
 sealed class BufferResult {
-    data class Success(val value: ByteArray): BufferResult()
+    data class Success(val buffer: ByteArray): BufferResult()
     data class Error(val message: String): BufferResult()
 }
 
-// Some of these MAY be specific to the CH340G???
-// If so, there's some hideous type-juggling to do later!
+sealed class StringResult {
+    data class Success(val value: String): StringResult()
+    data class Error(val message: String): StringResult()
+}
+
 enum class Request(val code: Int) {
     VENDOR_VERSION(0x5F),
     VENDOR_READ(0x95),
@@ -26,15 +29,15 @@ enum class Request(val code: Int) {
     VENDOR_MODEM_OUT(0xA4)
 }
 
-class UsbSerialBase(d: UsbDevice, c: UsbDeviceConnection) {
+open class UsbSerial(d: UsbDevice, c: UsbDeviceConnection) {
 
     private val usbDevice = d
     private val usbDeviceConnection = c
 
-    protected lateinit var readEndpoint: UsbEndpoint
-    protected lateinit var writeEndpoint: UsbEndpoint
+    protected lateinit var receiveEndpoint: UsbEndpoint
+    protected lateinit var sendEndpoint: UsbEndpoint
 
-    private val USB_TIMEOUT_MILLISECONDS = 5000
+    private val timeoutMilliseconds = 5000
 
     private fun claimInterface(): IntegerResult {
         for (interfaceNum in 0..usbDevice.getInterfaceCount() - 1) {
@@ -50,13 +53,13 @@ class UsbSerialBase(d: UsbDevice, c: UsbDeviceConnection) {
         val dataInterface: UsbInterface = usbDevice.getInterface(
             usbDevice.getInterfaceCount() - 1
         )
-        for (endpointNum in 0..dataInterface.getEndpointCount() - 1 ) {
-            val endpoint: UsbEndpoint = dataInterface.getEndpoint(epNum)
+        for (endpointNumber in 0..dataInterface.getEndpointCount() - 1 ) {
+            val endpoint: UsbEndpoint = dataInterface.getEndpoint(endpointNumber)
             if (endpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK) {
                 if (endpoint.getDirection() == UsbConstants.USB_DIR_IN) {
-                    readEndpoint = endpoint
+                    receiveEndpoint = endpoint
                 } else {
-                    writeEndpoint = endpoint
+                    sendEndpoint = endpoint
                 }
             }
         }
@@ -88,64 +91,69 @@ class UsbSerialBase(d: UsbDevice, c: UsbDeviceConnection) {
             index and 0xff,
             null,
             0,
-            USB_TIMEOUT_MILLISECONDS
+            timeoutMilliseconds
         )
         if (result < 0) {
             return IntegerResult.Error("controlOut error $result")
         }
-        return IntegerResult(result)
+        return IntegerResult.Success(result)
     }
 
     protected fun controlIn(
         request: Request,
         value: Int,
-        index: Int,
-        size: Int
+        length: Int
     ): BufferResult {
-        var buffer = ByteArray(size)
+        var buffer = ByteArray(length)
         val result = usbDeviceConnection.controlTransfer(
             UsbConstants.USB_TYPE_VENDOR or UsbConstants.USB_DIR_IN,
             request.code and 0xff,
             value and 0xff,
-            index and 0xff,
+            0,
             buffer,
             buffer.size,
-            USB_TIMEOUT_MILLISECONDS
+            timeoutMilliseconds
         )
         if (result < 0) {
             return BufferResult.Error("controlIn error $result")
         }
-        if (result != size) {
-            return BufferResult.Error("controlIn expected: $size actual: $result")
+        if (result != length) {
+            return BufferResult.Error("controlIn expected: $length actual: $result")
         }
         return BufferResult.Success(buffer)
     }
 
-    protected fun checkedControlIn(
-        request: Request,
-        value: Int,
-        expected: IntArray
-    ): IntegerResult {
-        val size = expected.size
-        val result = controlIn(request, value, 0, expected.size)
-        when (result) {
-            is BufferResult.Success -> {
-                // Just carry on
-            }
-            is BufferResult.Error -> {
-                return result
-            }
+    public fun send(string: String): IntegerResult {
+        val buffer = string.toByteArray(Charsets.UTF_8)
+        val length = buffer.size
+        val result = usbDeviceConnection.bulkTransfer(
+            sendEndpoint,
+            buffer,
+            length,
+            timeoutMilliseconds
+        )
+        return if (result < 0) {
+            IntegerResult.Error("Failed to send $result")
+        } else {
+            IntegerResult.Success(result)
         }
-        for ((index, item) in expected.withIndex()) {
-            val otherItem = result.buffer[index]
-            // expected can contain values of -1 that shouldn't be compared
-            if (item > -1 && item != otherItem.toInt()) {
-                val exp = item.toString(16)
-                val got = otherItem.toString(16)
-                return IntegerResult.Error("expected $exp but got $got")
-            }
+    }
+
+    public fun receive(length: Int): StringResult {
+        var buffer = ByteArray(length)
+        val result = usbDeviceConnection.bulkTransfer(
+            receiveEndpoint,
+            buffer,
+            length,
+            timeoutMilliseconds
+        )
+        return if (result < 0) {
+            StringResult.Error("Failed to receive $result")
+        } else if (result == 0) {
+            StringResult.Success("")
+        } else {
+            StringResult.Success(String(buffer))
         }
-        return IntegerResult.Success(0)
     }
 
 }

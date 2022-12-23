@@ -56,9 +56,10 @@ open class UsbSerial(d: UsbDevice, c: UsbDeviceConnection) {
         for (endpointNumber in 0..dataInterface.getEndpointCount() - 1 ) {
             val endpoint: UsbEndpoint = dataInterface.getEndpoint(endpointNumber)
             if (endpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK) {
-                if (endpoint.getDirection() == UsbConstants.USB_DIR_IN) {
+                var direction = endpoint.getDirection()
+                if (direction == UsbConstants.USB_DIR_IN) {
                     receiveEndpoint = endpoint
-                } else {
+                } else if (direction == UsbConstants.USB_DIR_OUT) {
                     sendEndpoint = endpoint
                 }
             }

@@ -1,24 +1,43 @@
 package com.gitlab.edgeeffect.gpo746
 
-import androidx.appcompat.app.AppCompatActivity
+import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.IntentFilter
 import android.content.Intent
-import android.hardware.usb.UsbDeviceConnection
+import android.content.IntentFilter
 import android.hardware.usb.UsbDevice
+import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.widget.Button
+import android.widget.CheckBox
 import android.widget.TextView
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : /*AppCompat*/Activity() {
 
     private lateinit var usbManager: UsbManager
-    private lateinit var textView: TextView
+    private lateinit var connection: UsbDeviceConnection
+    private lateinit var usbSerial: CH340G
 
-    private val detachReceiver = object : BroadcastReceiver() {
+    private lateinit var numberDisplay: TextView
+    private lateinit var hookIndicator: CheckBox
+    private lateinit var validIndicator: CheckBox
+
+    private var noErrors = true
+    private var hookIsUp = false
+    private var number = ""
+
+    private fun reportError(message: String) {
+        numberDisplay.apply { text = message }
+        noErrors = false
+    }
+
+    private val detachReceiver = object: BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (UsbManager.ACTION_USB_DEVICE_DETACHED == intent.action) {
+                connection.close()
                 finish()
             }
         }
@@ -33,37 +52,91 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun openDevice(device: UsbDevice) {
-        val connection: UsbDeviceConnection = usbManager.openDevice(device)
-        try {
-            val ch340g = CH340G(device, connection)
-            val result = ch340g.openInterfaces()
-            when (result) {
-                is IntegerResult.Success -> {
-                    val vendorId = device.getVendorId()
-                    val productId = device.getProductId()
-                    textView.apply { text = "$vendorId - $productId" }
-                }
-                is IntegerResult.Error -> {
-                    textView.apply { text = result.message }
+    private fun hookStatus() {
+        val result = usbSerial.getHandshake()
+        when (result) {
+            is HandshakeResult.Success -> {
+                hookIsUp = result.value.contains(GclBit.RI)
+                hookIndicator.setChecked(hookIsUp)
+                if (!hookIsUp && number != "") {
+                    number = ""
                 }
             }
-        } finally {
-            connection.close()
+            is HandshakeResult.Error -> {
+                reportError(result.message)
+            }
+        }
+    }
+
+    private fun dialledNumber() {
+        val result = usbSerial.receive(1)
+        when (result) {
+            is StringResult.Success -> {
+                number = number + result.value
+                numberDisplay.apply { text = number }
+                validIndicator.setChecked(validatePhoneNumber(number))
+            }
+            is StringResult.Error -> {
+                reportError(result.message)
+            }
+        }
+    }
+
+    private fun pollHandset() {
+        Handler(Looper.getMainLooper()).postDelayed({
+            hookStatus()
+            dialledNumber()
+            if (noErrors) {
+                pollHandset()
+            }
+        }, 3_000)
+    }
+
+    private fun ringButton() {
+        val button = findViewById<Button>(R.id.ringButton)
+        var ringing = false
+        button.setOnClickListener {
+            ringing = !ringing
+            val result = usbSerial.setHandshake(
+                if (ringing) setOf(ModemBit.RTS) else setOf<ModemBit>()
+            )
+            when (result) {
+                is IntegerResult.Success -> {
+                    numberDisplay.apply {
+                        text = if (ringing) "RINGING" else "WAITING"
+                    }
+                }
+                is IntegerResult.Error -> {
+                    reportError(result.message)
+                }
+            }
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        textView = findViewById<TextView>(R.id.text_view)
+        numberDisplay = findViewById<TextView>(R.id.numberDisplay)
         usbManager = getSystemService(UsbManager::class.java)
-
+        val device = getDevice(getIntent())
+        connection = usbManager.openDevice(device)
         registerReceiver(
             detachReceiver,
             IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED)
         )
-        openDevice(getDevice(getIntent()))
+        usbSerial = CH340G(device, connection)
+        val started = usbSerial.start()
+        when (started) {
+            is IntegerResult.Success -> {
+                hookIndicator = findViewById<CheckBox>(R.id.hookIndicator)
+                validIndicator = findViewById<CheckBox>(R.id.validIndicator)
+                ringButton()
+                pollHandset()
+            }
+            is IntegerResult.Error -> {
+                reportError(started.message)
+            }
+        }
     }
 
     override fun onDestroy() {

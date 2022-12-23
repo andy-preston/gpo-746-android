@@ -43,28 +43,26 @@ enum class ModemBit(val value : Int) {
     DTR(0x20),
     RTS(0x40);
     companion object {
-        // The handshaking registers use inverted logic hence the xor 0xff
         fun asByte(bits: Set<ModemBit>): Int {
             return bits.fold(0) {
                 byte: Int, bit: ModemBit -> byte or bit.value
-            } xor 0xff
+            }
         }
     }
 }
 
-// Other implementations seem to use the Low nybble, but the low nybble
-// seems to work for me
+// My ARM/C Prototype used the high nybble but here and in other implementations
+// we're using the low nybble???
 enum class GclBit(val value: Int) {
-    CTS(0x10),
-    DSR(0x20),
-    RI(0x40),
-    DCD(0x80);
+    CTS(0x01),
+    DSR(0x02),
+    RI(0x04),
+    DCD(0x08);
     companion object {
-        // The handshaking registers use inverted logic hence we check if a bit = 0
         fun fromByte(byte: Byte): Set<GclBit> {
-            val value = byte.toInt()
+            val given = byte.toInt()
             return (GclBit.values().filter {
-                value and it.value == 0
+                given and it.value == it.value
             }).toSet()
         }
     }
@@ -93,8 +91,8 @@ class CH340G(d: UsbDevice, c: UsbDeviceConnection) : UsbSerial (d, c) {
     }
 
     public fun getHandshake(): HandshakeResult {
-        // We get 2 bytes from the status register
-        // but I'm still unsure of what the second byte is for
+        // We get 2 bytes from the status register.
+        // The second byte is always 0x1B and I'm still unsure of what it's for.
         val result = controlIn(
             Request.VENDOR_READ,
             Register.GCL.address,
@@ -177,29 +175,37 @@ class CH340G(d: UsbDevice, c: UsbDeviceConnection) : UsbSerial (d, c) {
     }
 
     public fun start(): IntegerResult {
-        val result1 = initialiseSerial()
-        val result2 = when(result1) {
+        val opened = openInterfaces()
+        val initialised = when (opened) {
+            is IntegerResult.Success -> {
+                initialiseSerial()
+            }
+            is IntegerResult.Error -> {
+                opened
+            }
+        }
+        val lcrSetup = when(initialised) {
             is IntegerResult.Success -> {
                 setupLcr()
             }
             is IntegerResult.Error -> {
-                result1
+                initialised
             }
         }
-        val result3 = when(result2) {
+        val baudSetup = when(lcrSetup) {
             is IntegerResult.Success -> {
                 setBaudRate(BaudRate.B9600)
             }
             is IntegerResult.Error -> {
-                result2
+                lcrSetup
             }
         }
-        return when(result3) {
+        return when(baudSetup) {
             is IntegerResult.Success -> {
                 setHandshake(setOf<ModemBit>())
             }
             is IntegerResult.Error -> {
-                result2
+                baudSetup
             }
         }
     }

@@ -6,13 +6,51 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MainActivity">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/topToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <Button
+        android:id="@+id/ringButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ring"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+   <CheckBox
+        android:id="@+id/hookIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:clickable="false"
+        android:text="Off Hook"
+        app:layout_constraintBottom_toBottomOf="@+id/topToolbar"
+        app:layout_constraintStart_toEndOf="@+id/ringButton"
+        app:layout_constraintTop_toTopOf="@+id/topToolbar" />
+   <CheckBox
+        android:id="@+id/validIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:clickable="false"
+        android:text="Valid Number"
+        app:layout_constraintBottom_toBottomOf="@+id/topToolbar"
+        app:layout_constraintStart_toEndOf="@+id/hookIndicator"
+        app:layout_constraintTop_toTopOf="@+id/topToolbar" />
     <TextView
-            android:id="@+id/text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Device attached?"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        android:id="@+id/numberDisplay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:text="Waiting"
+        android:textSize="36sp"
+        android:typeface="sans"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/topToolbar" />
 </androidx.constraintlayout.widget.ConstraintLayout>

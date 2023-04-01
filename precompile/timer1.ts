@@ -1,6 +1,6 @@
-export default function(cpuClockFrequency) {
+export default function(cpuClockFrequency : number) {
 
-    const /* TCCR1B */ prescalerBits = function(prescaler) {
+    const /* TCCR1B */ prescalerBits = function(prescaler : number) {
         return {
             0: "(1 << CS10)",
             8: "(1 << CS11)",
@@ -10,12 +10,12 @@ export default function(cpuClockFrequency) {
         }[prescaler];
     }
 
-    const halfPeriod = 20;
-    const prescaler = 256;
-    const timerFrequency = prescaler == 0 ? cpuClockFrequency :
-        cpuClockFrequency / prescaler;
-    const tick = (1 / timerFrequency) * 1000;
-    const ringerTicks = halfPeriod / tick;
+    const halfPeriod : number = 20;
+    const prescaler : number = 256;
+    const timerFrequency : number = prescaler == 0 ?
+        cpuClockFrequency : cpuClockFrequency / prescaler;
+    const tick : number = (1 / timerFrequency) * 1000;
+    const ringerTicks : number = halfPeriod / tick;
     if (ringerTicks > 0xffff || ringerTicks < 1) {
         throw RangeError("ringerTicks > 0xffff or < 1");
     }

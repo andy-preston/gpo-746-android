@@ -16,10 +16,10 @@ test8: attiny/tests/8-simple-serial.hex
 
 attiny: attiny/main/phone.hex
 
-attiny/modules/timer1_prescaler.asm: precompile/*
-	./bin/deno run precompile/precompile.js >attiny/modules/timer1_prescaler.asm
+attiny/modules/precompiled.asm: precompile/*
+	./bin/deno run precompile/attiny.ts >attiny/modules/precompiled.asm
 
-%.hex: %.asm attiny/modules/timer1_prescaler.asm attiny/modules/*.asm
+%.hex: %.asm attiny/modules/precompiled.asm attiny/modules/*.asm
 	./bin/gavrasm -A -E -S -M $<
 
 sdk:

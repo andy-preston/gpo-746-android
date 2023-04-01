@@ -1,6 +1,6 @@
     .include "attiny/modules/prelude.asm"
     .include "attiny/modules/gpio.asm"
-    .include "attiny/modules/timer1_prescaler.asm"
+    .include "attiny/modules/precompiled.asm"
     .include "attiny/modules/timer.asm"
     .include "attiny/modules/dial.asm"
     .include "attiny/modules/blinks.asm"

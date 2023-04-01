@@ -8,7 +8,7 @@ blinkOff:
 blinkEnd:
 .endMacro
 
-.macro BlinkCount
+.macro BlinkCount                        ; blink the number of times in _digit
 blinkLoop:
     tst _digit                           ; If there's nothing left to count
     breq blinkEnd                        ; There's nothing to show!

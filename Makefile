@@ -22,6 +22,9 @@ attiny/modules/precompiled.asm: precompile/*
 %.hex: %.asm attiny/modules/precompiled.asm attiny/modules/*.asm
 	./bin/gavrasm -A -E -S -M $<
 
+ch340g-test/precompiled.h: precompile/*
+	./bin/deno run precompile/c-constants.ts >ch340g-test/precompiled.h
+
 sdk:
 	./bin/android-container sdk
 

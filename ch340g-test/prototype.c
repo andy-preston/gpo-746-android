@@ -2,33 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <libusb.h>
-
-#define USB_TIMEOUT 1000
-
-// Request Codes
-#define VENDOR_VERSION 0x5F
-#define VENDOR_READ 0x95
-#define VENDOR_WRITE 0x9A
-#define VENDOR_SERIAL_INIT 0xA1
-#define VENDOR_MODEM_OUT 0xA4
-
-// Registers
-#define BAUDRATE_1 0x1312
-#define LCR 0x2518
-#define GCL 0x0706
-#define BAUDRATE_2 0x0F2C
-
-// LCR Bits
-#define ENABLE_RX 0x80
-#define ENABLE_TX 0x40
-#define MARK_SPACE 0x20
-#define PAR_EVEN 0x10
-#define ENABLE_PAR 0x08
-#define STOP_BITS_2 0x04
-#define CS8 0x03
-#define CS7 0x02
-#define CS6 0x01
-#define CS5 0x00
+#include "precompiled.h"
 
 static struct libusb_device_handle *device = NULL;
 

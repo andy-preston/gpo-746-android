@@ -3,7 +3,7 @@
 
 .macro SetupTimer
     out TCCR1A, _zero                    ; Normal mode
-    ldi _io, timer1Prescalar
+    ldi _io, timer1Prescaler
     out TCCR1B, _io
     ldi _io, high(ringerTicks)
     out OCR1AH, _io

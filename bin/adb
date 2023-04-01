@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# adb install
+# adb shell
+
+case $1 in
+'install')
+    COMMAND="install -r -d android/app/build/outputs/apk/debug/app-debug.apk"
+    ;;
+*)
+    COMMAND="$@"
+    ;;
+esac
+
+./share/platform-tools/adb $COMMAND

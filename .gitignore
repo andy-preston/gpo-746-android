@@ -3,7 +3,7 @@
 attiny/*/*.hex
 attiny/*/*.err
 attiny/*/*.lst
-attiny/modules/timer1_prescalar.asm
+attiny/modules/timer1_prescaler.asm
 ch340g-test/test
 android/.gradle
 .tmp

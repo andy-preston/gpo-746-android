@@ -1,7 +1,7 @@
  .macro SetupSerial
-    ldi _io, high(baudPrescalar)         ; Set Baud rate.
+    ldi _io, high(baudPrescaler)         ; Set Baud rate.
     out UBRRH, _io                       ; Always set high before low!
-    ldi _io, low(baudPrescalar)          ; Writing UBRRL triggers an immediate
+    ldi _io, low(baudPrescaler)          ; Writing UBRRL triggers an immediate
     out UBRRL, _io                       ; update of the baud rate prescaler.
     ldi _io, 0                           ; Clear TXC.
     out UCSRA, _io                       ; Disable U2X & MPCM.

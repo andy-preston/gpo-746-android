@@ -3,8 +3,9 @@
 attiny/*/*.hex
 attiny/*/*.err
 attiny/*/*.lst
-attiny/modules/precompiled.asm
-ch340g-test/test
+attiny/modules/constants.asm
+ch340g/libusb_test/libusb_test
+ch340g/libusb_test/driver_functions.c
 android/.gradle
 .tmp
 android/app/build

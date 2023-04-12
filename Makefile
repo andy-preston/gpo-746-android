@@ -16,14 +16,15 @@ test8: attiny/tests/8-simple-serial.hex
 
 attiny: attiny/main/phone.hex
 
-attiny/modules/precompiled.asm: precompile/*
-	./bin/deno run precompile/attiny.ts >attiny/modules/precompiled.asm
+attiny/modules/constants.asm: ./bin/deno run attiny/calculator/*
+	./bin/deno run attiny/calculator/calculator.ts >attiny/modules/constants.asm
 
-%.hex: %.asm attiny/modules/precompiled.asm attiny/modules/*.asm
+%.hex: %.asm attiny/modules/constants.asm attiny/modules/*.asm
 	./bin/gavrasm -A -E -S -M $<
 
-ch340g-test/precompiled.h: precompile/*
-	./bin/deno run precompile/c-constants.ts >ch340g-test/precompiled.h
+ch340g/libusb_test/driver_functions.c: ch340g/driver-spec/*
+	./bin/deno run --allow-read \
+		./ch340g/driver-spec/spec.ts >./ch340g/libusb_test/driver_functions.c
 
 sdk:
 	./bin/android-container sdk

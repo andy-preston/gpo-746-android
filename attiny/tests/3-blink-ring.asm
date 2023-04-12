@@ -1,6 +1,6 @@
     .include "attiny/modules/prelude.asm"
     .include "attiny/modules/gpio.asm"
-    .include "attiny/modules/precompiled.asm"
+    .include "attiny/modules/constants.asm"
     .include "attiny/modules/timer.asm"
     .include "attiny/modules/ring.asm"
 

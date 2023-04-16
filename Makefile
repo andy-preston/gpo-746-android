@@ -16,6 +16,9 @@ test8: attiny/tests/8-simple-serial.hex
 
 attiny: attiny/main/phone.hex
 
+lint_ts:
+	./bin/deno lint attiny/calculator/* ch340g/driver-spec/*
+
 attiny/modules/constants.asm: ./bin/deno run attiny/calculator/*
 	./bin/deno run attiny/calculator/calculator.ts >attiny/modules/constants.asm
 

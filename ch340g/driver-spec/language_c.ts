@@ -1,4 +1,4 @@
-import { LanguageModule, VariableType, Variable } from "./language_module.ts";
+import { LanguageModule, Variable } from "./language_module.ts";
 import { RequestCode, Register, RegisterPair } from "./enums.ts";
 import { hex } from './values.ts';
 

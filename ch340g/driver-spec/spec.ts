@@ -1,5 +1,4 @@
-import { Register, RegisterPair, RequestCode } from './enums.ts';
-import { LCR1Bit, LCR2Bit } from './LCR.ts';
+import { Register, RegisterPair, RequestCode, LCR1Bit, LCR2Bit, GCLOutputBit } from './enums.ts';
 import { LanguageFlag, Method, Specification, generator } from "./generator.ts";
 import { VariableType } from './language_module.ts';
 
@@ -25,8 +24,8 @@ const specification: Specification = (method: Method) => {
     let baud1, baud2;
     [baud1, baud2] = baudRateLookup(9600);
 
-    let LCR1Setting = LCR1Bit.enableTX | LCR1Bit.enableRX | LCR1Bit.CS8;
-    let LCR2Setting = LCR2Bit.parityNone;
+    const LCR1Setting = LCR1Bit.enableTX | LCR1Bit.enableRX | LCR1Bit.CS8;
+    const LCR2Setting = LCR2Bit.parityNone;
 
     method(
         "initialise"
@@ -88,16 +87,17 @@ const specification: Specification = (method: Method) => {
     ).ifConditionSetBit(
         "dtr",
         "modemControl",
-        1 << 5, // 0x20
+        GCLOutputBit.DTR
     ).ifConditionSetBit(
         "rts",
         "modemControl",
-        1 << 6, // 0x40
+        GCLOutputBit.RTS
     ).invertBits(
         "modemControl"
     ).modemControl(
         "set handshake",
         "modemControl"
     ).end();
+}
 
 generator(LanguageFlag.C, 1000, specification);

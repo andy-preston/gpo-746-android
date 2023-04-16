@@ -10,6 +10,10 @@ int status = 0;
 uint8_t byteBuffer[128];
 uint16_t* intBuffer;
 
+/* Yes, I know this is a damn wierd was to link functions in C
+ * But I've always held that this preprocessor gubbins was a
+ * damn wierd way of going about things in the first place
+ */
 #include "driver_functions.c"
 
 int libUsb(void);

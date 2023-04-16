@@ -1,5 +1,20 @@
-import { Register, RegisterPair, RequestCode, LCR1Bit, LCR2Bit, GCLOutputBit } from './enums.ts';
-import { LanguageFlag, Method, Specification, generator } from "./generator.ts";
+import {
+    Register,
+    RegisterPair,
+    RequestCode,
+    LCR1Bit,
+    LCR2Bit,
+    GCLOutputBit
+} from './enums.ts';
+
+import {
+    LanguageFlag,
+    Method,
+    Property,
+    Specification,
+    generator
+} from "./generator.ts";
+
 import { VariableType } from './language_module.ts';
 
 const baudRateLookup = (
@@ -18,7 +33,7 @@ const baudRateLookup = (
     }
 }
 
-const specification: Specification = (method: Method) => {
+const specification: Specification = (method: Method, property: Property) => {
 
     // deno-lint-ignore prefer-const
     let baud1, baud2;
@@ -26,6 +41,16 @@ const specification: Specification = (method: Method) => {
 
     const LCR1Setting = LCR1Bit.enableTX | LCR1Bit.enableRX | LCR1Bit.CS8;
     const LCR2Setting = LCR2Bit.parityNone;
+
+    // output handshaking lines for GPIO
+    property({ name: "dtr", type: VariableType.boolean });
+    property({ name: "rts", type: VariableType.boolean });
+
+    // input handshaking lines for GPIO
+    property({ name: "cts", type: VariableType.boolean });
+    property({ name: "dsr", type: VariableType.boolean });
+    property({ name: "ri", type: VariableType.boolean });
+    property({ name: "dcd", type: VariableType.boolean });
 
     method(
         "initialise"
@@ -45,14 +70,9 @@ const specification: Specification = (method: Method) => {
         RequestCode.VendorSerialInit,
         Register.zero,
         0
-    /*).output(
-        // Both BSDs Set baud rate before enabling TX RX
-        "LCR setup",
-        RequestCode.VendorWriteRegisters,
-        Register.LCR1,
-        LCR1Setting */
     ).output(
-        "Baud 1",
+       // Both BSDs Set baud rate before enabling TX RX
+       "Baud 1",
         RequestCode.VendorWriteRegisters,
         RegisterPair.BaudRate1,
         baud1
@@ -77,10 +97,7 @@ const specification: Specification = (method: Method) => {
     ).end();
 
     method(
-        "setHandshake", [
-            {name: "dtr", type: VariableType.boolean},
-            {name: "rts", type: VariableType.boolean},
-        ]
+        "setHandshake"
     ).defineVariable(
         {name: "modemControl", type: VariableType.byte},
         0

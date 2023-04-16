@@ -5,10 +5,10 @@
 #include <libusb.h>
 
 static struct libusb_device_handle *device = NULL;
+int status = 0;
+
 uint8_t byteBuffer[128];
 uint16_t* intBuffer;
-uint8_t version;
-int status = 0;
 
 #include "driver_functions.c"
 

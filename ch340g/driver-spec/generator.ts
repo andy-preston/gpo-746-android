@@ -50,6 +50,7 @@ type Steps = {
 }
 
 export type Method = (name: string, parameters?: Array<Variable>) => Steps;
+export type Property = (variable: Variable) => void;
 
 let languageModule: LanguageModule;
 
@@ -152,7 +153,14 @@ const methodGenerator: Method = (
     return stepGenerator;
 }
 
-export type Specification = (methodGenerator: Method) => void;
+const propertyGenerator: Property = (variable: Variable): void => {
+    console.log(languageModule.defineVariable(variable));
+}
+
+export type Specification = (
+    methodGenerator: Method,
+    propertyGenerator: Property
+) => void;
 
 export const generator = (
     language: LanguageFlag,
@@ -163,7 +171,7 @@ export const generator = (
         (module) => {
             languageModule = module.default;
             languageModule.setTimeout(timeout);
-            buildSpec(methodGenerator);
+            buildSpec(methodGenerator, propertyGenerator);
         }
     );
 }

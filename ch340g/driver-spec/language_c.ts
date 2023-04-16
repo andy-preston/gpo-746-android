@@ -5,7 +5,7 @@ import { hex } from './values.ts';
 let timeout = 0;
 
 const typeConversion = {
-    boolean: 'uint8_t',
+    boolean: 'bool',
     byte: 'uint8_t'
 };
 
@@ -96,9 +96,11 @@ const language: LanguageModule = {
 
     defineVariable: (
         variable: Variable,
-        initialValue: number,
+        initialValue?: number,
     ): string =>
-        `    ${typeConversion[variable.type]} ${variable.name} = ${initialValue};\n`
+        `    ${typeConversion[variable.type]} ${variable.name}` + (
+            initialValue !== undefined ? ` = ${initialValue}` : ""
+        ) + ";\n"
 
 };
 

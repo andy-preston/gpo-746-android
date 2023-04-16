@@ -48,6 +48,6 @@ export interface LanguageModule {
 
     defineVariable: (
         variable: Variable,
-        initialValue: number,
+        initialValue?: number,
     ) => string;
 }

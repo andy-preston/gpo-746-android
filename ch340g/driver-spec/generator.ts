@@ -1,5 +1,5 @@
 import { RequestCode, Register, RegisterPair } from "./enums.ts";
-import { LanguageModule } from "./language_module.ts";
+import { LanguageModule, Variable } from "./language_module.ts";
 
 export enum LanguageFlag {
     C = "c",
@@ -21,15 +21,35 @@ type Steps = {
         value: number
     ) => Steps;
 
+    modemControl: (
+        title: string,
+        variableName: string
+    ) => Steps;
+
     check: (
-        variable: string,
+        variableName: string,
         value: number
+    ) => Steps;
+
+    ifConditionSetBit: (
+        booleanName: string,
+        bitwiseName: string,
+        bitMask: number
+    ) => Steps;
+
+    invertBits: (
+        variableName: string
+    ) => Steps;
+
+    defineVariable: (
+        variable: Variable,
+        initialValue: number
     ) => Steps;
 
     end: () => void;
 }
 
-export type Method = (name: string) => Steps;
+export type Method = (name: string, parameters?: Array<Variable>) => Steps;
 
 let languageModule: LanguageModule;
 
@@ -41,8 +61,13 @@ const stepGenerator: Steps = {
         request: RequestCode,
         register: Register|RegisterPair,
         variable: string
-    ) => {
-        funcBody = funcBody + languageModule.input(title, request, register, variable);
+    ): Steps => {
+        funcBody = funcBody + languageModule.input(
+            title,
+            request,
+            register,
+            variable
+        );
         return stepGenerator;
     },
 
@@ -51,27 +76,79 @@ const stepGenerator: Steps = {
         request: RequestCode,
         register: Register|RegisterPair,
         value: number
-    ) => {
-        funcBody = funcBody + languageModule.output(title, request, register, value);
+    ): Steps => {
+        funcBody = funcBody + languageModule.output(
+            title,
+            request,
+            register,
+            value
+        );
+        return stepGenerator;
+    },
+
+    modemControl: (
+        title: string,
+        variableName: string
+    ): Steps => {
+        funcBody = funcBody + languageModule.output(
+            title,
+            RequestCode.VendorModemControl,
+            variableName,
+            0
+        );
         return stepGenerator;
     },
 
     check: (
-        variable: string,
+        variableName: string,
         value: number
-    ) => {
-        funcBody = funcBody + languageModule.check(variable, value);
+    ): Steps => {
+        funcBody = funcBody + languageModule.check(variableName, value);
         return stepGenerator;
     },
 
-    end: () => {
+    ifConditionSetBit: (
+        booleanName: string,
+        bitwiseName: string,
+        bitMask: number
+    ): Steps => {
+        funcBody = funcBody + languageModule.ifConditionSetBit(
+            booleanName,
+            bitwiseName,
+            bitMask
+        );
+        return stepGenerator;
+    },
+
+    invertBits: (
+        variableName: string
+    ): Steps => {
+        funcBody = funcBody + languageModule.invertBits(variableName);
+        return stepGenerator;
+    },
+
+    defineVariable: (
+        variable: Variable,
+        initialValue: number
+    ): Steps => {
+        funcBody = funcBody + languageModule.defineVariable(
+            variable,
+            initialValue
+        );
+        return stepGenerator;
+    },
+
+    end: (): void => {
         funcBody = funcBody + languageModule.functionFooter();
         console.log(funcBody);
     }
 }
 
-const methodGenerator: Method = (name: string): Steps => {
-    funcBody = languageModule.functionHeader(name);
+const methodGenerator: Method = (
+    name: string,
+    parameters?: Array<Variable>
+): Steps => {
+    funcBody = languageModule.functionHeader(name, parameters);
     return stepGenerator;
 }
 

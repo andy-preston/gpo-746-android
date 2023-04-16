@@ -21,13 +21,14 @@ export enum Register {
     GCL1 = 0x06, // AKA STATUS
     GCL2 = 0x07, // AKA STATUS
     LCR1 = 0x18,
-    LCR2 = 0x25,
+    LCR2 = 0x25
 }
 
 export enum RegisterPair {
     // REG_BREAK1 0x05
     BaudRate1 = 0x1312, // Prescaler 12 - Divisor 13
     BaudRate2 = 0x0F2C,
+    LCR = Register.LCR1 | (Register.LCR2 << 8)
     // REG_BPS_MOD 0x14
     // REG_BPS_PAD 0x0F
 }

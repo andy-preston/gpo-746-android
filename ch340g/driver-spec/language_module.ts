@@ -1,16 +1,26 @@
 import { RequestCode, Register, RegisterPair } from "./enums.ts";
 
+export enum VariableType {
+    boolean = 'boolean',
+    byte = 'byte',
+}
+
+export interface Variable {
+    name: string,
+    type: VariableType
+}
+
 export interface LanguageModule {
     setTimeout: (useTimeout: number) => void;
 
-    functionHeader: (name: string) => string;
+    functionHeader: (name: string, parameters?: Array<Variable>) => string;
 
     functionFooter: () => string;
 
     output: (
         title: string,
         request: RequestCode,
-        register: Register|RegisterPair,
+        register: Register|RegisterPair|string,
         value: number
     ) => string;
 
@@ -22,7 +32,22 @@ export interface LanguageModule {
     ) => string;
 
     check: (
-        variable: string,
+        variableName: string,
         value: number
+    ) => string;
+
+    ifConditionSetBit: (
+        booleanName: string,
+        bitwiseName: string,
+        bitMask: number
+    ) => string;
+
+    invertBits: (
+        variableName: string
+    ) => string;
+
+    defineVariable: (
+        variable: Variable,
+        initialValue: number,
     ) => string;
 }

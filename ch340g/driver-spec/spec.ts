@@ -1,6 +1,7 @@
 import { Register, RegisterPair, RequestCode } from './enums.ts';
-import { LCR1Bit } from './LCR.ts';
+import { LCR1Bit, LCR2Bit } from './LCR.ts';
 import { LanguageFlag, Method, Specification, generator } from "./generator.ts";
+import { VariableType } from './language_module.ts';
 
 const baudRateLookup = (
     baudRate: 2400|4800|9600|19200|38400|115200
@@ -20,34 +21,37 @@ const baudRateLookup = (
 
 const specification: Specification = (method: Method) => {
 
+    // deno-lint-ignore prefer-const
+    let baud1, baud2;
+    [baud1, baud2] = baudRateLookup(9600);
+
+    let LCR1Setting = LCR1Bit.enableTX | LCR1Bit.enableRX | LCR1Bit.CS8;
+    let LCR2Setting = LCR2Bit.parityNone;
+
     method(
-        "getVersion"
+        "initialise"
     ).input(
+        // My old libusb code had nothing about version in it
         "Get Version",
         RequestCode.VendorGetVersion,
         0,
         "version"
     ).check(
         "version",
+        // This chip in my prototype hardware is 0031
+        // But some of the stuff I've seen in BSD drivers wants version >= 0030
         0x0031
-    ).end();
-
-    let baud1, baud2;
-    [baud1, baud2] = baudRateLookup(9600);
-
-    method(
-        "initialise"
     ).output(
         "vendorSerialInit (0,0)",
         RequestCode.VendorSerialInit,
         Register.zero,
         0
-    ).output(
+    /*).output(
         // Both BSDs Set baud rate before enabling TX RX
         "LCR setup",
         RequestCode.VendorWriteRegisters,
         Register.LCR1,
-        LCR1Bit.enableTX | LCR1Bit.enableRX | LCR1Bit.CS8
+        LCR1Setting */
     ).output(
         "Baud 1",
         RequestCode.VendorWriteRegisters,
@@ -58,7 +62,42 @@ const specification: Specification = (method: Method) => {
         RequestCode.VendorWriteRegisters,
         RegisterPair.BaudRate2,
         baud2
+    ).output(
+        "Setup LCR",
+        // if version < 0x30:
+        //     readRegisters(LCR1, NULL, LCR2, NULL);
+        //     // What is 0x50 or 0x00 - Got it from FreeBSD
+        //     writeRegisters(LCR1, 0x50, LCR2, 0x00);
+        // else:
+        RequestCode.VendorWriteRegisters,
+        RegisterPair.LCR,
+        LCR1Setting | (LCR2Setting << 8)
+        // After this step, FreeBSD and mik3y does:
+        // controlOut(VENDOR_SERIAL_INIT, 0x501f, 0xd90a);
+        // It's not clear why
     ).end();
-}
+
+    method(
+        "setHandshake", [
+            {name: "dtr", type: VariableType.boolean},
+            {name: "rts", type: VariableType.boolean},
+        ]
+    ).defineVariable(
+        {name: "modemControl", type: VariableType.byte},
+        0
+    ).ifConditionSetBit(
+        "dtr",
+        "modemControl",
+        1 << 5, // 0x20
+    ).ifConditionSetBit(
+        "rts",
+        "modemControl",
+        1 << 6, // 0x40
+    ).invertBits(
+        "modemControl"
+    ).modemControl(
+        "set handshake",
+        "modemControl"
+    ).end();
 
 generator(LanguageFlag.C, 1000, specification);

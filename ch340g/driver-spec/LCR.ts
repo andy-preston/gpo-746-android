@@ -18,6 +18,7 @@ export const LCR1Bit = {
 }
 
 export const LCR2Bit = {
+    "parityNone": 0x00,
     "parityEven": 0x07,  // FreeBSD says 0x07 Linux & NetBSD says 0x10
     "parityOdd": 0x06,   // FreeBSD says 0x06         NetBSD says 0x00
     "parityMark": 0x05,  // FreeBSD says 0x05         NetBSD says 0x20

@@ -1,16 +1,15 @@
-import { RequestCode, Register, RegisterPair } from "./enums.ts";
+import { type HexNumber } from './hex.ts';
+import { type RequestCode } from "./request.ts";
+import { type RegisterAddress } from "./register.ts";
 
-export enum VariableType {
-    boolean = 'boolean',
-    byte = 'byte',
-}
+export type VariableType = "boolean"|"byte";
 
-export interface Variable {
+export type Variable = {
     name: string,
     type: VariableType
-}
+};
 
-export interface LanguageModule {
+export type LanguageModule = {
     setTimeout: (useTimeout: number) => void;
 
     functionHeader: (name: string, parameters?: Array<Variable>) => string;
@@ -20,14 +19,14 @@ export interface LanguageModule {
     output: (
         title: string,
         request: RequestCode,
-        register: Register|RegisterPair|string,
-        value: number
+        register: RegisterAddress|string,
+        value: HexNumber
     ) => string;
 
     input: (
         title: string,
         request: RequestCode,
-        register: Register|RegisterPair,
+        register: RegisterAddress,
         variable: string
     ) => string;
 
@@ -50,4 +49,4 @@ export interface LanguageModule {
         variable: Variable,
         initialValue?: number,
     ) => string;
-}
+};

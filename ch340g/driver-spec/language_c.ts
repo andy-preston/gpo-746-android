@@ -1,6 +1,7 @@
+import { type HexNumber } from './hex.ts';
 import { LanguageModule, Variable } from "./language_module.ts";
-import { RequestCode, Register, RegisterPair } from "./enums.ts";
-import { hex } from './values.ts';
+import { type RequestCode } from "./request.ts";
+import { type RegisterAddress } from "./register.ts";
 
 let timeout = 0;
 
@@ -33,15 +34,15 @@ const language: LanguageModule = {
     output: (
         title: string,
         request: RequestCode,
-        register: Register|RegisterPair|string,
-        value: number
+        register: RegisterAddress|string,
+        value: HexNumber
     ): string =>
         `    status = libusb_control_transfer(
         device,
         LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_OUT,
-        ${hex(request, 2)},
-        ${typeof register == "number" ? hex(register, 4) : register},
-        ${hex(value, 4)},
+        ${request},
+        ${register},
+        ${value},
         NULL,
         0,
         ${timeout}
@@ -54,14 +55,14 @@ const language: LanguageModule = {
     input: (
         title: string,
         request: RequestCode,
-        register: Register|RegisterPair,
+        register: RegisterAddress,
         variableName: string
     ): string =>
         `   status = libusb_control_transfer(
         device,
         LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_IN,
-        ${hex(request, 2)},
-        ${hex(register, 4)},
+        ${request},
+        ${register},
         0,
         byteBuffer,
         sizeof(byteBuffer),
@@ -77,7 +78,7 @@ const language: LanguageModule = {
         variableName: string,
         value: number
     ): string =>
-        `    if (${variableName} != ${hex(value, 4)}) {
+        `    if (${variableName} != ${value}) {
         fprintf(stderr, "${variableName} should be %08x, but is %08x\\n", ${value}, ${variableName});
     }\n`,
 
@@ -87,8 +88,8 @@ const language: LanguageModule = {
         bitMask: number
     ): string =>
         `    ${bitwiseName} = ${booleanName} ?
-        (${bitwiseName} | ${hex(bitMask, 2)}) :
-        (${bitwiseName} & ~${hex(bitMask, 2)});\n`,
+        (${bitwiseName} | ${bitMask}) :
+        (${bitwiseName} & ~${bitMask});\n`,
 
     invertBits: (
         variableName: string

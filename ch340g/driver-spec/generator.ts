@@ -1,24 +1,23 @@
-import { RequestCode, Register, RegisterPair } from "./enums.ts";
+import { type HexNumber } from './hex.ts';
+import { requestCode, type RequestName } from "./request.ts";
+import { register, type RegisterName } from "./register.ts";
 import { LanguageModule, Variable } from "./language_module.ts";
 
-export enum LanguageFlag {
-    C = "c",
-    Kotlin = "kotlin"
-}
+export type LanguageFlag = "C" | "Kotlin";
 
 type Steps = {
     input: (
         title: string,
-        request: RequestCode,
-        register: Register|RegisterPair,
+        requestName: RequestName,
+        registerName: RegisterName,
         variable: string
     ) => Steps;
 
     output: (
         title: string,
-        request: RequestCode,
-        register: Register|RegisterPair,
-        value: number
+        requestName: RequestName,
+        registerName: RegisterName,
+        value: HexNumber
     ) => Steps;
 
     modemControl: (
@@ -59,14 +58,14 @@ let funcBody: string;
 const stepGenerator: Steps = {
     input: (
         title: string,
-        request: RequestCode,
-        register: Register|RegisterPair,
+        requestName: RequestName,
+        registerName: RegisterName,
         variable: string
     ): Steps => {
         funcBody = funcBody + languageModule.input(
             title,
-            request,
-            register,
+            requestCode[requestName],
+            register[registerName],
             variable
         );
         return stepGenerator;
@@ -74,14 +73,14 @@ const stepGenerator: Steps = {
 
     output: (
         title: string,
-        request: RequestCode,
-        register: Register|RegisterPair,
-        value: number
+        requestName: RequestName,
+        registerName: RegisterName,
+        value: HexNumber
     ): Steps => {
         funcBody = funcBody + languageModule.output(
             title,
-            request,
-            register,
+            requestCode[requestName],
+            register[registerName],
             value
         );
         return stepGenerator;
@@ -93,7 +92,7 @@ const stepGenerator: Steps = {
     ): Steps => {
         funcBody = funcBody + languageModule.output(
             title,
-            RequestCode.VendorModemControl,
+            requestCode.VendorModemControl,
             variableName,
             0
         );
@@ -167,7 +166,7 @@ export const generator = (
     timeout: number,
     buildSpec: Specification
 ) => {
-    import(`./language_${language}.ts`).then(
+    import(`./language_${language}.ts`.toLowerCase()).then(
         (module) => {
             languageModule = module.default;
             languageModule.setTimeout(timeout);

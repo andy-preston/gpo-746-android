@@ -1,35 +1,20 @@
-import {
-    Register,
-    RegisterPair,
-    RequestCode,
-    LCR1Bit,
-    LCR2Bit,
-    GCLOutputBit
-} from './enums.ts';
-
-import {
-    LanguageFlag,
-    Method,
-    Property,
-    Specification,
-    generator
-} from "./generator.ts";
-
-import { VariableType } from './language_module.ts';
+import { registerPairBits, lcr1bits, lcr2bits, gclOutputBit } from './register.ts';
+import { type HexNumber } from './hex.ts';
+import { Method, Property, Specification, generator } from "./generator.ts";
 
 const baudRateLookup = (
     baudRate: 2400|4800|9600|19200|38400|115200
-): Array<number> => {
+): Array<HexNumber> => {
     // There's also a function "somewhere" that calculates these values rather
     // than just look them up. It would be good to have both and test their
     // results are consistent.
     switch (baudRate) {
-        case 2400: return [0xd901, 0x0038];
-        case 4800: return [0x6402, 0x001f];
-        case 9600: return [0xb202, 0x0013];
-        case 19200: return [0xd902, 0x000d];
-        case 38400: return [0x6403, 0x000a];
-        case 115200: return [0xcc03, 0x0008];
+        case 2400: return ["0xD901", "0x0038"];
+        case 4800: return ["0x6402", "0x001F"];
+        case 9600: return ["0xB202", "0x0013"];
+        case 19200: return ["0xD902", "0x000D"];
+        case 38400: return ["0x6403", "0x000A"];
+        case 115200: return ["0xCC03", "0x0008"];
     }
 }
 
@@ -39,26 +24,23 @@ const specification: Specification = (method: Method, property: Property) => {
     let baud1, baud2;
     [baud1, baud2] = baudRateLookup(9600);
 
-    const LCR1Setting = LCR1Bit.enableTX | LCR1Bit.enableRX | LCR1Bit.CS8;
-    const LCR2Setting = LCR2Bit.parityNone;
-
     // output handshaking lines for GPIO
-    property({ name: "dtr", type: VariableType.boolean });
-    property({ name: "rts", type: VariableType.boolean });
+    property({ name: "dtr", type: "boolean" });
+    property({ name: "rts", type: "boolean" });
 
     // input handshaking lines for GPIO
-    property({ name: "cts", type: VariableType.boolean });
-    property({ name: "dsr", type: VariableType.boolean });
-    property({ name: "ri", type: VariableType.boolean });
-    property({ name: "dcd", type: VariableType.boolean });
+    property({ name: "cts", type: "boolean" });
+    property({ name: "dsr", type: "boolean" });
+    property({ name: "ri", type: "boolean" });
+    property({ name: "dcd", type: "boolean" });
 
     method(
         "initialise"
     ).input(
         // My old libusb code had nothing about version in it
         "Get Version",
-        RequestCode.VendorGetVersion,
-        0,
+        "VendorGetVersion",
+        "zero",
         "version"
     ).check(
         "version",
@@ -67,19 +49,19 @@ const specification: Specification = (method: Method, property: Property) => {
         0x0031
     ).output(
         "vendorSerialInit (0,0)",
-        RequestCode.VendorSerialInit,
-        Register.zero,
-        0
+        "VendorSerialInit",
+        "zero",
+        "0x00"
     ).output(
        // Both BSDs Set baud rate before enabling TX RX
        "Baud 1",
-        RequestCode.VendorWriteRegisters,
-        RegisterPair.BaudRate1,
+        "VendorWriteRegisters",
+        "BaudRate1",
         baud1
     ).output(
         "Baud 2",
-        RequestCode.VendorWriteRegisters,
-        RegisterPair.BaudRate2,
+        "VendorWriteRegisters",
+        "BaudRate2",
         baud2
     ).output(
         "Setup LCR",
@@ -88,9 +70,12 @@ const specification: Specification = (method: Method, property: Property) => {
         //     // What is 0x50 or 0x00 - Got it from FreeBSD
         //     writeRegisters(LCR1, 0x50, LCR2, 0x00);
         // else:
-        RequestCode.VendorWriteRegisters,
-        RegisterPair.LCR,
-        LCR1Setting | (LCR2Setting << 8)
+        "VendorWriteRegisters",
+        "LCR",
+        registerPairBits(
+            ["enableTX", "enableRX", "CS8"], lcr1bits,
+            ["parityNone"], lcr2bits
+        )
         // After this step, FreeBSD and mik3y does:
         // controlOut(VENDOR_SERIAL_INIT, 0x501f, 0xd90a);
         // It's not clear why
@@ -99,22 +84,30 @@ const specification: Specification = (method: Method, property: Property) => {
     method(
         "setHandshake"
     ).defineVariable(
-        {name: "modemControl", type: VariableType.byte},
+        { name: "modemControl", type: "byte" },
         0
     ).ifConditionSetBit(
         "dtr",
         "modemControl",
-        GCLOutputBit.DTR
+        gclOutputBit.DTR
     ).ifConditionSetBit(
         "rts",
         "modemControl",
-        GCLOutputBit.RTS
+        gclOutputBit.RTS
     ).invertBits(
         "modemControl"
     ).modemControl(
         "set handshake",
         "modemControl"
     ).end();
+
+    method(
+        "getHandshake"
+    ).end();
+
+    method(
+        "readSerial"
+    ).end();
 }
 
-generator(LanguageFlag.C, 1000, specification);
+generator("C", 1000, specification);

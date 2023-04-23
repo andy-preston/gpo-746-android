@@ -1,4 +1,4 @@
-import { type HexNumber } from './hex.ts';
+import { hex, type HexNumber } from './hex.ts';
 
 export const register = {
     zero: "0x00", // Seems to be needed for vendorSerialInit
@@ -45,14 +45,12 @@ export const registerPairBits = (
     lowSpecification: Record<string, number>,
     highBitsToSet: Array<string>,
     highSpecification: Record<string, number>
-): HexNumber => "0x" + (
-    registerPairBitsNumeric(
+): HexNumber => hex(registerPairBitsNumeric(
         lowBitsToSet,
         lowSpecification,
         highBitsToSet,
         highSpecification
-    ).toString(16)
-) as HexNumber
+    ));
 
 export const lcr1bits = {
     "CS5": 0x00, // Not defined in FreeBSD, only in NetBSD

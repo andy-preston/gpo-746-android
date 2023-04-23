@@ -7,8 +7,10 @@
 static struct libusb_device_handle *device = NULL;
 int status = 0;
 
-uint8_t byteBuffer[128];
-uint16_t* intBuffer;
+union Buffer {
+    uint8_t bytes[128];
+    uint16_t words[64];
+} buffer;
 
 /* Yes, I know this is a damn wierd was to link functions in C
  * But I've always held that this preprocessor gubbins was a
@@ -21,7 +23,6 @@ int usbDevice(void);
 int claimInterface(void);
 
 int main(int argc, char **argv) {
-    intBuffer = (uint16_t*)byteBuffer;
     return libUsb() ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 

@@ -32,13 +32,13 @@ export type LanguageModule = {
 
     check: (
         variableName: string,
-        value: number
+        value: HexNumber
     ) => string;
 
     ifConditionSetBit: (
         booleanName: string,
         bitwiseName: string,
-        bitMask: number
+        bitMask: HexNumber
     ) => string;
 
     invertBits: (
@@ -47,6 +47,6 @@ export type LanguageModule = {
 
     defineVariable: (
         variable: Variable,
-        initialValue?: number,
+        initialValue?: HexNumber
     ) => string;
 };

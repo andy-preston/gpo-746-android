@@ -27,13 +27,13 @@ type Steps = {
 
     check: (
         variableName: string,
-        value: number
+        value: HexNumber
     ) => Steps;
 
     ifConditionSetBit: (
         booleanName: string,
         bitwiseName: string,
-        bitMask: number
+        bitMask: HexNumber
     ) => Steps;
 
     invertBits: (
@@ -42,7 +42,7 @@ type Steps = {
 
     defineVariable: (
         variable: Variable,
-        initialValue: number
+        initialValue: HexNumber
     ) => Steps;
 
     end: () => void;
@@ -94,14 +94,14 @@ const stepGenerator: Steps = {
             title,
             requestCode.VendorModemControl,
             variableName,
-            0
+            "0x00"
         );
         return stepGenerator;
     },
 
     check: (
         variableName: string,
-        value: number
+        value: HexNumber
     ): Steps => {
         funcBody = funcBody + languageModule.check(variableName, value);
         return stepGenerator;
@@ -110,7 +110,7 @@ const stepGenerator: Steps = {
     ifConditionSetBit: (
         booleanName: string,
         bitwiseName: string,
-        bitMask: number
+        bitMask: HexNumber
     ): Steps => {
         funcBody = funcBody + languageModule.ifConditionSetBit(
             booleanName,
@@ -129,7 +129,7 @@ const stepGenerator: Steps = {
 
     defineVariable: (
         variable: Variable,
-        initialValue: number
+        initialValue: HexNumber
     ): Steps => {
         funcBody = funcBody + languageModule.defineVariable(
             variable,

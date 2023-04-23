@@ -76,16 +76,16 @@ const language: LanguageModule = {
 
     check: (
         variableName: string,
-        value: number
+        value: HexNumber
     ): string =>
         `    if (${variableName} != ${value}) {
-        fprintf(stderr, "${variableName} should be %08x, but is %08x\\n", ${value}, ${variableName});
+        fprintf(stderr, "${variableName} should be ${value}, but is %08x\\n", ${variableName});
     }\n`,
 
     ifConditionSetBit: (
         booleanName: string,
         bitwiseName: string,
-        bitMask: number
+        bitMask: HexNumber
     ): string =>
         `    ${bitwiseName} = ${booleanName} ?
         (${bitwiseName} | ${bitMask}) :
@@ -97,7 +97,7 @@ const language: LanguageModule = {
 
     defineVariable: (
         variable: Variable,
-        initialValue?: number,
+        initialValue?: HexNumber
     ): string =>
         `    ${typeConversion[variable.type]} ${variable.name}` + (
             initialValue !== undefined ? ` = ${initialValue}` : ""

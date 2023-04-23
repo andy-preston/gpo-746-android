@@ -1,5 +1,5 @@
 import { registerPairBits, lcr1bits, lcr2bits, gclOutputBit } from './register.ts';
-import { type HexNumber } from './hex.ts';
+import { hex, type HexNumber } from './hex.ts';
 import { Method, Property, Specification, generator } from "./generator.ts";
 
 const baudRateLookup = (
@@ -46,7 +46,7 @@ const specification: Specification = (method: Method, property: Property) => {
         "version",
         // This chip in my prototype hardware is 0031
         // But some of the stuff I've seen in BSD drivers wants version >= 0030
-        0x0031
+        "0x0031"
     ).output(
         "vendorSerialInit (0,0)",
         "VendorSerialInit",
@@ -85,15 +85,15 @@ const specification: Specification = (method: Method, property: Property) => {
         "setHandshake"
     ).defineVariable(
         { name: "modemControl", type: "byte" },
-        0
+        "0x00"
     ).ifConditionSetBit(
         "dtr",
         "modemControl",
-        gclOutputBit.DTR
+        hex(gclOutputBit.DTR)
     ).ifConditionSetBit(
         "rts",
         "modemControl",
-        gclOutputBit.RTS
+        hex(gclOutputBit.RTS)
     ).invertBits(
         "modemControl"
     ).modemControl(

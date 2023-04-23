@@ -98,10 +98,16 @@ const language: LanguageModule = {
     defineVariable: (
         variable: Variable,
         initialValue?: HexNumber
-    ): string =>
-        `    ${typeConversion[variable.type]} ${variable.name}` + (
-            initialValue !== undefined ? ` = ${initialValue}` : ""
+    ): string => {
+        // we assume that if there's no initial value, it must be a global
+        // and then there's no indentation
+        const global = initialValue === undefined;
+        return (
+            global ? "" : "    "
+        ) + `${typeConversion[variable.type]} ${variable.name}` + (
+            global ? "" : ` = ${initialValue}`
         ) + ";\n"
+    }
 
 };
 

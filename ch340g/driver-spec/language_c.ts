@@ -64,15 +64,15 @@ const language: LanguageModule = {
         ${request},
         ${register},
         0,
-        byteBuffer,
-        sizeof(byteBuffer),
+        buffer.bytes,
+        sizeof(buffer),
         ${timeout}
     );
     if (status < 0) {
         fprintf(stderr, "Failed to ${title}\\n");
         return false;
     }
-    ${variableName} = intBuffer[0];\n`,
+    ${variableName} = buffer.words[0];\n`,
 
     check: (
         variableName: string,

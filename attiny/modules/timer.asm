@@ -1,15 +1,15 @@
 ; This is the delay for the ringer AND the blink test!
-; using the blik test as part of the test for the ringer that way.
+; using the blink test as part of the test for the ringer that way.
 
 .macro SetupTimer
     out TCCR1A, _zero                    ; Normal mode
-    ldi _io, timer1Prescaler
+    ldi _io, timer1prescale
     out TCCR1B, _io
     ldi _io, high(ringerTicks)
     out OCR1AH, _io
     ldi _io, low(ringerTicks)
     out OCR1AL, _io
-.endmacro
+.endMacro
 
 .macro WaitForRingerTicks
     out TCNT1H, _zero
@@ -20,7 +20,7 @@ waitForTimer1:
     in _check, TIFR
     sbrs _check, OCF1A
     rjmp waitForTimer1
-.endmacro
+.endMacro
 
 .macro TestDelay                         ; parameter = number of loops
     ldi _loops, @0                       ; ... 40 for 1 second
@@ -28,4 +28,4 @@ delay:
     WaitForRingerTicks
     dec _loops
     brne delay
-.endmacro
+.endMacro

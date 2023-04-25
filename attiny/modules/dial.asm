@@ -5,7 +5,7 @@
 .macro SetupTimerCounter0
     out TCCR0A, _zero          ; Normal mode
     ldi _io, t0Rising          ; !!!! D4 isn't a noraml input any more !!!!
-    out TCCR0B, _io            ; Set source / prescaler
+    out TCCR0B, _io            ; Set source / prescale
     out TCNT0, _zero           ; Clear the counter
 .endMacro
 

@@ -1,9 +1,14 @@
-export const requestCode = {
-    // This exists in the NetBSD and Linux drivers, but not FreeBSD
+export const readRequestCode = {
     VendorGetVersion: "0x5F",
     // Does this work on single registers or register pairs
     // or is it clever enough to do both?!
     VendorReadRegisters: "0x95",
+}
+
+export type ReadRequestName = keyof typeof readRequestCode;
+export type ReadRequestCode = typeof readRequestCode[ReadRequestName];
+
+export const writeRequestCode = {
     // Does this work on single registers or register pairs
     // or is it clever enough to do both?!
     VendorWriteRegisters: "0x9A",
@@ -13,5 +18,5 @@ export const requestCode = {
     VendorModemControl: "0xA4"
 } as const;
 
-export type RequestName = keyof typeof requestCode;
-export type RequestCode = typeof requestCode[RequestName];
+export type WriteRequestName = keyof typeof writeRequestCode;
+export type WriteRequestCode = typeof writeRequestCode[WriteRequestName];

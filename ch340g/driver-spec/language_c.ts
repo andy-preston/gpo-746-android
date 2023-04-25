@@ -1,7 +1,7 @@
 import { type HexNumber } from './hex.ts';
 import { LanguageModule, Variable } from "./language_module.ts";
-import { type RequestCode } from "./request.ts";
-import { type RegisterAddress } from "./register.ts";
+import { type ReadRequestCode, type WriteRequestCode } from "./request.ts";
+import { type ReadRegisterAddress, type WriteRegisterAddress } from "./register.ts";
 
 let timeout = 0;
 
@@ -31,10 +31,32 @@ const language: LanguageModule = {
 
     functionFooter: (): string => "    return true;\n}\n",
 
-    output: (
+    read: (
         title: string,
-        request: RequestCode,
-        register: RegisterAddress|string,
+        request: ReadRequestCode,
+        register: ReadRegisterAddress,
+        variableName: string
+    ): string =>
+        `    status = libusb_control_transfer(
+        device,
+        LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_IN,
+        ${request},
+        ${register},
+        0,
+        buffer.bytes,
+        sizeof(buffer),
+        ${timeout}
+    );
+    if (status < 0) {
+        fprintf(stderr, "Failed to ${title}\\n");
+        return false;
+    }
+    ${variableName} = buffer.words[0];\n`,
+
+    write: (
+        title: string,
+        request: WriteRequestCode,
+        register: WriteRegisterAddress|string,
         value: HexNumber
     ): string =>
         `    status = libusb_control_transfer(
@@ -51,28 +73,6 @@ const language: LanguageModule = {
         fprintf(stderr, "Failed ${title}\\n");
         return false;
     }\n`,
-
-    input: (
-        title: string,
-        request: RequestCode,
-        register: RegisterAddress,
-        variableName: string
-    ): string =>
-        `   status = libusb_control_transfer(
-        device,
-        LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_IN,
-        ${request},
-        ${register},
-        0,
-        buffer.bytes,
-        sizeof(buffer),
-        ${timeout}
-    );
-    if (status < 0) {
-        fprintf(stderr, "Failed to ${title}\\n");
-        return false;
-    }
-    ${variableName} = buffer.words[0];\n`,
 
     check: (
         variableName: string,

@@ -1,26 +1,36 @@
 import { type HexNumber } from './hex.ts';
-import { requestCode, type RequestName } from "./request.ts";
-import { register, type RegisterName } from "./register.ts";
+import {
+    readRequestCode,
+    type ReadRequestName,
+    writeRequestCode,
+    type WriteRequestName
+} from "./request.ts";
+import {
+    readRegister,
+    type ReadRegisterName,
+    writeRegister,
+    type WriteRegisterName
+} from "./register.ts";
 import { LanguageModule, Variable } from "./language_module.ts";
 
 export type LanguageFlag = "C" | "Kotlin";
 
 type Steps = {
-    input: (
+    read: (
         title: string,
-        requestName: RequestName,
-        registerName: RegisterName,
+        requestName: ReadRequestName,
+        registerName: ReadRegisterName,
         variable: string
     ) => Steps;
 
-    output: (
+    write: (
         title: string,
-        requestName: RequestName,
-        registerName: RegisterName,
+        requestName: WriteRequestName,
+        registerName: WriteRegisterName,
         value: HexNumber
     ) => Steps;
 
-    modemControl: (
+    writeControl: (
         title: string,
         variableName: string
     ) => Steps;
@@ -56,43 +66,43 @@ let languageModule: LanguageModule;
 let funcBody: string;
 
 const stepGenerator: Steps = {
-    input: (
+    read: (
         title: string,
-        requestName: RequestName,
-        registerName: RegisterName,
+        requestName: ReadRequestName,
+        registerName: ReadRegisterName,
         variable: string
     ): Steps => {
-        funcBody = funcBody + languageModule.input(
+        funcBody = funcBody + languageModule.read(
             title,
-            requestCode[requestName],
-            register[registerName],
+            readRequestCode[requestName],
+            readRegister[registerName],
             variable
         );
         return stepGenerator;
     },
 
-    output: (
+    write: (
         title: string,
-        requestName: RequestName,
-        registerName: RegisterName,
+        requestName: WriteRequestName,
+        registerName: WriteRegisterName,
         value: HexNumber
     ): Steps => {
-        funcBody = funcBody + languageModule.output(
+        funcBody = funcBody + languageModule.write(
             title,
-            requestCode[requestName],
-            register[registerName],
+            writeRequestCode[requestName],
+            writeRegister[registerName],
             value
         );
         return stepGenerator;
     },
 
-    modemControl: (
+    writeControl: (
         title: string,
         variableName: string
     ): Steps => {
-        funcBody = funcBody + languageModule.output(
+        funcBody = funcBody + languageModule.write(
             title,
-            requestCode.VendorModemControl,
+            writeRequestCode.VendorModemControl,
             variableName,
             "0x00"
         );

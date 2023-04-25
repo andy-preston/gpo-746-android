@@ -1,19 +1,33 @@
 import { hex, type HexNumber } from './hex.ts';
 
-export const register = {
-    zero: "0x00", // Seems to be needed for vendorSerialInit
-    GCL1: "0x06", // AKA STATUS
-    GCL2: "0x07", // AKA STATUS
-    LCR1: "0x18",
-    LCR2: "0x25",
+const dummyRegister = "0000"
+const lcr1Low = "18", lcr2High = "25";
+const gcl1Low = "06", gcl2High = "07"; // AKA "status"
+const bpsPrescaleLow1 = "12", bpsDivisorHigh1 = "13";
+const bpsModLow1 = "14", bpsPaddingHigh2 = "0F"; // some drivers use 2C not 14
 
-    BaudRate1: "0x1312", // Prescaler 12 - Divisor 13
-    BaudRate2: "0x0F2C",
-    LCR: "0x2518"
+export const readRegister = {
+    zero: `0x${dummyRegister}`,
+    // When NET BSD reads GCL, it only uses gcl1Low - the first byte
+    // When mik3y reads GCL, it only returns the first byte from the buffer
+    // When felHR85 reads GCL, it only uses the first byte
+    GCL: `0x${gcl2High}${gcl1Low}`,
 } as const;
 
-export type RegisterName = keyof typeof register;
-export type RegisterAddress = typeof register[RegisterName];
+export type ReadRegisterName = keyof typeof readRegister;
+export type ReadRegisterAddress = typeof readRegister[ReadRegisterName];
+
+export const writeRegister = {
+    zero: `0x${dummyRegister}`,
+    BaudRate1: `0x${bpsDivisorHigh1}${bpsPrescaleLow1}`,
+    BaudRate2: `0x${bpsPaddingHigh2}${bpsModLow1}`,
+    LCR: `0x${lcr2High}${lcr1Low}`,
+    // Only NetBSD writes GCL at all - it writes the same value to gcl1Low twice
+    GCL: `0x${gcl1Low}${gcl1Low}`,
+} as const;
+
+export type WriteRegisterName = keyof typeof writeRegister;
+export type WriteRegisterAddress = typeof writeRegister[WriteRegisterName];
 
 const registerBitsNumeric = (
     bitsToSet: Array<string>,
@@ -40,7 +54,7 @@ const registerPairBitsNumeric = (
     registerBitsNumeric(highBitsToSet, highSpecification) << 8
 )
 
-export const registerPairBits = (
+const registerPairBits = (
     lowBitsToSet: Array<string>,
     lowSpecification: Record<string, number>,
     highBitsToSet: Array<string>,
@@ -52,7 +66,25 @@ export const registerPairBits = (
         highSpecification
     ));
 
-export const lcr1bits = {
+export const baudRate1 = {
+    "2400": "0xD901",
+    "4800": "0x6402",
+    "9600": "0xB202",
+    "19200": "0xD902",
+    "38400": "0x6403",
+    "115200": "0xCC03"
+} as const;
+
+export const baudRate2 = {
+    "2400": "0x0038",
+    "4800": "0x001F",
+    "9600": "0x0013",
+    "19200": "0x000D",
+    "38400": "0x000A",
+    "115200": "0x0008"
+} as const;
+
+const lcr1bits = {
     "CS5": 0x00, // Not defined in FreeBSD, only in NetBSD
     "CS6": 0x01, // Not defined in FreeBSD, only in NetBSD
     "CS7": 0x02, // Not defined in FreeBSD, only in NetBSD
@@ -62,22 +94,33 @@ export const lcr1bits = {
     "enableRX": 0x80,
 } as const;
 
-export const lcr2bits = {
+const lcr2bits = {
     "parityNone": 0x00,
     "parityEven": 0x07,  // FreeBSD says 0x07 Linux & NetBSD says 0x10
     "parityOdd": 0x06,   // FreeBSD says 0x06         NetBSD says 0x00
     "parityMark": 0x05,  // FreeBSD says 0x05         NetBSD says 0x20
     "paritySpace": 0x04, // FreeBSD says 0x04         NetBSD says 0x30
-};
+} as const;
+
+export const lcr = (
+    lowBitsToSet: Array<keyof typeof lcr1bits>,
+    highBitsToSet: Array<keyof typeof lcr2bits>
+): HexNumber => registerPairBits(lowBitsToSet, lcr1bits, highBitsToSet, lcr2bits);
 
 export const gclInputBit = {
     "CTS": 0x01,
     "DSR": 0x02,
     "RI": 0x04,
     "DCD": 0x08
-}
+} as const;
 
 export const gclOutputBit = {
     "DTR": 0x20, // 1 << 5
     "RTS": 0x40 // 1 << 6
-}
+} as const;
+
+/*
+export const gcl = (
+
+)
+*/

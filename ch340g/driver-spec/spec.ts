@@ -1,28 +1,8 @@
-import { registerPairBits, lcr1bits, lcr2bits, gclOutputBit } from './register.ts';
-import { hex, type HexNumber } from './hex.ts';
+import { lcr, gclOutputBit, baudRate1, baudRate2} from './register.ts';
+import { hex } from './hex.ts';
 import { Method, Property, Specification, generator } from "./generator.ts";
 
-const baudRateLookup = (
-    baudRate: 2400|4800|9600|19200|38400|115200
-): Array<HexNumber> => {
-    // There's also a function "somewhere" that calculates these values rather
-    // than just look them up. It would be good to have both and test their
-    // results are consistent.
-    switch (baudRate) {
-        case 2400: return ["0xD901", "0x0038"];
-        case 4800: return ["0x6402", "0x001F"];
-        case 9600: return ["0xB202", "0x0013"];
-        case 19200: return ["0xD902", "0x000D"];
-        case 38400: return ["0x6403", "0x000A"];
-        case 115200: return ["0xCC03", "0x0008"];
-    }
-}
-
 const specification: Specification = (method: Method, property: Property) => {
-
-    // deno-lint-ignore prefer-const
-    let baud1, baud2;
-    [baud1, baud2] = baudRateLookup(9600);
 
     // output handshaking lines for GPIO
     property({ name: "dtr", type: "boolean" });
@@ -36,9 +16,9 @@ const specification: Specification = (method: Method, property: Property) => {
 
     method(
         "initialise"
-    ).input(
+    ).read(
         // My old libusb code had nothing about version in it
-        "Get Version",
+        "Read Version",
         "VendorGetVersion",
         "zero",
         "version"
@@ -47,35 +27,27 @@ const specification: Specification = (method: Method, property: Property) => {
         // This chip in my prototype hardware is 0031
         // But some of the stuff I've seen in BSD drivers wants version >= 0030
         "0x0031"
-    ).output(
-        "vendorSerialInit (0,0)",
+    ).write(
+        "Vendor Serial Init (0,0)",
         "VendorSerialInit",
         "zero",
         "0x00"
-    ).output(
+    ).write(
        // Both BSDs Set baud rate before enabling TX RX
-       "Baud 1",
+       "Set Baud 1",
         "VendorWriteRegisters",
         "BaudRate1",
-        baud1
-    ).output(
-        "Baud 2",
+        baudRate1["9600"]
+    ).write(
+        "Set Baud 2",
         "VendorWriteRegisters",
         "BaudRate2",
-        baud2
-    ).output(
+        baudRate2["9600"]
+    ).write(
         "Setup LCR",
-        // if version < 0x30:
-        //     readRegisters(LCR1, NULL, LCR2, NULL);
-        //     // What is 0x50 or 0x00 - Got it from FreeBSD
-        //     writeRegisters(LCR1, 0x50, LCR2, 0x00);
-        // else:
         "VendorWriteRegisters",
         "LCR",
-        registerPairBits(
-            ["enableTX", "enableRX", "CS8"], lcr1bits,
-            ["parityNone"], lcr2bits
-        )
+        lcr(["enableTX", "enableRX", "CS8"], ["parityNone"])
         // After this step, FreeBSD and mik3y does:
         // controlOut(VENDOR_SERIAL_INIT, 0x501f, 0xd90a);
         // It's not clear why
@@ -96,7 +68,7 @@ const specification: Specification = (method: Method, property: Property) => {
         hex(gclOutputBit.RTS)
     ).invertBits(
         "modemControl"
-    ).modemControl(
+    ).writeControl(
         "set handshake",
         "modemControl"
     ).end();

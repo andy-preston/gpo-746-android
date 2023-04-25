@@ -1,6 +1,6 @@
 import { type HexNumber } from './hex.ts';
-import { type RequestCode } from "./request.ts";
-import { type RegisterAddress } from "./register.ts";
+import { type ReadRequestCode, type WriteRequestCode } from "./request.ts";
+import { type ReadRegisterAddress, type WriteRegisterAddress } from "./register.ts";
 
 export type VariableType = "boolean"|"byte";
 
@@ -16,18 +16,18 @@ export type LanguageModule = {
 
     functionFooter: () => string;
 
-    output: (
+    read: (
         title: string,
-        request: RequestCode,
-        register: RegisterAddress|string,
-        value: HexNumber
+        request: ReadRequestCode,
+        register: ReadRegisterAddress,
+        variable: string
     ) => string;
 
-    input: (
+    write: (
         title: string,
-        request: RequestCode,
-        register: RegisterAddress,
-        variable: string
+        request: WriteRequestCode,
+        register: WriteRegisterAddress|string,
+        value: HexNumber
     ) => string;
 
     check: (

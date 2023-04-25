@@ -79,8 +79,19 @@ const language: LanguageModule = {
         value: HexNumber
     ): string =>
         `    if (${variableName} != ${value}) {
-        fprintf(stderr, "${variableName} should be ${value}, but is %08x\\n", ${variableName});
+        fprintf(
+            stderr,
+            "${variableName} should be ${value}, but is %08x\\n",
+            ${variableName}
+        );
     }\n`,
+
+    setBooleanFromBit: (
+        booleanName: string,
+        bitwiseName: string,
+        bitMask: HexNumber
+    ): string =>
+        `    ${booleanName} = ${bitwiseName} & ${bitMask} == ${bitMask};\n`,
 
     ifConditionSetBit: (
         booleanName: string,

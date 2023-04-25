@@ -1,0 +1,17 @@
+{
+    "lint": {
+        "files": {
+            "include": [
+                "ch340g/driver-spec",
+                "attiny/calculator"
+            ]
+        }
+    },
+    "test": {
+        "files": {
+            "include": [
+                "ch340g/driver-spec/tests"
+            ]
+        }
+    }
+}

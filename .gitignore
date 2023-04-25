@@ -18,3 +18,4 @@ kotlin-profile
 native
 notifications
 android/workers
+deno.lock

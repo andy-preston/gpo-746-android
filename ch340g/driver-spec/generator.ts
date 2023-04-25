@@ -40,6 +40,12 @@ type Steps = {
         value: HexNumber
     ) => Steps;
 
+    setBooleanFromBit: (
+        booleanName: string,
+        bitwiseName: string,
+        bitMask: HexNumber
+    ) => Steps;
+
     ifConditionSetBit: (
         booleanName: string,
         bitwiseName: string,
@@ -114,6 +120,19 @@ const stepGenerator: Steps = {
         value: HexNumber
     ): Steps => {
         funcBody = funcBody + languageModule.check(variableName, value);
+        return stepGenerator;
+    },
+
+    setBooleanFromBit: (
+        booleanName: string,
+        bitwiseName: string,
+        bitMask: HexNumber
+    ): Steps => {
+        funcBody = funcBody + languageModule.setBooleanFromBit(
+            booleanName,
+            bitwiseName,
+            bitMask
+        );
         return stepGenerator;
     },
 

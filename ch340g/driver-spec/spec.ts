@@ -1,5 +1,5 @@
-import { lcr, gclOutputBit, baudRate1, baudRate2} from './register.ts';
-import { hex } from './hex.ts';
+import { lcr, gcl, gclInputBit, baudRate1, baudRate2} from "./register.ts";
+import { hex } from "./hex.ts";
 import { Method, Property, Specification, generator } from "./generator.ts";
 
 const specification: Specification = (method: Method, property: Property) => {
@@ -61,11 +61,11 @@ const specification: Specification = (method: Method, property: Property) => {
     ).ifConditionSetBit(
         "dtr",
         "modemControl",
-        hex(gclOutputBit.DTR)
+        gcl(["DTR"])
     ).ifConditionSetBit(
         "rts",
         "modemControl",
-        hex(gclOutputBit.RTS)
+        gcl(["RTS"])
     ).invertBits(
         "modemControl"
     ).writeControl(
@@ -75,6 +75,30 @@ const specification: Specification = (method: Method, property: Property) => {
 
     method(
         "getHandshake"
+    ).defineVariable(
+        { name: "modemControl", type: "byte" },
+        "0x00"
+    ).read(
+        "Get handshake",
+        "VendorReadRegisters",
+        "GCL",
+        "modemControl"
+    ).setBooleanFromBit(
+        "cts",
+        "modemControl",
+        hex(gclInputBit.CTS)
+    ).setBooleanFromBit(
+        "dsr",
+        "modemControl",
+        hex(gclInputBit.DSR)
+    ).setBooleanFromBit(
+        "ri",
+        "modemControl",
+        hex(gclInputBit.RI)
+    ).setBooleanFromBit(
+        "dcd",
+        "modemControl",
+        hex(gclInputBit.DCD)
     ).end();
 
     method(

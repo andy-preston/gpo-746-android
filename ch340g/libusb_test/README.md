@@ -104,6 +104,7 @@ then we may need to put back in some of the code that I've stripped out.
 
 ## References
 
+* [ch341-baudrate-calculation HOWTO](https://github.com/nospam2000/ch341-baudrate-calculation)
 * [Yuxiang Zhang's libusb CH340 Data Transfer Demo](https://gist.github.com/z4yx/8d9ecad151dad351fbbb)
 * FreeBSD driver
 * NetBSD driver

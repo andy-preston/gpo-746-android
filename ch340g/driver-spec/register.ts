@@ -105,7 +105,8 @@ const lcr2bits = {
 export const lcr = (
     lowBitsToSet: Array<keyof typeof lcr1bits>,
     highBitsToSet: Array<keyof typeof lcr2bits>
-): HexNumber => registerPairBits(lowBitsToSet, lcr1bits, highBitsToSet, lcr2bits);
+): HexNumber =>
+    registerPairBits(lowBitsToSet, lcr1bits, highBitsToSet, lcr2bits);
 
 export const gclInputBit = {
     "CTS": 0x01,
@@ -114,13 +115,12 @@ export const gclInputBit = {
     "DCD": 0x08
 } as const;
 
-export const gclOutputBit = {
+const gclOutputBit = {
     "DTR": 0x20, // 1 << 5
     "RTS": 0x40 // 1 << 6
 } as const;
 
-/*
 export const gcl = (
-
-)
-*/
+    lowBitsToSet: Array<keyof typeof gclOutputBit>
+): HexNumber =>
+    registerPairBits(lowBitsToSet, gclOutputBit, lowBitsToSet, gclOutputBit);

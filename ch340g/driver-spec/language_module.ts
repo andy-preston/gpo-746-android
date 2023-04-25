@@ -35,6 +35,12 @@ export type LanguageModule = {
         value: HexNumber
     ) => string;
 
+    setBooleanFromBit: (
+        booleanName: string,
+        bitwiseName: string,
+        bitMask: HexNumber
+    ) => string;
+
     ifConditionSetBit: (
         booleanName: string,
         bitwiseName: string,

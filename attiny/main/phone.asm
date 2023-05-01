@@ -13,7 +13,7 @@
     SetupDial
     SetupSerial
 
-theBeggining:
+theBeginning:
     SkipOffHook
     rjmp onHook
 
@@ -24,11 +24,11 @@ offHook:
 
 onHook:
     PutDown
-    SkipOnNoIncomming
-    rjmp theBeggining
+    SkipOnNoIncoming
+    rjmp theBeginning
 
     Ringing
-    rjmp theBeggining
+    rjmp theBeginning
 
 ringSequence:
     RingData realRing

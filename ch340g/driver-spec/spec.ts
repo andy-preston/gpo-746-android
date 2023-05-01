@@ -1,109 +1,42 @@
-import { lcr, gcl, gclInputBit, baudRate1, baudRate2} from "./register.ts";
-import { hex } from "./hex.ts";
+import { lcr, gcl, gclInputBit} from "./register.ts";
+import { HexNumber, hex16 } from "./hex.ts";
 import { Method, Property, Specification, generator } from "./generator.ts";
+import { baudRateValues } from "./baud.ts";
 
 const specification: Specification = (method: Method, property: Property) => {
 
-    // output handshaking lines for GPIO
-    property({ name: "dtr", type: "boolean" });
-    property({ name: "rts", type: "boolean" });
+    const usedChipVersion: HexNumber = "0x0031";
 
-    // input handshaking lines for GPIO
-    property({ name: "cts", type: "boolean" });
-    property({ name: "dsr", type: "boolean" });
-    property({ name: "ri", type: "boolean" });
-    property({ name: "dcd", type: "boolean" });
+    const baud = baudRateValues("9600");
 
-    method(
-        "initialise"
-    ).read(
-        // My old libusb code had nothing about version in it
-        "Read Version",
-        "VendorGetVersion",
-        "zero",
-        "version"
-    ).check(
-        "version",
-        // This chip in my prototype hardware is 0031
-        // But some of the stuff I've seen in BSD drivers wants version >= 0030
-        "0x0031"
-    ).write(
-        "Vendor Serial Init (0,0)",
-        "VendorSerialInit",
-        "zero",
-        "0x00"
-    ).write(
-       // Both BSDs Set baud rate before enabling TX RX
-       "Set Baud 1",
-        "VendorWriteRegisters",
-        "BaudRate1",
-        baudRate1["9600"]
-    ).write(
-        "Set Baud 2",
-        "VendorWriteRegisters",
-        "BaudRate2",
-        baudRate2["9600"]
-    ).write(
-        "Setup LCR",
-        "VendorWriteRegisters",
-        "LCR",
-        lcr(["enableTX", "enableRX", "CS8"], ["parityNone"])
+    property({ name: "handshakeOutputRTS", type: "boolean" });
+    property({ name: "handshakeInputRI", type: "boolean" });
+    property({ name: "version", type: "integer" });
+
+    method("initialise")
+        .setBoolean("handshakeInputRI", false)
+        .setBoolean("handshakeOutputRTS", false)
+        .read("VendorGetVersion", "zero", "version")
+        .check("version", usedChipVersion)
+        .write("VendorSerialInit", "zero", "0x00")
+        .write("VendorWriteRegisters", "baudDivisorPrescale", baud.divisorPrescale)
+        .write("VendorWriteRegisters", "baudMod", baud.mod)
+        .write("VendorWriteRegisters", "LCR",
+            lcr(["enableTX", "enableRX", "CS8"], ["parityNone"])
+        )
         // After this step, FreeBSD and mik3y does:
         // controlOut(VENDOR_SERIAL_INIT, 0x501f, 0xd90a);
         // It's not clear why
-    ).end();
+        .end();
 
-    method(
-        "setHandshake"
-    ).defineVariable(
-        { name: "modemControl", type: "byte" },
-        "0x00"
-    ).ifConditionSetBit(
-        "dtr",
-        "modemControl",
-        gcl(["DTR"])
-    ).ifConditionSetBit(
-        "rts",
-        "modemControl",
-        gcl(["RTS"])
-    ).invertBits(
-        "modemControl"
-    ).writeControl(
-        "set handshake",
-        "modemControl"
-    ).end();
+    method("setHandshake")
+        .defineVariable({ name: "modemControl", type: "byte" }, "0x00")
+        .ifConditionSetBit("false", "modemControl", gcl(["DTR"]))
+        .ifConditionSetBit("handshakeOutputRTS", "modemControl", gcl(["RTS"]))
+        .invertBits("modemControl")
+        .writeControl("modemControl")
+        .end();
 
-    method(
-        "getHandshake"
-    ).defineVariable(
-        { name: "modemControl", type: "byte" },
-        "0x00"
-    ).read(
-        "Get handshake",
-        "VendorReadRegisters",
-        "GCL",
-        "modemControl"
-    ).setBooleanFromBit(
-        "cts",
-        "modemControl",
-        hex(gclInputBit.CTS)
-    ).setBooleanFromBit(
-        "dsr",
-        "modemControl",
-        hex(gclInputBit.DSR)
-    ).setBooleanFromBit(
-        "ri",
-        "modemControl",
-        hex(gclInputBit.RI)
-    ).setBooleanFromBit(
-        "dcd",
-        "modemControl",
-        hex(gclInputBit.DCD)
-    ).end();
-
-    method(
-        "readSerial"
-    ).end();
 }
 
 generator("C", 1000, specification);

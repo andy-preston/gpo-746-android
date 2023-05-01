@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cd ch340g/libusb_test/
+gcc libusb_test.c $(pkg-config libusb-1.0 --libs --cflags) -o libusb_test
+chmod u+x libusb_test
+cd ../..

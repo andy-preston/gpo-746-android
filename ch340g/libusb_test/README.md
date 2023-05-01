@@ -63,9 +63,9 @@ https://gitlab.com/edgeeffect/gpo-746-android/-/blob/master/attiny/tests/2-seria
 | Test Board or Arduino Nano |      | Raspberry Pi |
 |                            |      |              |
 | +-----+        +--------+  |      |              |
-| |     |--TX--->|        |         |              |
-| | AVR |--RTS-->| CH340G |<--USB-->|              |
-| |     |--RI--->|        |         |              |
+| |     |---TX-->|        |         |              |
+| | AVR |<--RTS--| CH340G |<--USB-->|              |
+| |     |---RI-->|        |         |              |
 | +-----+        +--------+  |      |              |
 |                            |      |              |
 +----------------------------+      +--------------+

@@ -8,26 +8,21 @@ test4: attiny/tests/4-dial-active.hex
 
 test5: attiny/tests/5-dial-pulses.hex
 
-test6: attiny/tests/6-serial-raspberry.hex
-
-test7: attiny/tests/7-dial-ascii.hex
-
-test8: attiny/tests/8-simple-serial.hex
+test6: attiny/tests/6-serial-incoming-rts.hex
 
 attiny: attiny/main/phone.hex
 
-lint_ts:
-	./bin/deno lint attiny/calculator/* ch340g/driver-spec/*
+libusb: ch340g/libusb_test/*
+	ch340g/libusb_test/make
 
-attiny/modules/constants.asm: ./bin/deno run attiny/calculator/*
-	./bin/deno run attiny/calculator/calculator.ts >attiny/modules/constants.asm
+attiny/modules/constants.asm: attiny/calculator/*
+	./bin/deno task calc >attiny/modules/constants.asm
 
 %.hex: %.asm attiny/modules/constants.asm attiny/modules/*.asm
 	./bin/gavrasm -A -E -S -M $<
 
 ch340g/libusb_test/driver_functions.c: ch340g/driver-spec/*
-	./bin/deno run --allow-read \
-		./ch340g/driver-spec/spec.ts >./ch340g/libusb_test/driver_functions.c
+	./bin/deno task spec >./ch340g/libusb_test/driver_functions.c
 
 sdk:
 	./bin/android-container sdk

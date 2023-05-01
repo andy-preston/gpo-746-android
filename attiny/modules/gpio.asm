@@ -40,7 +40,7 @@
     cbi outputPort, pinRI
 .endMacro
 
-.macro SkipOnNoIncomming
+.macro SkipOnNoIncoming
     sbic inputPins, pinRTS
 .endMacro
 

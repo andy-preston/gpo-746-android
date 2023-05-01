@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <unistd.h>
+#include <string.h>
 #include <libusb.h>
 
 static struct libusb_device_handle *device = NULL;
@@ -21,9 +23,36 @@ union Buffer {
 int libUsb(void);
 int usbDevice(void);
 int claimInterface(void);
+int setup(void);
+int testRtsOutput(void);
+char *testName;
 
 int main(int argc, char **argv) {
+    testName = argc == 2 ? argv[1] : "none";
     return libUsb() ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+int testRtsOutput(void) {
+    fprintf(stdout, "testing RTS Output\n");
+    while (true) {
+        if (!setHandshake()) {
+            return false;
+        }
+        sleep(1);
+        handshakeOutputRTS = true;
+        if (!setHandshake()) {
+            return false;
+        };
+        sleep(1);
+        handshakeOutputRTS = false;
+    }
+}
+
+int tests() {
+    if (strcmp(testName, "rts-output") == 0) {
+        return testRtsOutput();
+    }
+    return false;
 }
 
 int libUsb(void) {
@@ -62,8 +91,9 @@ int setup(void) {
     if (!initialise()) {
         return false;
     }
-    if (!setHandshake(false, false)) {
+    if (!setHandshake()) {
         return false;
     }
-    return true;
+    return tests();
 }
+

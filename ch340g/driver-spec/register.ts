@@ -1,10 +1,10 @@
-import { hex, type HexNumber } from './hex.ts';
+import { hex16, type HexNumber } from './hex.ts';
 
 const dummyRegister = "0000"
 const lcr1Low = "18", lcr2High = "25";
 const gcl1Low = "06", gcl2High = "07"; // AKA "status"
-const bpsPrescaleLow1 = "12", bpsDivisorHigh1 = "13";
-const bpsModLow1 = "14", bpsPaddingHigh2 = "0F"; // some drivers use 2C not 14
+const baudPrescaleLow1 = "12", baudDivisorHigh1 = "13";
+const baudModLow1 = "14", baudPaddingHigh2 = "0F"; // some drivers use 2C not 14
 
 export const readRegister = {
     zero: `0x${dummyRegister}`,
@@ -19,8 +19,8 @@ export type ReadRegisterAddress = typeof readRegister[ReadRegisterName];
 
 export const writeRegister = {
     zero: `0x${dummyRegister}`,
-    BaudRate1: `0x${bpsDivisorHigh1}${bpsPrescaleLow1}`,
-    BaudRate2: `0x${bpsPaddingHigh2}${bpsModLow1}`,
+    baudDivisorPrescale: `0x${baudDivisorHigh1}${baudPrescaleLow1}`,
+    baudMod: `0x${baudPaddingHigh2}${baudModLow1}`,
     LCR: `0x${lcr2High}${lcr1Low}`,
     // Only NetBSD writes GCL at all - it writes the same value to gcl1Low twice
     GCL: `0x${gcl1Low}${gcl1Low}`,
@@ -59,30 +59,12 @@ const registerPairBits = (
     lowSpecification: Record<string, number>,
     highBitsToSet: Array<string>,
     highSpecification: Record<string, number>
-): HexNumber => hex(registerPairBitsNumeric(
+): HexNumber => hex16(registerPairBitsNumeric(
         lowBitsToSet,
         lowSpecification,
         highBitsToSet,
         highSpecification
     ));
-
-export const baudRate1 = {
-    "2400": "0xD901",
-    "4800": "0x6402",
-    "9600": "0xB202",
-    "19200": "0xD902",
-    "38400": "0x6403",
-    "115200": "0xCC03"
-} as const;
-
-export const baudRate2 = {
-    "2400": "0x0038",
-    "4800": "0x001F",
-    "9600": "0x0013",
-    "19200": "0x000D",
-    "38400": "0x000A",
-    "115200": "0x0008"
-} as const;
 
 const lcr1bits = {
     "CS5": 0x00, // Not defined in FreeBSD, only in NetBSD

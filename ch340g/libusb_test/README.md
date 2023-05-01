@@ -14,7 +14,13 @@ similarities to the Android USB Manager that I'll have to connect to
 eventually. And I modified this to give us the simplest, most stripped down
 prototype that I could use to get things going with a nice quick workflow.
 
-### Procedure
+## Procedure
+
+### LibUsb 1.0
+
+```bash
+sudo apt-get install libusb-1.0-0-dev
+```
 
 ### Disable Linux Driver
 
@@ -30,7 +36,7 @@ echo blacklist ch341 > /etc/modprobe.d/blacklist-ch341.conf
 This is just a simple single C file, and you can compile it with:
 
 ```bash
-gcc libusb_test.c `pkg-config libusb-1.0 --libs --cflags` -o lubusb_test
+gcc libusb_test.c $(pkg-config libusb-1.0 --libs --cflags) -o libusb_test
 ```
 
 ### Running The Test

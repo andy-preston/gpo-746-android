@@ -7,7 +7,8 @@ let timeout = 0;
 
 const typeConversion = {
     boolean: 'bool',
-    byte: 'uint8_t'
+    byte: 'uint8_t',
+    integer: 'uint16_t',
 };
 
 const parameterMapper = (parameter: Variable): string =>
@@ -74,10 +75,7 @@ const language: LanguageModule = {
         return false;
     }\n`,
 
-    check: (
-        variableName: string,
-        value: HexNumber
-    ): string =>
+    check: (variableName: string, value: HexNumber): string =>
         `    if (${variableName} != ${value}) {
         fprintf(
             stderr,
@@ -85,6 +83,9 @@ const language: LanguageModule = {
             ${variableName}
         );
     }\n`,
+
+    setBoolean: (booleanName: string, value: boolean): string =>
+        `    ${booleanName} = ${value ? 'true' : 'false'};\n`,
 
     setBooleanFromBit: (
         booleanName: string,
@@ -102,9 +103,8 @@ const language: LanguageModule = {
         (${bitwiseName} | ${bitMask}) :
         (${bitwiseName} & ~${bitMask});\n`,
 
-    invertBits: (
-        variableName: string
-    ): string => `    ${variableName} = ~${variableName};\n`,
+    invertBits: (variableName: string): string =>
+        `    ${variableName} = ~${variableName};\n`,
 
     defineVariable: (
         variable: Variable,

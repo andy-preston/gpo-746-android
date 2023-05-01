@@ -1,4 +1,4 @@
-export default function(cpuClockFrequency: number): string {
+export default function(cpuClockFrequency: number): Array<string> {
 
     const /* TCCR1B */ prescaleBits = (prescale: number) => {
         return {
@@ -18,5 +18,8 @@ export default function(cpuClockFrequency: number): string {
     if (ringerTicks > 0xffff || ringerTicks < 1) {
         throw RangeError("ringerTicks > 0xffff or < 1");
     }
-    return `.equ timer1prescale = ${prescaleBits(prescale)}`;
+    return [
+        `.equ timer1prescale = ${prescaleBits(prescale)}`,
+        `.equ ringerTicks = ${ringerTicks}`
+    ];
 }

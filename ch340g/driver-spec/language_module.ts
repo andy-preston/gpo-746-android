@@ -2,7 +2,7 @@ import { type HexNumber } from './hex.ts';
 import { type ReadRequestCode, type WriteRequestCode } from "./request.ts";
 import { type ReadRegisterAddress, type WriteRegisterAddress } from "./register.ts";
 
-export type VariableType = "boolean"|"byte";
+export type VariableType = "boolean" | "byte" | "integer";
 
 export type Variable = {
     name: string,
@@ -30,10 +30,9 @@ export type LanguageModule = {
         value: HexNumber
     ) => string;
 
-    check: (
-        variableName: string,
-        value: HexNumber
-    ) => string;
+    check: (variableName: string, value: HexNumber) => string;
+
+    setBoolean: (booleanName: string, value: boolean) => string;
 
     setBooleanFromBit: (
         booleanName: string,
@@ -47,12 +46,7 @@ export type LanguageModule = {
         bitMask: HexNumber
     ) => string;
 
-    invertBits: (
-        variableName: string
-    ) => string;
+    invertBits: (variableName: string) => string;
 
-    defineVariable: (
-        variable: Variable,
-        initialValue?: HexNumber
-    ) => string;
+    defineVariable: (variable: Variable, initialValue?: HexNumber) => string;
 };

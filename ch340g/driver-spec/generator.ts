@@ -17,28 +17,22 @@ export type LanguageFlag = "C" | "Kotlin";
 
 type Steps = {
     read: (
-        title: string,
         requestName: ReadRequestName,
         registerName: ReadRegisterName,
         variable: string
     ) => Steps;
 
     write: (
-        title: string,
         requestName: WriteRequestName,
         registerName: WriteRegisterName,
         value: HexNumber
     ) => Steps;
 
-    writeControl: (
-        title: string,
-        variableName: string
-    ) => Steps;
+    writeControl: (variableName: string) => Steps;
 
-    check: (
-        variableName: string,
-        value: HexNumber
-    ) => Steps;
+    check: (variableName: string, value: HexNumber) => Steps;
+
+    setBoolean: (booleanName: string, value: boolean) => Steps;
 
     setBooleanFromBit: (
         booleanName: string,
@@ -52,14 +46,9 @@ type Steps = {
         bitMask: HexNumber
     ) => Steps;
 
-    invertBits: (
-        variableName: string
-    ) => Steps;
+    invertBits: (variableName: string) => Steps;
 
-    defineVariable: (
-        variable: Variable,
-        initialValue: HexNumber
-    ) => Steps;
+    defineVariable: (variable: Variable, initialValue: HexNumber) => Steps;
 
     end: () => void;
 }
@@ -73,13 +62,12 @@ let funcBody: string;
 
 const stepGenerator: Steps = {
     read: (
-        title: string,
         requestName: ReadRequestName,
         registerName: ReadRegisterName,
         variable: string
     ): Steps => {
         funcBody = funcBody + languageModule.read(
-            title,
+            `${requestName} ${registerName} ${variable}`,
             readRequestCode[requestName],
             readRegister[registerName],
             variable
@@ -88,13 +76,12 @@ const stepGenerator: Steps = {
     },
 
     write: (
-        title: string,
         requestName: WriteRequestName,
         registerName: WriteRegisterName,
         value: HexNumber
     ): Steps => {
         funcBody = funcBody + languageModule.write(
-            title,
+            `${requestName} ${registerName} ${value}`,
             writeRequestCode[requestName],
             writeRegister[registerName],
             value
@@ -102,12 +89,9 @@ const stepGenerator: Steps = {
         return stepGenerator;
     },
 
-    writeControl: (
-        title: string,
-        variableName: string
-    ): Steps => {
+    writeControl: (variableName: string): Steps => {
         funcBody = funcBody + languageModule.write(
-            title,
+            `Write handshake control ${variableName}`,
             writeRequestCode.VendorModemControl,
             variableName,
             "0x00"
@@ -115,11 +99,13 @@ const stepGenerator: Steps = {
         return stepGenerator;
     },
 
-    check: (
-        variableName: string,
-        value: HexNumber
-    ): Steps => {
+    check: (variableName: string, value: HexNumber): Steps => {
         funcBody = funcBody + languageModule.check(variableName, value);
+        return stepGenerator;
+    },
+
+    setBoolean: (booleanName: string, value: boolean): Steps => {
+        funcBody = funcBody + languageModule.setBoolean(booleanName, value);
         return stepGenerator;
     },
 
@@ -149,17 +135,12 @@ const stepGenerator: Steps = {
         return stepGenerator;
     },
 
-    invertBits: (
-        variableName: string
-    ): Steps => {
+    invertBits: (variableName: string): Steps => {
         funcBody = funcBody + languageModule.invertBits(variableName);
         return stepGenerator;
     },
 
-    defineVariable: (
-        variable: Variable,
-        initialValue: HexNumber
-    ): Steps => {
+    defineVariable: (variable: Variable, initialValue: HexNumber): Steps => {
         funcBody = funcBody + languageModule.defineVariable(
             variable,
             initialValue

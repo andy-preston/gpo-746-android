@@ -22,10 +22,10 @@ is the place to look.
 
 ## What's in the box
 
-* `baud.js` for calculating prescale, divider, mod for setting baud rate
+* `baud.ts` for calculating prescale, divider, mod for setting baud rate
 * `tests/baud_test.ts` check calculated baud figures against original lookup tables
-* `register.js` specs for the CH340G registers
-* `request.js` usb request names and codes
+* `register.ts` specs for the CH340G registers
+* `request.ts` usb request names and codes
 * `spec.ts` the spec for the driver methods in a language agnostic sort-of DSL
 * `generator.ts` a façade on the generator code so that you can make
 a nice tidy spec in `spec.ts` using `lnguage_*.ts`
@@ -35,4 +35,4 @@ and `language_kotlin.ts` implement
 generate code in C for `libusb`
 * `language_kotlin.ts` (doesn't exist yet) an instance of `language_module.ts`
 to generate Kotlin code for the Android app
-* `hex.js` stuff for converting and checking hexadecimal numbers
+* `hex.ts` stuff for converting and checking hexadecimal numbers

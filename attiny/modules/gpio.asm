@@ -14,7 +14,7 @@
     ; See ./dial.asm `SetupTimerCounter0` for usage details.
 
     .equ pinHook = 3
-    .equ pinDialPink = 4                 ; Pulse - organge (GND) -> pink low
+    .equ pinDialPink = 4                 ; Pulse - orange (GND) -> pink low
     .equ pinDialGrey = 5                 ; Active - blue (VCC) -> grey high
     .equ pinRTS = 6
 

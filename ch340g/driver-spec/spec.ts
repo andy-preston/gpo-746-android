@@ -37,6 +37,11 @@ const specification: Specification = (method: Method, property: Property) => {
         .writeControl("modemControl")
         .end();
 
+    method("getHandshake")
+        .defineVariable({ name: "modemControl", type: "byte" }, "0x00")
+        .read("VendorReadRegisters", "GCL", "modemControl")
+        .setBooleanFromBit("handshakeInputRI","modemControl", hex16(gclInputBit.RI))
+        .end();
 }
 
 generator("C", 1000, specification);

@@ -9,10 +9,10 @@
 theTop:
     BlinkOn
     SendOffHookSignal
-    TestDelay 0x10
+    TestDelay 0x20
 
     BlinkOff
     SendOnHookSignal
-    TestDelay 0x10
+    TestDelay 0x20
 
     rjmp theTop

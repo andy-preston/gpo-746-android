@@ -92,7 +92,7 @@ const language: LanguageModule = {
         bitwiseName: string,
         bitMask: HexNumber
     ): string =>
-        `    ${booleanName} = ${bitwiseName} & ${bitMask} == ${bitMask};\n`,
+        `    ${booleanName} = (${bitwiseName} & ${bitMask}) == ${bitMask};\n`,
 
     ifConditionSetBit: (
         booleanName: string,

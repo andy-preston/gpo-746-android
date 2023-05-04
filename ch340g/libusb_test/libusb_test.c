@@ -14,9 +14,9 @@ union Buffer {
     uint16_t words[64];
 } buffer;
 
-/* Yes, I know this is a damn wierd was to link functions in C
+/* Yes, I know this is a damn weird was to link functions in C
  * But I've always held that this preprocessor gubbins was a
- * damn wierd way of going about things in the first place
+ * damn weird way of going about things in the first place
  */
 #include "driver_functions.c"
 
@@ -48,10 +48,27 @@ int testRtsOutput(void) {
     }
 }
 
-int tests() {
-    if (strcmp(testName, "rts-output") == 0) {
-        return testRtsOutput();
+int testRiInput(void) {
+    bool previousValue = false;
+    fprintf(stdout, "testing RI Input\n");
+    while (true) {
+        if (!getHandshake()) {
+            return false;
+        }
+        if (handshakeInputRI != previousValue) {
+            if (handshakeInputRI) {
+                fprintf(stdout, "on\n");
+            } else {
+                fprintf(stdout, "orf\n");
+            }
+            previousValue = handshakeInputRI;
+        }
     }
+}
+
+int tests() {
+    if (strcmp(testName, "rts-output") == 0) return testRtsOutput();
+    if (strcmp(testName, "ri-input") == 0) return testRiInput();
     return false;
 }
 

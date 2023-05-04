@@ -18,11 +18,11 @@
 progStart:
     cli
     ; There's only SPL because ATTiny2313 doesn't have enough RAM to need SPH
-    ldi _io, RAMEND
+    ldi _io, RamEnd
     out SPL, _io
     clr _zero
 
 .macro LoadZ
     ldi ZL, low(@0 << 1)
     ldi ZH, high(@0 << 1)
-.endmacro
+.endMacro

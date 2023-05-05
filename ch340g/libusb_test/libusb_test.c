@@ -35,12 +35,12 @@ int main(int argc, char **argv) {
 int testRtsOutput(void) {
     fprintf(stdout, "testing RTS Output\n");
     while (true) {
-        if (!setHandshake()) {
+        if (!writeHandshake()) {
             return false;
         }
         sleep(1);
         handshakeOutputRTS = true;
-        if (!setHandshake()) {
+        if (!writeHandshake()) {
             return false;
         };
         sleep(1);
@@ -52,7 +52,7 @@ int testRiInput(void) {
     bool previousValue = false;
     fprintf(stdout, "testing RI Input\n");
     while (true) {
-        if (!getHandshake()) {
+        if (!readHandshake()) {
             return false;
         }
         if (handshakeInputRI != previousValue) {
@@ -66,9 +66,21 @@ int testRiInput(void) {
     }
 }
 
+int testSerialInput(void) {
+    while (true) {
+        if (!readSerial()) {
+            return false;
+        }
+        if (buffer.bytes[0] != 0) {
+            fprintf(stdout, "%s\n", buffer.bytes);
+        }
+    }
+}
+
 int tests() {
     if (strcmp(testName, "rts-output") == 0) return testRtsOutput();
     if (strcmp(testName, "ri-input") == 0) return testRiInput();
+    if (strcmp(testName, "serial-input") == 0) return testSerialInput();
     return false;
 }
 
@@ -113,4 +125,3 @@ int setup(void) {
     }
     return tests();
 }
-

@@ -12,6 +12,10 @@ test6: attiny/tests/6-serial-incoming-rts.hex
 
 test7: attiny/tests/7-serial-hook-ri.hex
 
+test8: attiny/tests/8-serial-send.hex
+
+test9: attiny/tests/9-dial-serial.hex
+
 attiny: attiny/main/phone.hex
 
 libusb: ch340g/libusb_test/*

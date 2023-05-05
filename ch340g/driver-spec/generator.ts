@@ -22,6 +22,8 @@ type Steps = {
         variable: string
     ) => Steps;
 
+    bulkRead: (variableName: string) => Steps;
+
     write: (
         requestName: WriteRequestName,
         registerName: WriteRegisterName,
@@ -72,6 +74,11 @@ const stepGenerator: Steps = {
             readRegister[registerName],
             variable
         );
+        return stepGenerator;
+    },
+
+    bulkRead: (variableName: string): Steps => {
+        funcBody = funcBody + languageModule.bulkRead(variableName);
         return stepGenerator;
     },
 

@@ -20,8 +20,10 @@ export type LanguageModule = {
         title: string,
         request: ReadRequestCode,
         register: ReadRegisterAddress,
-        variable: string
+        variableName: string
     ) => string;
+
+    bulkRead:(variableName: string) => string;
 
     write: (
         title: string,

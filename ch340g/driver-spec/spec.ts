@@ -29,7 +29,7 @@ const specification: Specification = (method: Method, property: Property) => {
         // It's not clear why
         .end();
 
-    method("setHandshake")
+    method("writeHandshake")
         .defineVariable({ name: "modemControl", type: "byte" }, "0x00")
         .ifConditionSetBit("false", "modemControl", gcl(["DTR"]))
         .ifConditionSetBit("handshakeOutputRTS", "modemControl", gcl(["RTS"]))
@@ -37,10 +37,17 @@ const specification: Specification = (method: Method, property: Property) => {
         .writeControl("modemControl")
         .end();
 
-    method("getHandshake")
+    method("readHandshake")
         .defineVariable({ name: "modemControl", type: "byte" }, "0x00")
         .read("VendorReadRegisters", "GCL", "modemControl")
         .setBooleanFromBit("handshakeInputRI","modemControl", hex16(gclInputBit.RI))
+        .end();
+
+    method("readSerial")
+        .defineVariable({ name: "transferred", type: "integer"}, "0x00")
+        // bulk transfer is synchronous in libusb - we should check for bytes
+        // available first.
+        .bulkRead("transferred")
         .end();
 }
 

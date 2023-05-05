@@ -54,6 +54,21 @@ const language: LanguageModule = {
     }
     ${variableName} = buffer.words[0];\n`,
 
+    bulkRead: (variableName: string): string =>
+        `    status = libusb_bulk_transfer(
+        device,
+        0x02 | LIBUSB_ENDPOINT_IN,
+        buffer.bytes,
+        sizeof(buffer) - 1,
+        &${variableName},
+        0
+    );
+    if (status < 0) {
+        fprintf(stderr, "Bulk Read Failed\n");
+        return;
+    }
+    buffer.bytes[${variableName}] = 0;\n`,
+
     write: (
         title: string,
         request: WriteRequestCode,

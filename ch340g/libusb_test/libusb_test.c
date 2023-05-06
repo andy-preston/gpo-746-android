@@ -81,6 +81,7 @@ int tests() {
     if (strcmp(testName, "rts-output") == 0) return testRtsOutput();
     if (strcmp(testName, "ri-input") == 0) return testRiInput();
     if (strcmp(testName, "serial-input") == 0) return testSerialInput();
+    fprintf (stderr, "parameter: rts-output ri-input serial-input\n");
     return false;
 }
 
@@ -120,7 +121,7 @@ int setup(void) {
     if (!initialise()) {
         return false;
     }
-    if (!setHandshake()) {
+    if (!writeHandshake()) {
         return false;
     }
     return tests();

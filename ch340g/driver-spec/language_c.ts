@@ -8,7 +8,7 @@ let timeout = 0;
 const typeConversion = {
     boolean: 'bool',
     byte: 'uint8_t',
-    integer: 'uint16_t',
+    integer: 'int',
 };
 
 const parameterMapper = (parameter: Variable): string =>
@@ -64,8 +64,8 @@ const language: LanguageModule = {
         0
     );
     if (status < 0) {
-        fprintf(stderr, "Bulk Read Failed\n");
-        return;
+        fprintf(stderr, "Bulk Read Failed\\n");
+        return false;
     }
     buffer.bytes[${variableName}] = 0;\n`,
 

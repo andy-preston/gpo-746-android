@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+
+sudo chmod ugo+rw $( \
+    lsusb -d 1a86:7523 | \
+    awk '{ gsub(/:/, ""); print "/dev/bus/usb/" $2 "/" $4 }' \
+)
+./ch340g/libusb_test/libusb_test $@

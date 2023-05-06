@@ -16,35 +16,25 @@ prototype that I could use to get things going with a nice quick workflow.
 
 ## Procedure
 
-### LibUsb 1.0
+### LibUsb 1.0 & Disable Linux Driver
+
+This test requires `libusb` to run. And oo that we can play around with the
+settings of the CH340G without having the Linux kernel driver getting in the
+way, I blacklisted that driver.
 
 ```bash
-sudo apt-get install libusb-1.0-0-dev
-```
-
-### Disable Linux Driver
-
-So that we can play around with the settings of the CH340G without having the
-Linux kernel driver getting in the way, I blacklisted that driver.
-
-```bash
+apt-get install libusb-1.0-0-dev
 echo blacklist ch341 > /etc/modprobe.d/blacklist-ch341.conf
+init 6
 ```
 
-### Compile The Driver Prototype
-
-This is just a simple single C file, and you can compile it with:
+### Compile & Run The Driver Test
 
 ```bash
-gcc libusb_test.c $(pkg-config libusb-1.0 --libs --cflags) -o libusb_test
+ch340g/libusb_test/run rts-output
+ch340g/libusb_test/run ri-input
+ch340g/libusb_test/run serial-input
 ```
-
-### Running The Test
-
-You'll either have to run this as `su` or sort out the privileges to run it.
-
-(And if you do sort out the privileges to run it as a normal user...
-could you tell me what they are)
 
 ### State of flux
 
@@ -73,7 +63,8 @@ https://gitlab.com/edgeeffect/gpo-746-android/-/blob/master/attiny/tests/2-seria
 ```
 
 Or if you're not interested in this project and just want to play with a CH340G,
-you can use an Arduino Nano (with a built in CH340G) running this sketch:
+you can use an Arduino Nano (with a built in CH340G) running a sketch something
+like this:
 
 ```cpp
 void setup() {

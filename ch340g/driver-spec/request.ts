@@ -3,7 +3,7 @@ export const readRequestCode = {
     // Does this work on single registers or register pairs
     // or is it clever enough to do both?!
     VendorReadRegisters: "0x95",
-}
+} as const;
 
 export type ReadRequestName = keyof typeof readRequestCode;
 export type ReadRequestCode = typeof readRequestCode[ReadRequestName];

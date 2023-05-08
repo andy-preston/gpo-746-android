@@ -67,12 +67,14 @@ int testRiInput(void) {
 }
 
 int testSerialInput(void) {
+    fprintf(stdout, "testing serial Input\n");
     while (true) {
         if (!readSerial()) {
             return false;
         }
         if (buffer.bytes[0] != 0) {
-            fprintf(stdout, "%s\n", buffer.bytes);
+            fprintf(stdout, buffer.bytes);
+            fflush(stdout);
         }
     }
 }

@@ -2,6 +2,7 @@ import { type HexNumber } from './hex.ts';
 import { LanguageModule, Variable } from "./language_module.ts";
 import { type ReadRequestCode, type WriteRequestCode } from "./request.ts";
 import { type ReadRegisterAddress, type WriteRegisterAddress } from "./register.ts";
+import { BulkInputEndpoint } from './endpoint.ts';
 
 let timeout = 0;
 
@@ -23,8 +24,9 @@ const functionParameters = (parameters?: Array<Variable>): string => {
 }
 
 const language: LanguageModule = {
-    setTimeout(useTimeout: number): void {
+    prologue(useTimeout: number): string {
         timeout = useTimeout;
+        return "";
     },
 
     functionHeader: (name: string, parameters?: Array<Variable>): string =>
@@ -54,10 +56,10 @@ const language: LanguageModule = {
     }
     ${variableName} = buffer.words[0];\n`,
 
-    bulkRead: (variableName: string): string =>
+    bulkRead: (endpoint: BulkInputEndpoint, variableName: string): string =>
         `    status = libusb_bulk_transfer(
         device,
-        0x02 | LIBUSB_ENDPOINT_IN,
+        ${endpoint},
         buffer.bytes,
         sizeof(buffer) - 1,
         &${variableName},

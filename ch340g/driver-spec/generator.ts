@@ -1,4 +1,5 @@
 import { type HexNumber } from './hex.ts';
+import { type BulkInputEndpoint } from './endpoint.ts';
 import {
     readRequestCode,
     type ReadRequestName,
@@ -22,7 +23,7 @@ type Steps = {
         variable: string
     ) => Steps;
 
-    bulkRead: (variableName: string) => Steps;
+    bulkRead: (endpoint: BulkInputEndpoint, variableName: string) => Steps;
 
     write: (
         requestName: WriteRequestName,
@@ -77,8 +78,8 @@ const stepGenerator: Steps = {
         return stepGenerator;
     },
 
-    bulkRead: (variableName: string): Steps => {
-        funcBody = funcBody + languageModule.bulkRead(variableName);
+    bulkRead: (endpoint: BulkInputEndpoint, variableName: string): Steps => {
+        funcBody = funcBody + languageModule.bulkRead(endpoint, variableName);
         return stepGenerator;
     },
 
@@ -186,7 +187,7 @@ export const generator = (
     import(`./language_${language}.ts`.toLowerCase()).then(
         (module) => {
             languageModule = module.default;
-            languageModule.setTimeout(timeout);
+            console.log(languageModule.prologue(timeout));
             buildSpec(methodGenerator, propertyGenerator);
         }
     );

@@ -2,6 +2,7 @@ import { lcr, gcl, gclInputBit} from "./register.ts";
 import { HexNumber, hex16 } from "./hex.ts";
 import { Method, Property, Specification, generator } from "./generator.ts";
 import { baudRateValues } from "./baud.ts";
+import { bulkInputEndpoint } from "./endpoint.ts";
 
 const specification: Specification = (method: Method, property: Property) => {
 
@@ -45,9 +46,7 @@ const specification: Specification = (method: Method, property: Property) => {
 
     method("readSerial")
         .defineVariable({ name: "transferred", type: "integer"}, "0x00")
-        // bulk transfer is synchronous in libusb - we should check for bytes
-        // available first.
-        .bulkRead("transferred")
+        .bulkRead(bulkInputEndpoint, "transferred")
         .end();
 }
 

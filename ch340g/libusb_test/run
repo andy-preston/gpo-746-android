@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 
 cd ch340g/libusb_test/
+echo compiling...
 gcc libusb_test.c $(pkg-config libusb-1.0 --libs --cflags) -o libusb_test
 if [ $? -eq 0 ]
 then

@@ -179,6 +179,12 @@ export type Specification = (
     propertyGenerator: Property
 ) => void;
 
+const output = (code: string): void => {
+    if (code) {
+        console.log(code);
+    }
+}
+
 export const generator = (
     language: LanguageFlag,
     timeout: number,
@@ -187,7 +193,7 @@ export const generator = (
     import(`./language_${language}.ts`.toLowerCase()).then(
         (module) => {
             languageModule = module.default;
-            console.log(languageModule.prologue(timeout));
+            output(languageModule.prologue(timeout));
             buildSpec(methodGenerator, propertyGenerator);
         }
     );

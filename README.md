@@ -9,10 +9,16 @@ Docker container for the Android build environment.
 ## Requirements
 
 The ATTiny code needs
-[GAVRAsm](http://www.avr-asm-tutorial.net/gavrasm/index_en.html)
-which can be downloaded with the script in `bin/get-binaries`
+[GAVRAsm](http://www.avr-asm-tutorial.net/gavrasm/index_en.html).
 
-The build system also uses `make`, `bc`, `awk` and `avrdude`
+There's a couple of TypeScript scripts to pre-calculate constants for the
+assembly code and build a library for the CH340G and for these you need
+[Deno](https://github.com/denoland/deno).
+
+These can both be downloaded with
+[bin/get-binaries](https://github.com/andy-preston/gpo-746-android/blob/android_ch340g_driver/bin/get-binaries)
+
+The build system also uses `make`, and `avrdude`
 
 We also need GNU C to build a prototype CH340G controller.
 

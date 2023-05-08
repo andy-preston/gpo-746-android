@@ -5,7 +5,7 @@
     out UBRRL, _io                       ; update of the baud rate prescale.
     ldi _io, 0                           ; Clear TXC.
     out UCSRA, _io                       ; Disable U2X & MPCM.
-    ldi	_io, (1 << RXEN) | (1 << TXEN)   ; Disable Interrupts. Enable TX & RX.
+    ldi	_io, (1 << TXEN)                 ; Disable Interrupts. Enable TX.
     out	UCSRB, _io                       ; Clear UCSZ2 (No 9 bits). Clear TXB8.
     ldi _io, (1 << UCSZ0) | (1 << UCSZ1) ; UMSEL = Async. UPM = No parity.
     out UCSRC, _io                       ; USBS = 1 Stop Bit. UCSZ1:0 = 8 bits.

@@ -43,7 +43,7 @@ import android.hardware.usb.UsbManager
 import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbEndpoint
 
-open class CH340G(d: UsbDevice, m: UsbManager) {
+class CH340GDriver(d: UsbDevice, m: UsbManager) {
     private val usbDevice = d
     private val usbManager = m
     private lateinit var usbDeviceConnection: UsbDeviceConnection

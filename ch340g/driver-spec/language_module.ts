@@ -2,6 +2,7 @@ import { type HexNumber } from './hex.ts';
 import { type ReadRequestCode, type WriteRequestCode } from "./request.ts";
 import { type ReadRegisterAddress, type WriteRegisterAddress } from "./register.ts";
 import { BulkInputEndpoint } from './endpoint.ts';
+import { BufferSize } from './buffer_size.ts';
 
 export type VariableType = "boolean" | "byte" | "integer";
 
@@ -11,7 +12,8 @@ export type Variable = {
 };
 
 export type LanguageModule = {
-    prologue: (useTimeout: number) => string;
+    prologue: (useTimeout: number, bufferSize: BufferSize) => string;
+    epilogue: () => string;
 
     functionHeader: (name: string, parameters?: Array<Variable>) => string;
 

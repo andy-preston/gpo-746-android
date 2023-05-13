@@ -4,6 +4,9 @@ import { type ReadRegisterAddress, type WriteRegisterAddress } from "./register.
 import { BulkInputEndpoint } from './endpoint.ts';
 import { BufferSize } from './buffer_size.ts';
 
+export const booleanStrings = ["true", "false"] as const;
+export type BooleanString = (typeof booleanStrings)[number];
+
 export type VariableType = "boolean" | "byte" | "integer";
 
 export type Variable = {
@@ -40,13 +43,13 @@ export type LanguageModule = {
     setBoolean: (booleanName: string, value: boolean) => string;
 
     setBooleanFromBit: (
-        booleanName: string,
+        booleanValue: string,
         bitwiseName: string,
         bitMask: HexNumber
     ) => string;
 
     ifConditionSetBit: (
-        booleanName: string,
+        booleanValue: string,
         bitwiseName: string,
         bitMask: HexNumber
     ) => string;

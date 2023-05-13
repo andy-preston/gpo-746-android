@@ -37,13 +37,13 @@ type Steps = {
     setBoolean: (booleanName: string, value: boolean) => Steps;
 
     setBooleanFromBit: (
-        booleanName: string,
+        booleanValue: string,
         bitwiseName: string,
         bitMask: HexNumber
     ) => Steps;
 
     ifConditionSetBit: (
-        booleanName: string,
+        booleanValue: string,
         bitwiseName: string,
         bitMask: HexNumber
     ) => Steps;
@@ -122,12 +122,12 @@ const stepGenerator: Steps = {
     },
 
     setBooleanFromBit: (
-        booleanName: string,
+        booleanValue: string,
         bitwiseName: string,
         bitMask: HexNumber
     ): Steps => {
         funcBody = funcBody + languageModule.setBooleanFromBit(
-            booleanName,
+            booleanValue,
             bitwiseName,
             bitMask
         );
@@ -135,12 +135,12 @@ const stepGenerator: Steps = {
     },
 
     ifConditionSetBit: (
-        booleanName: string,
+        booleanValue: string,
         bitwiseName: string,
         bitMask: HexNumber
     ): Steps => {
         funcBody = funcBody + languageModule.ifConditionSetBit(
-            booleanName,
+            booleanValue,
             bitwiseName,
             bitMask
         );

@@ -1,9 +1,17 @@
+import {
+    type LanguageModule,
+    type Variable,
+    type BooleanString,
+    booleanStrings
+} from "./language_module.ts";
 import { type HexNumber } from './hex.ts';
-import { LanguageModule, Variable } from "./language_module.ts";
-import { type ReadRequestCode, type WriteRequestCode } from "./request.ts";
-import { type ReadRegisterAddress, type WriteRegisterAddress } from "./register.ts";
 import { BulkInputEndpoint } from './endpoint.ts';
 import { type BufferSize } from './buffer_size.ts';
+import { type ReadRequestCode, type WriteRequestCode } from "./request.ts";
+import {
+    type ReadRegisterAddress,
+    type WriteRegisterAddress
+} from "./register.ts";
 
 let timeout = 0;
 
@@ -11,18 +19,14 @@ const typeConversion = {
     boolean: 'bool',
     byte: 'uint8_t',
     integer: 'int',
-};
+} as const;
 
 const parameterMapper = (parameter: Variable): string =>
     typeConversion[parameter.type] + " " + parameter.name;
 
-const functionParameters = (parameters?: Array<Variable>): string => {
-    if (parameters === undefined) {
-        return 'void';
-    }
-
-    return parameters.map(parameterMapper).join(", ");
-}
+const functionParameters = (parameters?: Array<Variable>): string => (
+    parameters === undefined ? "void" : parameters.map(parameterMapper).join(", ")
+);
 
 const language: LanguageModule = {
     epilogue: (): string => "",
@@ -130,20 +134,26 @@ union Buffer {
         `    ${booleanName} = ${value ? 'true' : 'false'};\n`,
 
     setBooleanFromBit: (
-        booleanName: string,
+        booleanValue: string,
         bitwiseName: string,
         bitMask: HexNumber
     ): string =>
-        `    ${booleanName} = (${bitwiseName} & ${bitMask}) == ${bitMask};\n`,
+        `    ${booleanValue} = (${bitwiseName} & ${bitMask}) == ${bitMask};\n`,
 
     ifConditionSetBit: (
-        booleanName: string,
+        booleanValue: string,
         bitwiseName: string,
         bitMask: HexNumber
-    ): string =>
-        `    ${bitwiseName} = ${booleanName} ?
-        (${bitwiseName} | ${bitMask}) :
-        (${bitwiseName} & ~${bitMask});\n`,
+    ): string => {
+        const simple = {
+            "true": `(${bitwiseName} | ${bitMask})`,
+            "false": `(${bitwiseName} & ~${bitMask})`,
+        } as const;
+        const operation = booleanStrings.includes(booleanValue as BooleanString) ?
+            simple[booleanValue as BooleanString] :
+            `${booleanValue} ? ${simple.true} : ${simple.false}`
+        return `    ${bitwiseName} = ${operation}\n`;
+    },
 
     invertBits: (variableName: string): string =>
         `    ${variableName} = ~${variableName};\n`,

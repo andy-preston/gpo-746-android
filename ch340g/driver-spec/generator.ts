@@ -1,5 +1,5 @@
+import { LanguageModule, Variable } from "./language_module.ts";
 import { type HexNumber } from './hex.ts';
-import { type BulkInputEndpoint } from './endpoint.ts';
 import {
     readRequestCode,
     type ReadRequestName,
@@ -12,9 +12,8 @@ import {
     writeRegister,
     type WriteRegisterName
 } from "./register.ts";
-import { LanguageModule, Variable } from "./language_module.ts";
-
-export type LanguageFlag = "C" | "Kotlin";
+import { BufferSize } from './buffer_size.ts';
+import { type BulkInputEndpoint } from './endpoint.ts';
 
 type Steps = {
     read: (
@@ -60,8 +59,13 @@ export type Method = (name: string, parameters?: Array<Variable>) => Steps;
 export type Property = (variable: Variable) => void;
 
 let languageModule: LanguageModule;
-
 let funcBody: string;
+
+const output = (code: string): void => {
+    if (code) {
+        console.log(code);
+    }
+}
 
 const stepGenerator: Steps = {
     read: (
@@ -157,8 +161,7 @@ const stepGenerator: Steps = {
     },
 
     end: (): void => {
-        funcBody = funcBody + languageModule.functionFooter();
-        console.log(funcBody);
+        output(funcBody + languageModule.functionFooter());
     }
 }
 
@@ -171,30 +174,37 @@ const methodGenerator: Method = (
 }
 
 const propertyGenerator: Property = (variable: Variable): void => {
-    console.log(languageModule.defineVariable(variable));
+    output(languageModule.defineVariable(variable));
 }
 
-export type Specification = (
+type Specification = (
     methodGenerator: Method,
     propertyGenerator: Property
 ) => void;
 
-const output = (code: string): void => {
-    if (code) {
-        console.log(code);
-    }
-}
+const supportedLanguages = ["C", "Kotlin"] as const;
+export type LanguageFlag = (typeof supportedLanguages)[number];
 
-export const generator = (
+type GeneratorParameters = {
     language: LanguageFlag,
     timeout: number,
+    bufferSize: BufferSize,
     buildSpec: Specification
-) => {
-    import(`./language_${language}.ts`.toLowerCase()).then(
+}
+
+export const generator = (parameters: GeneratorParameters) => {
+    if (!supportedLanguages.includes(parameters.language)) {
+        throw `${parameters.language} is not supported. Only [${supportedLanguages}]`;
+    }
+    import(`./language_${parameters.language}.ts`.toLowerCase()).then(
         (module) => {
             languageModule = module.default;
-            output(languageModule.prologue(timeout));
-            buildSpec(methodGenerator, propertyGenerator);
+            output(languageModule.prologue(
+                parameters.timeout,
+                parameters.bufferSize
+            ));
+            parameters.buildSpec(methodGenerator, propertyGenerator);
+            output(languageModule.epilogue());
         }
     );
 }

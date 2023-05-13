@@ -7,12 +7,6 @@
 #include <libusb.h>
 
 static struct libusb_device_handle *device = NULL;
-int status = 0;
-
-union Buffer {
-    uint8_t bytes[128];
-    uint16_t words[64];
-} buffer;
 
 /* Yes, I know this is a damn weird was to link functions in C
  * But I've always held that this preprocessor gubbins was a

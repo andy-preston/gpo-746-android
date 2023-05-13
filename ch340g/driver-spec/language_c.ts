@@ -3,6 +3,7 @@ import { LanguageModule, Variable } from "./language_module.ts";
 import { type ReadRequestCode, type WriteRequestCode } from "./request.ts";
 import { type ReadRegisterAddress, type WriteRegisterAddress } from "./register.ts";
 import { BulkInputEndpoint } from './endpoint.ts';
+import { type BufferSize } from './buffer_size.ts';
 
 let timeout = 0;
 
@@ -24,9 +25,31 @@ const functionParameters = (parameters?: Array<Variable>): string => {
 }
 
 const language: LanguageModule = {
-    prologue(useTimeout: number): string {
+    epilogue: (): string => "",
+
+    prologue: (useTimeout: number, bufferSize: BufferSize): string => {
         timeout = useTimeout;
-        return "";
+        return `int status = 0;
+
+int operationFailed(int operationStatus, char *message) {
+    status = operationStatus;
+    if (status != 0) {
+        fprintf(
+            stderr,
+            "%s\\n%d - %s\\n",
+            message,
+            status,
+            libusb_error_name(status)
+        );
+        return false;
+    }
+    return true;
+}
+
+union Buffer {
+    uint8_t bytes[${bufferSize}];
+    uint16_t words[${bufferSize / 2}];
+} buffer;\n`;
     },
 
     functionHeader: (name: string, parameters?: Array<Variable>): string =>
@@ -39,34 +62,35 @@ const language: LanguageModule = {
         request: ReadRequestCode,
         register: ReadRegisterAddress,
         variableName: string
-    ): string =>
-        `    status = libusb_control_transfer(
-        device,
-        LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_IN,
-        ${request},
-        ${register},
-        0,
-        buffer.bytes,
-        sizeof(buffer),
-        ${timeout}
-    );
-    if (status < 0) {
-        fprintf(stderr, "Failed to ${title}\\n");
+    ): string => `    if (operationFailed(
+        libusb_control_transfer(
+            device,
+            LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_IN,
+            ${request},
+            ${register},
+            0,
+            buffer.bytes,
+            sizeof(buffer),
+            ${timeout}
+        ),
+        "Failed to ${title}"
+    )) {
         return false;
     }
     ${variableName} = buffer.words[0];\n`,
 
     bulkRead: (endpoint: BulkInputEndpoint, variableName: string): string =>
-        `    status = libusb_bulk_transfer(
-        device,
-        ${endpoint},
-        buffer.bytes,
-        sizeof(buffer) - 1,
-        &${variableName},
-        0
-    );
-    if (status < 0) {
-        fprintf(stderr, "Bulk Read Failed\\n");
+        `    if (operationFailed(
+        libusb_bulk_transfer(
+            device,
+            ${endpoint},
+            buffer.bytes,
+            sizeof(buffer) - 1,
+            &${variableName},
+            0
+        ),
+        "Bulk Read Failed"
+    )) {
         return false;
     }
     buffer.bytes[${variableName}] = 0;\n`,
@@ -77,18 +101,19 @@ const language: LanguageModule = {
         register: WriteRegisterAddress|string,
         value: HexNumber
     ): string =>
-        `    status = libusb_control_transfer(
-        device,
-        LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_OUT,
-        ${request},
-        ${register},
-        ${value},
-        NULL,
-        0,
-        ${timeout}
-    );
-    if (status < 0) {
-        fprintf(stderr, "Failed ${title}\\n");
+        `    if (operationFailed(
+        libusb_control_transfer(
+            device,
+            LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_OUT,
+            ${request},
+            ${register},
+            ${value},
+            NULL,
+            0,
+            ${timeout}
+        ),
+        "Failed ${title}"
+    )) {
         return false;
     }\n`,
 

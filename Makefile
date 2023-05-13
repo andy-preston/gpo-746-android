@@ -18,9 +18,6 @@ test9: attiny/tests/9-dial-serial.hex
 
 attiny: attiny/main/phone.hex
 
-libusb: ch340g/libusb_test/*
-	ch340g/libusb_test/make
-
 attiny/modules/constants.asm: attiny/calculator/*
 	./bin/deno task calc >attiny/modules/constants.asm
 
@@ -28,17 +25,22 @@ attiny/modules/constants.asm: attiny/calculator/*
 	./bin/gavrasm -A -E -S -M $<
 
 ch340g/libusb_test/driver_functions.c: ch340g/driver-spec/*
-	./bin/deno task spec >./ch340g/libusb_test/driver_functions.c
+	./bin/deno task spec C >./ch340g/libusb_test/driver_functions.c
 
-sdk:
-	./bin/android-container sdk
+libusb: ch340g/libusb_test/*
+	ch340g/libusb_test/make
 
-build:
+android/app/src/main/java/com/gitlab/edgeeffect/gpo746/ch340g.kt:  ch340g/driver-spec/*
+	./bin/deno task spec Kotlin >./android/app/src/main/java/com/gitlab/edgeeffect/gpo746/ch340g.kt
+
+android:
 	./bin/android-container build
 
 test:
 	./bin/android-container test
 
+sdk:
+	./bin/android-container sdk
+
 clean:
 	rm -rf `cat .gitignore` gradlew* .gitattributes
-

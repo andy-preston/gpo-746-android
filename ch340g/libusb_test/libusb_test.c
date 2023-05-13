@@ -17,7 +17,7 @@ static struct libusb_device_handle *device = NULL;
 int libUsb(void);
 int usbDevice(void);
 int claimInterface(void);
-int setup(void);
+int setupAndRun(void);
 int testRtsOutput(void);
 char *testName;
 
@@ -73,14 +73,6 @@ int testSerialInput(void) {
     }
 }
 
-int tests() {
-    if (strcmp(testName, "rts-output") == 0) return testRtsOutput();
-    if (strcmp(testName, "ri-input") == 0) return testRiInput();
-    if (strcmp(testName, "serial-input") == 0) return testSerialInput();
-    fprintf (stderr, "parameter: rts-output ri-input serial-input\n");
-    return false;
-}
-
 int libUsb(void) {
     status = libusb_init(NULL);
     if (status < 0) {
@@ -108,17 +100,21 @@ int claimInterface(void) {
         fprintf(stderr, "Failed to claim interface\n");
         return false;
     }
-    status = setup() ? 0 : -1;
+    status = setupAndRun() ? 0 : -1;
     libusb_release_interface(device, 0);
     return status;
 }
 
-int setup(void) {
+int setupAndRun(void) {
     if (!initialise()) {
         return false;
     }
     if (!writeHandshake()) {
         return false;
     }
-    return tests();
+    if (strcmp(testName, "rts-output") == 0) return testRtsOutput();
+    if (strcmp(testName, "ri-input") == 0) return testRiInput();
+    if (strcmp(testName, "serial-input") == 0) return testSerialInput();
+    fprintf (stderr, "parameter: rts-output ri-input serial-input\n");
+    return false;
 }

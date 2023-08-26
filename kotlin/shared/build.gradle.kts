@@ -7,7 +7,7 @@ plugins {
 kotlin {
     targetHierarchy.default()
 
-    android {
+    androidTarget {
         compilations.all {
             kotlinOptions {
                 jvmTarget = "1.8"
@@ -15,17 +15,11 @@ kotlin {
         }
     }
 
-    /*
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach {
-        it.binaries.framework {
-            baseName = "shared"
+    listOf(linuxX64(), linuxArm32Hfp()).forEach {
+        it.binaries {
+            executable()
         }
     }
-    */
 
     sourceSets {
         val commonMain by getting {

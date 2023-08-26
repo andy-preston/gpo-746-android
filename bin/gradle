@@ -22,8 +22,8 @@ docker build --progress=plain --tag android_gpo ./docker
 
 docker run \
     --rm --interactive --tty \
-    --volume $(pwd):/usr/local/src \
+    --volume $(pwd)/kotlin:/usr/local/src \
     --volume $(pwd)/share:${SDK_ROOT} \
     --user $(id -u):$(id -g) \
-    --name android_gpo_run \
+    --name android_gpo \
     android_gpo ${COMMAND}

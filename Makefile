@@ -30,17 +30,5 @@ ch340g/libusb_test/driver_functions.c: ch340g/driver-spec/*
 libusb: ch340g/libusb_test/*
 	ch340g/libusb_test/make
 
-android/app/src/main/java/com/gitlab/edgeeffect/gpo746/ch340g.kt:  ch340g/driver-spec/*
-	./bin/deno task spec Kotlin >./android/app/src/main/java/com/gitlab/edgeeffect/gpo746/ch340g.kt
-
-android:
-	./bin/android-container build
-
-test:
-	./bin/android-container test
-
-sdk:
-	./bin/android-container sdk
-
 clean:
 	rm -rf `cat .gitignore` gradlew* .gitattributes

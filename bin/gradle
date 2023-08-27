@@ -23,6 +23,7 @@ docker build --progress=plain --tag android_gpo ./docker
 docker run \
     --rm --interactive --tty \
     --volume $(pwd)/kotlin:/usr/local/src \
+    --volume $(pwd)/temp:/var/gradle \
     --volume $(pwd)/share:${SDK_ROOT} \
     --user $(id -u):$(id -g) \
     --name android_gpo \

@@ -2,9 +2,9 @@ FROM ubuntu:focal
 
 ENV TERM=linux
 ENV DEBIAN_FRONTEND=noninteractive
-ENV GRADLE_USER_HOME=/usr/local/src/gradle
+ENV GRADLE_USER_HOME=/var/gradle/gradle
 ENV ANDROID_SDK_ROOT=/usr/local/share/android
-ENV KONAN_DATA_DIR=/usr/local/src/konan
+ENV KONAN_DATA_DIR=/var/gradle/konan
 ENV REPO_OS_OVERRIDE=linux
 ENV HOME=/var/tmp
 

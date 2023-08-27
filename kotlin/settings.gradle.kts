@@ -16,4 +16,3 @@ dependencyResolutionManagement {
 rootProject.name = "gpo-746"
 include(":android")
 include(":shared")
-include(":raspberry")

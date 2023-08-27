@@ -1,7 +1,6 @@
 #!/bin/bash
 
 SDK_ROOT=/usr/local/share/android
-GRADLE=/opt/gradle/gradle-8.3/bin/gradle
 
 case $1 in
 'sdk')
@@ -11,14 +10,8 @@ case $1 in
     COMMAND+=" build-tools;31.0.0"
     echo $COMMAND
     ;;
-'raspberry')
-    COMMAND="${GRADLE} linuxArm32HfpBinaries"
-    ;;
-'linux')
-    COMMAND="${GRADLE} linuxX64Binaries"
-    ;;
 'build' | 'test')
-    COMMAND="${GRADLE} ${1}"
+    COMMAND="/opt/gradle/gradle-8.3/bin/gradle ${1}"
     ;;
 *)
     COMMAND='bash'

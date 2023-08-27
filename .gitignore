@@ -3,7 +3,6 @@
 attiny/*/*.hex
 attiny/*/*.err
 attiny/*/*.lst
-attiny/modules/constants.asm
 ch340g/libusb_test/libusb_test
 ch340g/libusb_test/driver_functions.c
 kotlin/.gradle

@@ -19,6 +19,14 @@ kotlin {
         it.binaries {
             executable()
         }
+        it.compilations.getByName("main") {
+            cinterops {
+                val libusb by creating {
+                    defFile(project.file("src/linuxMain/libusb/just-enough.def"))
+                    packageName("libusb")
+                }
+            }
+        }
     }
 
     sourceSets {

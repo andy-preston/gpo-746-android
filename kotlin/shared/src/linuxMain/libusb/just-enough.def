@@ -1,0 +1,2 @@
+headers = /usr/local/src/shared/src/linuxMain/libusb/just-enough.h
+package = libusb

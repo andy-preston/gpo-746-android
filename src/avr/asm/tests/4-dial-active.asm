@@ -1,5 +1,5 @@
-    .include "attiny/modules/prelude.asm"
-    .include "attiny/modules/gpio.asm"
+    .include "prelude.asm"
+    .include "gpio.asm"
 
     SetupOutputs
     BlinkOff

@@ -1,52 +1,45 @@
-abstract class BuildTask: DefaultTask() {
-    @Internal
-    val cpuClockFrequency = 14745600;
+import java.io.FileOutputStream
 
-    @TaskAction
-    fun build() {
-        val dirName = "avr/build"
-        val dir = File(dirName)
-        if (!dir.exists()) {
-            dir.mkdirs()
-        }
-        File("${dirName}/constants.asm").writeText(
-            calculate(9600, 20).joinToString("\n")
-        )
-    }
+val moduleDirectory = layout.projectDirectory.dir("asm/modules")
+val testsDirectory = layout.projectDirectory.dir("asm/tests")
+val assemblyDirectory = layout.buildDirectory.dir("src")
+val assembly = "*.asm"
 
-    fun calculate(baudRate: Int, halfPeriod: Int): List<String> {
-        return timer1(halfPeriod.toDouble()) + listOf(baud(baudRate), "")
-    }
-
-    fun baud(baudRate: Int): String {
-        val multiplier: Int = baudRate * 16
-        val prescale: Int = cpuClockFrequency / multiplier
-        require(prescale * multiplier == cpuClockFrequency)
-        val derived: Int = cpuClockFrequency / (16 * prescale)
-        require(derived == baudRate)
-        return ".equ baudPrescale = ${prescale - 1}";
-    }
-
-    fun timer1(halfPeriod: Double): List<String> {
-        val prescaleBits = mapOf(
-            0 to "(1 << CS10)",
-            8 to "(1 << CS11)",
-            64 to "(1 << CS11) | (1 << CS10)",
-            256 to "(1 << CS12)",
-            1024 to "(1 << CS12) | (1 << CS10)"
-        )
-        val prescale = 256
-        val timerFrequency: Int = cpuClockFrequency / prescale
-        val tick: Double = (1.0 / timerFrequency) * 1000.0
-        val ringerTicks: Double = halfPeriod / tick
-        val approximateTicks: Int = ringerTicks.toInt()
-        require(approximateTicks <= 0xffff && approximateTicks > 1);
-        return listOf(
-            ".equ timer1prescale = ${prescaleBits[prescale]}",
-            ".equ ringerTicks = ${approximateTicks}"
-        );
-    }
-
+tasks.register<Copy>("prepareTests") {
+    from(testsDirectory)
+    include(assembly)
+    into(assemblyDirectory)
 }
 
-tasks.register<BuildTask>("build")
+tasks.register<Copy>("prepareModules") {
+    from(moduleDirectory)
+    include(assembly)
+    into(assemblyDirectory)
+    expand(AvrConstants().map())
+}
+
+testsDirectory.getAsFile().listFiles().forEach {
+    val sourceName = it.name
+    tasks.register<Exec>(sourceName.replace(".", "_").replace("-", "_")) {
+        dependsOn(tasks.withType<Copy>())
+        workingDir(assemblyDirectory)
+        doFirst {
+            standardOutput = FileOutputStream(
+                // This isn't very nice - but I'm having trouble grasping
+                // layout.buildDirectory works!
+                "avr/build/src/" + sourceName.replace(".asm", ".log")
+            )
+        }
+        commandLine(
+            "/opt/gavrasm/gavrasm",
+            "-E", // Longer error comments
+            "-S", // Symbol list in listing file
+            "-M", // Expand macro code
+            sourceName
+        )
+    }
+}
+
+tasks.register<DefaultTask>("build") {
+    dependsOn(tasks.withType<Exec>())
+}

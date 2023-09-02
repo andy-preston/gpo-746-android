@@ -1,8 +1,8 @@
 # Only include files here if you're prepared to have them deleted
 # by `make clean`
-attiny/*/*.hex
-attiny/*/*.err
-attiny/*/*.lst
+src/avr/asm/*/*.hex
+src/avr/asm/*/*.err
+src/avr/asm/*/*.lst
 ch340g/libusb_test/libusb_test
 ch340g/libusb_test/driver_functions.c
 src/*/.gradle

@@ -1,7 +1,6 @@
-    .include "attiny/modules/prelude.asm"
-    .include "attiny/modules/gpio.asm"
-    .include "attiny/modules/constants.asm"
-    .include "attiny/modules/timer.asm"
+    .include "prelude.asm"
+    .include "gpio.asm"
+    .include "timer.asm"
 
     SetupOutputs
     SetupTimer

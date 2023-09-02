@@ -1,6 +1,9 @@
 ; This is the delay for the ringer AND the blink test!
 ; using the blink test as part of the test for the ringer that way.
 
+; For timer1Prescale and timer1Ticks calculations, please see:
+;     src/buildSrc/src/main/kotlin/gpo_746/AvrConstants.kt
+
 .macro SetupTimer
     out TCCR1A, _zero                    ; Normal mode
     ldi _io, <%= timer1Prescale %>

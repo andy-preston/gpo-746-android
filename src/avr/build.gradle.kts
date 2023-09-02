@@ -3,7 +3,10 @@ import java.io.FileOutputStream
 val moduleDirectory = layout.projectDirectory.dir("asm/modules")
 val testsDirectory = layout.projectDirectory.dir("asm/tests")
 val assemblyDirectory = layout.buildDirectory.dir("src")
+val logDirectory = layout.buildDirectory.dir("log").get()
 val assembly = "*.asm"
+
+mkdir(logDirectory)
 
 tasks.register<Copy>("prepareTests") {
     from(testsDirectory)
@@ -19,23 +22,18 @@ tasks.register<Copy>("prepareModules") {
 }
 
 testsDirectory.getAsFile().listFiles().forEach {
-    val sourceName = it.name
-    tasks.register<Exec>(sourceName.replace(".", "_").replace("-", "_")) {
+    tasks.register<Exec>(it.name.replace(Regex("[.-]"), "_")) {
         dependsOn(tasks.withType<Copy>())
         workingDir(assemblyDirectory)
-        doFirst {
-            standardOutput = FileOutputStream(
-                // This isn't very nice - but I'm having trouble grasping
-                // layout.buildDirectory works!
-                "avr/build/src/" + sourceName.replace(".asm", ".log")
-            )
-        }
+        standardOutput = FileOutputStream(
+            logDirectory.file(it.name.replace(".asm", ".log")).asFile
+        )
         commandLine(
             "/opt/gavrasm/gavrasm",
             "-E", // Longer error comments
             "-S", // Symbol list in listing file
             "-M", // Expand macro code
-            sourceName
+            it.name
         )
     }
 }

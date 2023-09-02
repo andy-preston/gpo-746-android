@@ -5,5 +5,5 @@ attiny/*/*.err
 attiny/*/*.lst
 ch340g/libusb_test/libusb_test
 ch340g/libusb_test/driver_functions.c
-kotlin/.gradle
-kotlin/*/build
+src/*/.gradle
+src/*/build

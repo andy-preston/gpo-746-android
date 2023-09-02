@@ -1,4 +1,7 @@
- .macro SetupSerial
+; For baudPrescale calculations, please see:
+;     src/buildSrc/src/main/kotlin/gpo_746/AvrConstants.kt
+
+.macro SetupSerial
     ldi _io, high(<%= baudPrescale %>)   ; Set Baud rate.
     out UBRRH, _io                       ; Always set high before low!
     ldi _io, low(<%= baudPrescale %>)    ; Writing UBRRL triggers an immediate

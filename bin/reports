@@ -1,0 +1,3 @@
+#!/bin/bash
+
+(cd src ; chromium $(find -name index.html))

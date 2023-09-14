@@ -1,12 +1,9 @@
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-// /opt/gradle/gradle-8.3/bin/gradle -p buildSrc test
-
 class AvrConstantsTest {
-    // This isn't much in the way of a test
-    // But I'm implementing someone else's badly documented
-    // algorithm so I haven't got that much of a spec to go on.
+    // This isn't much in the way of a test but it does
+    // check the values I'm currently using are as I would expect them to be.
 
     @Test
     fun values_are_what_I_have_already_pre_calculated() {

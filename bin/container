@@ -1,0 +1,43 @@
+#!/bin/bash
+
+GRADLE='/opt/gradle/gradle-8.3/bin/gradle'
+
+case $1 in
+'sdk')
+    COMMAND=/opt/android/cmdline-tools/bin/sdkmanager
+    COMMAND+=" --sdk_root=/usr/local/share/android"
+    COMMAND+=" platforms;android-31"
+    COMMAND+=" build-tools;31.0.0"
+    ;;
+'build' | 'test')
+    COMMAND="${GRADLE} ${1}"
+    ;;
+'pretest')
+    COMMAND="${GRADLE} -p buildSrc test"
+    ;;
+*)
+    if [ -f /.dockerenv ]
+    then
+        echo 'Already running in container use:'
+        echo './command build|test|pretest|sdk'
+        exit
+    else
+        COMMAND='bash'
+    fi
+    ;;
+esac
+
+if [ -f /.dockerenv ]
+then
+    ${COMMAND}
+else
+    docker build --progress=plain --tag android_gpo ./docker
+    docker run \
+        --rm --interactive --tty \
+        --volume $(pwd)/src:/usr/local/src \
+        --volume $(pwd)/share:/usr/local/share \
+        --volume $(pwd)/bin/container:/usr/local/bin/container \
+        --user $(id -u):$(id -g) \
+        --name android_gpo \
+        android_gpo ${COMMAND}
+fi

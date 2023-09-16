@@ -3,7 +3,7 @@ package gpo_746
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class UsbInterfaceTest {
+class UsbSystemInterfaceTest {
 
     fun stringify(byteOrFailure: ByteOrFailure): String {
         return when (byteOrFailure) {

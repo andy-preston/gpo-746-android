@@ -2,7 +2,7 @@ final class AvrConstants {
     private val clockFrequency = 14745600
 
     // To match both sides of the connection, baudRate should be one of the
-    // keys in Ch340Constants.basis
+    // keys in Ch340gBaud.basis
     private val baudRate = 9600
 
     private val timer1HalfPeriod = 20

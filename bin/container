@@ -19,7 +19,7 @@ case $1 in
     if [ -f /.dockerenv ]
     then
         echo 'Already running in container use:'
-        echo './command build|test|pretest|sdk'
+        echo $(basename $0) 'build|test|pretest|sdk'
         exit
     else
         COMMAND='bash'

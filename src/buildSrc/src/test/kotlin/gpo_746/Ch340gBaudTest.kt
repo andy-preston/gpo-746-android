@@ -2,15 +2,12 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-class Ch340ConstantsTest {
-    // This isn't much in the way of a test but it does
-    // check the values I'm currently using are as I would expect them to be.
-
+class Ch340gBaudTest {
     @Test
     fun invalid_baud_rate_throws_an_exception() {
         val exception = assertFailsWith<Exception>(
             block = {
-                Ch340Constants().baudRate(1024);
+                Ch340gBaud().baudRate(1024);
             }
         )
         assertEquals(
@@ -20,7 +17,7 @@ class Ch340ConstantsTest {
     }
 
     @Test
-    fun calculated_values_from_free_bsd_match_lookup_table_from_other_drivers() {
+    fun calculated_baud_values_from_free_bsd_match_lookup_table_from_other_drivers() {
         val expectation = mapOf(
             2400 to mapOf("divisorPrescale" to 0xd901, "mod" to 0x0038 ),
             4800 to mapOf("divisorPrescale" to 0x6402, "mod" to 0x001f ),
@@ -30,7 +27,7 @@ class Ch340ConstantsTest {
             115200 to mapOf("divisorPrescale" to 0xcc03, "mod" to 0x0008 ),
         )
         for ((rate, expected) in expectation) {
-            val (divisorPrescale, mod) = Ch340Constants().baudRate(rate);
+            val (divisorPrescale, mod) = Ch340gBaud().baudRate(rate);
             assertEquals(
                 expected["divisorPrescale"],
                 divisorPrescale,

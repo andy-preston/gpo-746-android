@@ -9,24 +9,15 @@ class UsbSystemAndroid : UsbSystemInterface {
         throw Exception("Not implemented")
     }
 
-    override fun bulkRead(): ByteArrayOrFailure {
+    override fun bulkRead(): Array<UByte> {
         throw Exception("Not implemented")
     }
 
-    override fun read(
-        title: String,
-        request: ReadRequest,
-        register: ReadRegister
-    ): ByteOrFailure {
+    override fun read(request: UByte, addressOrPadding: UShort): UShort {
         throw Exception("Not implemented")
     }
 
-    override fun write(
-        title: String,
-        request: WriteRequest,
-        register: WriteRegister,
-        value: Short
-    ): NullOrFailure {
+    override fun write(request: UByte, addressOrValue: UShort, valueOrPadding: UShort) {
         throw Exception("Not implemented")
     }
 

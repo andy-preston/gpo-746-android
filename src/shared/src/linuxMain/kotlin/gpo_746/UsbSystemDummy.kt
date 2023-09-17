@@ -9,28 +9,18 @@ class UsbSystemDummy : UsbSystemInterface {
         println("Close")
     }
 
-    override fun bulkRead(): ByteArrayOrFailure {
+    override fun bulkRead(): Array<UByte> {
         println("Bulk Read")
-        return ByteArrayOrFailure.Success(Array(4) { _ -> 0x23u })
+        return Array(4) { _ -> 0x23u }
     }
 
-    override fun read(
-        title: String,
-        request: ReadRequest,
-        register: ReadRegister
-    ): ByteOrFailure {
+    override fun read(request: UByte, addressOrPadding: UShort): UShort {
         println("Read")
-        return ByteOrFailure.Success(0x23u)
+        return 0x23u
     }
 
-    override fun write(
-        title: String,
-        request: WriteRequest,
-        register: WriteRegister,
-        value: Short
-    ): NullOrFailure {
+    override fun write(request: UByte, addressOrValue: UShort, valueOrPadding: UShort) {
         println("Write")
-        return NullOrFailure.Success(null)
     }
 
 }

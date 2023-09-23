@@ -6,11 +6,11 @@
 
 .macro SetupTimer
     out TCCR1A, _zero                    ; Normal mode
-    ldi _io, <%= timer1Prescale %>
+    ldi _io, @timer1Prescale@
     out TCCR1B, _io
-    ldi _io, high(<%= timer1Ticks %>)
+    ldi _io, high(@timer1Ticks@)
     out OCR1AH, _io
-    ldi _io, low(<%= timer1Ticks %>)
+    ldi _io, low(@timer1Ticks@)
     out OCR1AL, _io
 .endMacro
 

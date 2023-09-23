@@ -24,8 +24,6 @@ enum class ReadRegister(val address: UShort) {
     gcl(0x0706u)
 }
 
-//val baudModLow1 = "14", baudPaddingHigh2 = "0F"; // some drivers use 2C not 14
-
 enum class WriteRegister(val address: UShort) {
     baudDivisorPrescale(0x1312u),
     baudMod(0x0F14u),
@@ -49,11 +47,6 @@ enum class GclInputBit(val mask: UByte)  {
 class Ch340g(usbSystem: UsbSystemInterface) {
 
     private val usb = usbSystem
-
-    // This is the version used in the prototype hardware
-    // Some of the stuff I've seen in BSD drivers wants version >= 0030
-    // There are also differences writing handshake with version < 0020
-    private val usedChipVersion: UShort = 0x0031u
 
     private var version: UShort = 0u
 
@@ -90,13 +83,12 @@ class Ch340g(usbSystem: UsbSystemInterface) {
 
     public fun initialise() {
         version = read(ReadRequest.vendorGetVersion)
-        if (version != usedChipVersion) {
-            throw Exception("version should be ${usedChipVersion}, but it's ${version}")
+        if (version != @usedChipVersion@.toUShort()) {
+            throw Exception("version should be @usedChipVersion@, but it's ${version}")
         }
         write(WriteRequest.vendorSerialInit, 0u)
-        writeRegisters(WriteRegister.baudDivisorPrescale, baud.divisorPrescale)
-        writeRegisters(WriteRegister.baudMod, baud.mod)
-        writeRegisters(WriteRegister.lcr, defaultLcr)
+        writeRegisters(WriteRegister.baudDivisorPrescale, @divisorPrescale@)
+        writeRegisters(WriteRegister.baudMod, @mod@)
+        writeRegisters(WriteRegister.lcr, @defaultLcr@)
     }
-
 }

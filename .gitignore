@@ -7,3 +7,4 @@ ch340g/libusb_test/libusb_test
 ch340g/libusb_test/driver_functions.c
 src/*/.gradle
 src/*/build
+src/shared/src/commonMain/kotlin/gpo_746/Ch340g.kt

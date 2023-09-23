@@ -1,1 +1,2 @@
 *.kt_template linguist-language=kotlin
+*.kts linguist-language=kotlin

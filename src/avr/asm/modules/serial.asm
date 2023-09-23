@@ -2,9 +2,9 @@
 ;     src/buildSrc/src/main/kotlin/gpo_746/AvrConstants.kt
 
 .macro SetupSerial
-    ldi _io, high(<%= baudPrescale %>)   ; Set Baud rate.
+    ldi _io, high(@baudPrescale@)        ; Set Baud rate.
     out UBRRH, _io                       ; Always set high before low!
-    ldi _io, low(<%= baudPrescale %>)    ; Writing UBRRL triggers an immediate
+    ldi _io, low(@baudPrescale@)         ; Writing UBRRL triggers an immediate
     out UBRRL, _io                       ; update of the baud rate prescale.
     ldi _io, 0                           ; Clear TXC.
     out UCSRA, _io                       ; Disable U2X & MPCM.

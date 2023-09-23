@@ -1,4 +1,5 @@
 import java.io.FileOutputStream
+import org.apache.tools.ant.filters.ReplaceTokens
 
 val moduleDirectory = layout.projectDirectory.dir("asm/modules")
 val testsDirectory = layout.projectDirectory.dir("asm/tests")
@@ -18,7 +19,10 @@ tasks.register<Copy>("prepareModules") {
     from(moduleDirectory)
     include(assembly)
     into(assemblyDirectory)
-    expand(AvrConstants().map())
+    filter(
+        ReplaceTokens::class,
+        "tokens" to AvrConstants().map()
+    )
 }
 
 testsDirectory.getAsFile().listFiles().forEach {

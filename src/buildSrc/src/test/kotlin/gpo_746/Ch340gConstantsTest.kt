@@ -1,13 +1,38 @@
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotEquals
 
-class Ch340gBaudTest {
+class Ch340gConstantsTest {
+
+    @Test
+    fun bits_are_combined_into_2_bytes_as_big_endian_word() {
+        val constants = Ch340gConstants()
+        assertEquals(
+            "83",
+            constants.defaultLcr().toString(16)
+        )
+        assertEquals(
+            "6ca",
+            constants.lcr(
+                setOf(
+                    Lcr1Bit.CS7,
+                    Lcr1Bit.parityEnable,
+                    Lcr1Bit.enableTX,
+                    Lcr1Bit.enableRX
+                ),
+                setOf(
+                    Lcr2Bit.parityOdd
+                )
+            ).toString(16)
+        )
+    }
+
     @Test
     fun invalid_baud_rate_throws_an_exception() {
         val exception = assertFailsWith<Exception>(
             block = {
-                Ch340gBaud().baudRate(1024);
+                Ch340gConstants().baudRate(1024);
             }
         )
         assertEquals(
@@ -27,7 +52,7 @@ class Ch340gBaudTest {
             115200 to mapOf("divisorPrescale" to 0xcc03, "mod" to 0x0008 ),
         )
         for ((rate, expected) in expectation) {
-            val (divisorPrescale, mod) = Ch340gBaud().baudRate(rate);
+            val (divisorPrescale, mod) = Ch340gConstants().baudRate(rate)
             assertEquals(
                 expected["divisorPrescale"],
                 divisorPrescale,

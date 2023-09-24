@@ -1,13 +1,9 @@
 package gpo_746
 
 interface UsbSystemInterface {
-    fun open()
-
-    fun close()
-
-    fun bulkRead(): Array<UByte>
-
-    fun read(request: UByte, addressOrPadding: UShort): UShort
-
-    fun write(request: UByte, addressOrValue: UShort, valueOrPadding: UShort)
+    public fun open()
+    public fun close()
+    public fun bulkRead(): Array<UByte>
+    public fun read(requestCode: UByte, addressOrPadding: UShort): Array<UByte>
+    public fun write(requestCode: UByte, addressOrValue: UShort, valueOrPadding: UShort)
 }

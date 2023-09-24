@@ -34,6 +34,9 @@ export type LanguageModule = {
     write: (
         title: string,
         request: WriteRequestCode,
+        // Can't say I'm mad keen on that "string" there
+        // It's so we can do requestCode.VendorModemControl and what's usually
+        // a register is then a variable
         register: WriteRegisterAddress|string,
         value: HexNumber
     ) => string;
@@ -47,6 +50,12 @@ export type LanguageModule = {
         bitwiseName: string,
         bitMask: HexNumber
     ) => string;
+
+    /* We don't end up with particularly idiomatic C using these methods
+     * for bit manipulation. But I think it's a good compromise to get both
+     * Kotlin and C out of the same spec. Ironically, the C code it does produce
+     * is probably closer to the machine code it'll eventually compile down to
+     */
 
     ifConditionSetBit: (
         booleanValue: string,

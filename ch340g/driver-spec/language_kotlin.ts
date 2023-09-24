@@ -20,8 +20,14 @@ let timeout = 0;
 
 const typeConversion = {
     boolean: 'Boolean',
-    byte: 'UByte',
+    byte: 'Byte',
     integer: 'Int',
+} as const;
+
+const defaultValues = {
+    boolean: 'false',
+    byte: '0',
+    integer: '0',
 } as const;
 
 const parameterMapper = (parameter: Variable): string =>
@@ -38,25 +44,20 @@ const language: LanguageModule = {
         timeout = useTimeout;
         return `package com.gitlab.edgeeffect.gpo746
 
-import android.hardware.usb.UsbDevice
-import android.hardware.usb.UsbManager
+import com.gitlab.edgeeffect.gpo746.CH340GResult
+import android.hardware.usb.UsbConstants
 import android.hardware.usb.UsbDeviceConnection
-import android.hardware.usb.UsbEndpoint
 
-class CH340GDriver(d: UsbDevice, m: UsbManager) {
-    private val usbDevice = d
-    private val usbManager = m
-    private lateinit var usbDeviceConnection: UsbDeviceConnection
-    protected lateinit var receiveEndpoint: UsbEndpoint
-    protected lateinit var sendEndpoint: UsbEndpoint
+open class CH340GDriver() {
     private var buffer = ByteArray(${bufferSize})
-    private var status = 0`;
+    private var status = 0
+    protected lateinit var usbDeviceConnection: UsbDeviceConnection`;
     },
 
     functionHeader: (name: string, parameters?: Array<Variable>): string =>
-        `\n    public fun ${name}(${functionParameters(parameters)}): CH340Result {\n`,
+        `\n    public fun ${name}(${functionParameters(parameters)}): CH340GResult {\n`,
 
-    functionFooter: (): string => "        return CH340Result.Success()\n    }",
+    functionFooter: (): string => "        return CH340GResult.Success(0)\n    }",
 
     read: (
         title: string,
@@ -73,11 +74,16 @@ class CH340GDriver(d: UsbDevice, m: UsbManager) {
             ${timeout}
         )
         if (status < 0) {
-            return CH340Result.Error("${title} - error $status")
+            return CH340GResult.Error("${title} - error $status")
         }
-        ${variableName} = buffer[1].toUInt().or(buffer[0].toUInt().shl(8))\n`,
+        ${variableName} = (buffer[1].toUInt().or(buffer[0].toUInt().shl(8))).toInt()\n`,
 
     bulkRead: (endpoint: BulkInputEndpoint, variableName: string): string =>
+        ////////////////////////////////////////////////////////////////////////
+        //
+        // And how do we access the buffer?
+        //
+        ////////////////////////////////////////////////////////////////////////
         `        ${variableName} = usbDeviceConnection.bulkTransfer(
             ${endpoint},
             buffer,
@@ -97,15 +103,15 @@ class CH340GDriver(d: UsbDevice, m: UsbManager) {
             ${value},
             null,
             0,
-            timeoutMilliseconds
+            ${timeout}
         )
         if (status < 0) {
-            return CH340Result.Error("${title} control out - error $status")
+            return CH340GResult.Error("${title} control out - error $status")
         }\n`,
 
     check: (variableName: string, value: HexNumber): string =>
         `        if (${variableName} != ${value}) {
-            return CH340Result.Error(
+            return CH340GResult.Error(
                 "${variableName} should be ${value}, but is $${variableName}"
             )
         }\n`,
@@ -144,11 +150,13 @@ class CH340GDriver(d: UsbDevice, m: UsbManager) {
         // we assume that if there's no initial value, it must be a property
         // and then there's less indentation
         const property = initialValue === undefined;
+        const variableType = typeConversion[variable.type]
+        const useInitialValue = property ?
+            defaultValues[variable.type] :
+            initialValue
         return (
-            property ? "    private lateinit " : "        "
-        ) + `var ${variable.name}: ${typeConversion[variable.type]}` + (
-            property ? "" : ` = ${initialValue}\n`
-        );
+            property ? "    protected " : "        "
+        ) + `var ${variable.name}: ${variableType} = ${useInitialValue}\n`;
     }
 
 };

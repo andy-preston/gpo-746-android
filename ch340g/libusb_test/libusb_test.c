@@ -29,16 +29,13 @@ int main(int argc, char **argv) {
 int testRtsOutput(void) {
     fprintf(stdout, "testing RTS Output\n");
     while (true) {
-        if (!writeHandshake()) {
+        if (!writeHandshake(false)) {
             return false;
         }
         sleep(1);
-        handshakeOutputRTS = true;
-        if (!writeHandshake()) {
+        if (!writeHandshake(true)) {
             return false;
         };
-        sleep(1);
-        handshakeOutputRTS = false;
     }
 }
 

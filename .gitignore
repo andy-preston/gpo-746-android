@@ -1,5 +1,3 @@
-# Only include files here if you're prepared to have them deleted
-# by `make clean`
 src/avr/asm/*/*.hex
 src/avr/asm/*/*.err
 src/avr/asm/*/*.lst

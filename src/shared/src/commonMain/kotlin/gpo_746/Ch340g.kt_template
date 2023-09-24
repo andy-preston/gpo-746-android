@@ -58,12 +58,19 @@ class Ch340g(usbSystem: UsbSystemInterface) {
         usb.write(WriteRequest.vendorWriteRegisters.code, register.address, value)
     }
 
+    private fun shortFromBuffer(buffer: Array<UByte>): UShort {
+        return (buffer[0] * 256u + buffer[1]).toUShort()
+    }
+
     private fun read(request: ReadRequest): UShort {
-        return usb.read(request.code, 0u)
+        return shortFromBuffer(usb.read(request.code, 0u))
     }
 
     private fun readRegisters(register: ReadRegister): UShort {
-        return usb.read(ReadRequest.vendorReadRegisters.code, register.address)
+        return shortFromBuffer(usb.read(
+            ReadRequest.vendorReadRegisters.code,
+            register.address
+        ))
     }
 
     public fun writeHandshake(handshakeOutputRTS: Boolean) {

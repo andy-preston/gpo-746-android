@@ -1,24 +1,31 @@
 package gpo_746
 
-class UsbSystemAndroid : UsbSystemInterface {
-    override fun open() {
+class UsbSystemAndroid() : UsbSystemInterface {
+
+    override public fun open() {
         throw Exception("Not implemented")
     }
 
-    override fun close() {
+    override public fun close() {
         throw Exception("Not implemented")
     }
 
-    override fun bulkRead(): Array<UByte> {
+    override public fun bulkRead(): Array<UByte> {
         throw Exception("Not implemented")
     }
 
-    override fun read(request: UByte, addressOrPadding: UShort): UShort {
+    override public fun read(
+        requestCode: UByte,
+        addressOrPadding: UShort
+    ): Array<UByte> {
         throw Exception("Not implemented")
     }
 
-    override fun write(request: UByte, addressOrValue: UShort, valueOrPadding: UShort) {
+    override public fun write(
+        requestCode: UByte,
+        addressOrValue: UShort,
+        valueOrPadding: UShort
+    ) {
         throw Exception("Not implemented")
     }
-
 }

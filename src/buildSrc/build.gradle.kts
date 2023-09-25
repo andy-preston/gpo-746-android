@@ -4,9 +4,6 @@ plugins {
 
 sourceSets {
     val main by getting {
-        dependencies {
-            //put your multiplatform dependencies here
-        }
     }
     val test by getting {
         dependencies {

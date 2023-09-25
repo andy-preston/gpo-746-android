@@ -1,11 +1,30 @@
 #!/bin/bash
 
-GRADLE='/opt/gradle/gradle-8.3/bin/gradle'
+CONTAINER_SHARE="/usr/local/share"
+CONTAINER_SRC="/usr/local/src"
+CONTAINER_BIN="/usr/local/bin"
+GRADLE="/opt/gradle/gradle-8.3/bin/gradle"
+ANDROID_SDK_ROOT="${CONTAINER_SHARE/android}"
+
+LOCAL_SRC="$(pwd)/src"
+LOCAL_BIN="$(pwd)/bin"
+LOCAL_SHARE="$(pwd)/share"
+LOCAL_BUILD="${LOCAL_SHARE}/build"
+
+mkdir -p ${LOCAL_BUILD}/build-android
+mkdir -p ${LOCAL_BUILD}/build-avr
+mkdir -p ${LOCAL_BUILD}/build-buildSrc
+mkdir -p ${LOCAL_BUILD}/build-shared
+mkdir -p ${LOCAL_BUILD}/buildSrc-cache
+mkdir -p ${LOCAL_BUILD}/gradle
+mkdir -p ${LOCAL_BUILD}/konan
+mkdir -p ${LOCAL_BUILD}/project-cache
+mkdir -p ${LOCAL_SHARE}/android
 
 case $1 in
 'sdk')
     COMMAND=/opt/android/cmdline-tools/bin/sdkmanager
-    COMMAND+=" --sdk_root=/usr/local/share/android"
+    COMMAND+=" --sdk_root=${ANDROID_SDK_ROOT}"
     COMMAND+=" platforms;android-31"
     COMMAND+=" build-tools;31.0.0"
     ;;
@@ -34,10 +53,27 @@ else
     docker build --progress=plain --tag android_gpo ./docker
     docker run \
         --rm --interactive --tty \
-        --volume $(pwd)/src:/usr/local/src \
-        --volume $(pwd)/share:/usr/local/share \
-        --volume $(pwd)/bin/container:/usr/local/bin/container \
+        --volume "${LOCAL_BIN}/container:${CONTAINER_BIN}/container" \
+        --volume "${LOCAL_SRC}:${CONTAINER_SRC}" \
+        --workdir "${CONTAINER_SRC}" \
+        --volume "${LOCAL_SHARE}/android:${ANDROID_SDK_ROOT}" \
+        --env "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}" \
+        --volume "${LOCAL_BUILD}/build-android:${CONTAINER_SRC}/android/build" \
+        --volume "${LOCAL_BUILD}/build-avr:${CONTAINER_SRC}/avr/build" \
+        --volume "${LOCAL_BUILD}/build-buildSrc:${CONTAINER_SRC}/buildSrc/build" \
+        --volume "${LOCAL_BUILD}/build-shared:${CONTAINER_SRC}/shared/build" \
+        --volume "${LOCAL_BUILD}/buildSrc-cache:${CONTAINER_SRC}/buildSrc/.gradle" \
+        --volume "${LOCAL_BUILD}/gradle:${CONTAINER_SHARE}/gradle" \
+        --env "GRADLE_USER_HOME=${CONTAINER_SHARE}/gradle" \
+        --volume "${LOCAL_BUILD}/konan:${CONTAINER_SHARE}/konan" \
+        --env "KONAN_DATA_DIR=${CONTAINER_SHARE}/konan" \
+        --volume "${LOCAL_BUILD}/project-cache:${CONTAINER_SRC}/.gradle" \
         --user $(id -u):$(id -g) \
         --name android_gpo \
         android_gpo ${COMMAND}
 fi
+
+for BIND in $(cd src ; find -name build -or -name .gradle)
+do
+    rmdir src/$BIND
+done

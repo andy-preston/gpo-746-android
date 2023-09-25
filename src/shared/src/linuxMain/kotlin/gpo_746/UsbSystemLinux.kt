@@ -61,7 +61,7 @@ class UsbSystemLinux() : UsbSystemInterface {
             status = libusb_bulk_transfer(
                 device,
                 0x82u, // TODO: should be macro expansion @bulkInputEndpoint@,
-                buffer.refTo(0), // Pointer to byte array
+                buffer.refTo(0),
                 16 - 1, // TODO: buffer size should be macro expansion
                 transferred_c.ptr,
                 0u
@@ -86,7 +86,7 @@ class UsbSystemLinux() : UsbSystemInterface {
             requestCode,
             addressOrPadding,
             0u,
-            buffer.refTo(0), // Pointer to byte array
+            buffer.refTo(0),
             2u,
             1000u // TODO: should be macro expansion to @usbTimeout@
         )

@@ -1,3 +1,11 @@
 #!/bin/bash
 
-(cd src ; chromium $(find -name index.html))
+(
+    for DIR in $(find share/build -name reports)
+    do
+        for FILE in "${DIR}/*.html"
+        do
+            /usr/bin/chromium $FILE
+        done
+    done
+)

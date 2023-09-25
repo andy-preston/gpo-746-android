@@ -2,13 +2,8 @@ FROM ubuntu:focal
 
 ENV TERM=linux
 ENV DEBIAN_FRONTEND=noninteractive
-ENV GRADLE_USER_HOME=/usr/local/share/gradle
-ENV ANDROID_SDK_ROOT=/usr/local/share/android
-ENV KONAN_DATA_DIR=/usr/local/share/konan
 ENV REPO_OS_OVERRIDE=linux
 ENV HOME=/var/tmp
-
-WORKDIR /usr/local/src
 
 RUN apt-get update && \
     apt-get -y upgrade && \

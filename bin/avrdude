@@ -7,8 +7,11 @@ AVRDUDE="avrdude ${PROGRAMMER} -p t2313 -V"
 
 if [ -z "$1" ]
 then
-    echo ./bin/avrdude {make_target}
+    echo ./bin/avrdude hex_file
     echo ./bin/avrdude fuses
+    echo
+    echo Available Hex Files:
+    ls share/build/build-avr/src/*.hex
     exit
 fi
 
@@ -18,6 +21,4 @@ then
     exit
 fi
 
-make $1
-HEX=$(awk -v t=${1} '$1 ~ t { print $2 }' Makefile)
-${AVRDUDE} -U "flash:w:${HEX}:i" -U "flash:v:${HEX}:i"
+echo ${AVRDUDE} -U "flash:w:$1:i" -U "flash:v:$1:i"

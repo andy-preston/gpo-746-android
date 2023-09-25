@@ -5,7 +5,7 @@
 
 case $1 in
 'install')
-    COMMAND="install -r -d android/app/build/outputs/apk/debug/app-debug.apk"
+    COMMAND="install -r -d share/build/build-android/outputs/apk/release/android-release-unsigned.apk"
     ;;
 *)
     COMMAND="$@"

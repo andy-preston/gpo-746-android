@@ -1,5 +1,7 @@
 #include <stdint.h>
 
+/* Just enough of libusb for my Linux test framework to work */
+
 struct libusb_device_handle;
 typedef struct libusb_device_handle libusb_device_handle;
 

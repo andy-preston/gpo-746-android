@@ -71,9 +71,9 @@ else
         --user $(id -u):$(id -g) \
         --name android_gpo \
         android_gpo ${COMMAND}
+    for BIND in $(cd src ; find -name build -or -name .gradle)
+    do
+        rmdir src/$BIND
+    done
 fi
 
-for BIND in $(cd src ; find -name build -or -name .gradle)
-do
-    rmdir src/$BIND
-done

@@ -1,9 +1,14 @@
 package gpo_746
 
+import android.hardware.usb.UsbInterface
+
 class UsbSystemAndroid() : UsbSystemInterface {
 
-    override public fun open() {
+    override public fun open(timeout: Int) {
         throw Exception("Not implemented")
+    }
+
+    private fun findReadEndpoint(dataInterface: UsbInterface) {
     }
 
     override public fun close() {

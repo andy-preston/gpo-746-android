@@ -5,7 +5,7 @@ class TestCases() {
     private val usbSystem = UsbSystemLinux()
 
     private fun openClose() {
-        usbSystem.open()
+        usbSystem.open(0)
         usbSystem.close()
     }
     

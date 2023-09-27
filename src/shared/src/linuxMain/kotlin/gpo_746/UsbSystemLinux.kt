@@ -3,6 +3,7 @@ package gpo_746
 import kotlinx.cinterop.*
 import libusb.*
 
+@OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 class UsbSystemLinux() : UsbSystemInterface {
 
     private var interfaceClaimed: Boolean = false
@@ -11,14 +12,14 @@ class UsbSystemLinux() : UsbSystemInterface {
 
     private var buffer = UByteArray(16) // should be macro expansion for size
 
-    // private val buffer CValuesRef<UByteVar>?
-
-    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
     private var device: CPointer<libusb_device_handle>? = null
 
-    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
-    override public fun open() {
+    private var usbTimeout: UInt = 1000u
+
+    override public fun open(timeout: Int) {
         var status: Int
+
+        usbTimeout = timeout.toUInt()
 
         status = libusb_init(null)
         libInitialised = status == 0
@@ -37,7 +38,6 @@ class UsbSystemLinux() : UsbSystemInterface {
 
     }
 
-    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
     override public fun close() {
         if (interfaceClaimed) {
             libusb_release_interface(device, 0)
@@ -53,7 +53,6 @@ class UsbSystemLinux() : UsbSystemInterface {
         }
     }
 
-    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
     override public fun bulkRead(): Array<UByte> {
         var status: Int = 0
         val transferred: Int = memScoped {
@@ -64,7 +63,7 @@ class UsbSystemLinux() : UsbSystemInterface {
                 buffer.refTo(0),
                 16 - 1, // TODO: buffer size should be macro expansion
                 transferred_c.ptr,
-                0u
+                usbTimeout
             )
             transferred_c.value
         }
@@ -75,7 +74,6 @@ class UsbSystemLinux() : UsbSystemInterface {
         return buffer.toTypedArray()
     }
 
-    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
     override public fun read(
         requestCode: UByte,
         addressOrPadding: UShort
@@ -88,7 +86,7 @@ class UsbSystemLinux() : UsbSystemInterface {
             0u,
             buffer.refTo(0),
             2u,
-            1000u // TODO: should be macro expansion to @usbTimeout@
+            usbTimeout
         )
         if (status != 0) {
             throw Exception("Control transfer read failed ${status}")
@@ -96,7 +94,6 @@ class UsbSystemLinux() : UsbSystemInterface {
         return buffer.toTypedArray()
     }
 
-    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
     override public fun write(
         requestCode: UByte,
         addressOrValue: UShort,
@@ -110,7 +107,7 @@ class UsbSystemLinux() : UsbSystemInterface {
             valueOrPadding,
             null,
             0u,
-            1000u // TODO: should be macro expansion to @usbTimeout@
+            usbTimeout
         )
         if (status != 0) {
             throw Exception("Control transfer write failed ${status}")

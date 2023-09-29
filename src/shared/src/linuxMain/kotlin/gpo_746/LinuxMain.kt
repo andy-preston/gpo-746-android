@@ -4,7 +4,7 @@ fun main(args: Array<String>) {
     val testCases = TestCases().list()
     if (args.size == 0) {
         println("Available test cases:")
-        testCases.forEach { (testName, testMethod) ->
+        testCases.keys.forEach { testName ->
             println(testName)
         }
     } else {

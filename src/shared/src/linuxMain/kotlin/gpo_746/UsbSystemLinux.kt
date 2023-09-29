@@ -5,47 +5,110 @@ import libusb.*
 
 @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 class UsbSystemLinux() : UsbSystemInterface {
-
+    private var libInitialised: Boolean = false
     private var interfaceClaimed: Boolean = false
 
-    private var libInitialised: Boolean = false
-
-    private var buffer = UByteArray(16) // should be macro expansion for size
-
-    private var device: CPointer<libusb_device_handle>? = null
-
     private var usbTimeout: UInt = 1000u
+    private var handle: CPointer<libusb_device_handle>? = null
+    private var device: CPointer<libusb_device>? = null
+    private var bulkReadEndpoint: UByte = 0u
+    private var buffer: UByteArray? = null
 
-    override public fun open(timeout: Int) {
-        var status: Int
+    private fun assertTrue(condition: Boolean, operationHint: String) {
+        if (!condition) {
+            throw Exception("**Failed** ${operationHint}")
+        }
+    }
 
+    private fun assertZeroStatus(status: Int, operationHint: String): Boolean {
+        val condition = status == 0
+        assertTrue(condition, "${status} - ${operationHint}")
+        return condition
+    }
+
+    private fun openDevice(vid: UShort, pid: UShort) {
+        handle = libusb_open_device_with_vid_pid(null, vid, pid)
+        assertTrue(handle != null, "libusb_open_device_with_vid_pid")
+        device = libusb_get_device(handle)
+        assertTrue(device != null, "libusb_get_device")
+    }
+
+    private fun claimInterface() {
+        if (libusb_kernel_driver_active(handle, 0) == 1) {
+            println("Linux driver is active... detaching")
+            assertZeroStatus(
+                libusb_detach_kernel_driver(handle, 0),
+                "libusb_detach_kernel_driver"
+            )
+        }
+        interfaceClaimed = assertZeroStatus(
+            libusb_claim_interface(handle, 0),
+            "libusb_claim_interface"
+        )
+    }
+
+    private inline fun isInput(endpoint: libusb_endpoint_descriptor): Boolean {
+        return endpoint.bEndpointAddress.and(
+            LIBUSB_ENDPOINT_DIR_MASK.toUByte()
+        ) == LIBUSB_ENDPOINT_IN.toUByte()
+    }
+
+    private inline fun isBulk(endpoint: libusb_endpoint_descriptor): Boolean {
+        return endpoint.bmAttributes.and(
+            LIBUSB_TRANSFER_TYPE_MASK.toUByte()
+        ) == LIBUSB_TRANSFER_TYPE_BULK.toUByte()
+    }
+
+    private inline fun interfaceDescriptor(
+        config: CPointerVar<libusb_config_descriptor>
+    ): libusb_interface_descriptor {
+        return config.pointed!!.`interface`!!.pointed.altsetting!!.pointed
+    }
+
+    private inline fun findReadEndpoint(
+        endpoints: CPointer<libusb_endpoint_descriptor>,
+        numEndpoints: Int
+    ) : UByte {
+        for (index in 0..numEndpoints - 1) {
+            val endpoint = endpoints[index]
+            if (isInput(endpoint) and isBulk(endpoint)) {
+                return endpoint.bEndpointAddress
+            }
+        }
+        return 0u
+    }
+
+    override public fun open(vid: UShort, pid: UShort, timeout: Int) {
         usbTimeout = timeout.toUInt()
 
-        status = libusb_init(null)
-        libInitialised = status == 0
-        if (!libInitialised) {
-            throw Exception("Failed to initialise libusb: ${status}")
+        libInitialised = assertZeroStatus(libusb_init(null), "libusb_init")
+        openDevice(vid, pid)
+        claimInterface()
+        memScoped {
+            val config = alloc<CPointerVar<libusb_config_descriptor>>()
+            assertZeroStatus(
+                libusb_get_active_config_descriptor(device, config.ptr),
+                "libusb_get_active_config_descriptor"
+            )
+            val iFace = interfaceDescriptor(config)
+            bulkReadEndpoint = findReadEndpoint(
+                iFace.endpoint!!,
+                iFace.bNumEndpoints.toInt()
+            )
         }
-        device = libusb_open_device_with_vid_pid(null, 0x1a86u, 0x7523u)
-        if (device == null) {
-            throw Exception("Failed to open USB device")
-        }
-        status = libusb_claim_interface(device, 0)
-        interfaceClaimed = status == 0
-        if (!interfaceClaimed) {
-            throw Exception("Failed to claim interface: ${status}")
-        }
-
+        assertTrue(bulkReadEndpoint.toUInt() != 0u, "Find bulk read endpoint")
+        val packetSize = libusb_get_max_packet_size(device, bulkReadEndpoint)
+        buffer = UByteArray(packetSize)
     }
 
     override public fun close() {
         if (interfaceClaimed) {
-            libusb_release_interface(device, 0)
+            libusb_release_interface(handle, 0)
             interfaceClaimed = false
         }
-        if (device != null) {
-            libusb_close(device)
-            device = null
+        if (handle != null) {
+            libusb_close(handle)
+            handle = null
         }
         if (libInitialised) {
             libusb_exit(null)
@@ -58,9 +121,9 @@ class UsbSystemLinux() : UsbSystemInterface {
         val transferred: Int = memScoped {
             var transferred_c = alloc<IntVar>()
             status = libusb_bulk_transfer(
-                device,
-                0x82u, // TODO: should be macro expansion @bulkInputEndpoint@,
-                buffer.refTo(0),
+                handle,
+                bulkReadEndpoint,
+                buffer!!.refTo(0),
                 16 - 1, // TODO: buffer size should be macro expansion
                 transferred_c.ptr,
                 usbTimeout
@@ -70,8 +133,8 @@ class UsbSystemLinux() : UsbSystemInterface {
         if (status != 0) {
             throw Exception("Bulk read failed ${status}")
         }
-        buffer[transferred] = 0u
-        return buffer.toTypedArray()
+        buffer!![transferred] = 0u
+        return buffer!!.toTypedArray()
     }
 
     override public fun read(
@@ -79,19 +142,19 @@ class UsbSystemLinux() : UsbSystemInterface {
         addressOrPadding: UShort
     ): Array<UByte> {
         val status: Int = libusb_control_transfer(
-            device,
+            handle,
             (LIBUSB_REQUEST_TYPE_VENDOR or LIBUSB_ENDPOINT_IN).toUByte(),
             requestCode,
             addressOrPadding,
             0u,
-            buffer.refTo(0),
+            buffer!!.refTo(0),
             2u,
             usbTimeout
         )
         if (status != 0) {
             throw Exception("Control transfer read failed ${status}")
         }
-        return buffer.toTypedArray()
+        return buffer!!.toTypedArray()
     }
 
     override public fun write(
@@ -100,7 +163,7 @@ class UsbSystemLinux() : UsbSystemInterface {
         valueOrPadding: UShort
     ) {
         val status: Int = libusb_control_transfer(
-            device,
+            handle,
             (LIBUSB_REQUEST_TYPE_VENDOR or LIBUSB_ENDPOINT_OUT).toUByte(),
             requestCode,
             addressOrValue,

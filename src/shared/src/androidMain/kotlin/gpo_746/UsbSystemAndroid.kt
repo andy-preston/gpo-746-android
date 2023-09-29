@@ -4,7 +4,7 @@ import android.hardware.usb.UsbInterface
 
 class UsbSystemAndroid() : UsbSystemInterface {
 
-    override public fun open(timeout: Int) {
+    override public fun open(vid: UShort, pid: UShort, timeout: Int) {
         throw Exception("Not implemented")
     }
 

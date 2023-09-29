@@ -17,13 +17,13 @@ kotlin {
         }
     }
 
-    listOf(linuxX64(), linuxArm32Hfp()).forEach {
-        it.binaries {
+    linuxX64() {
+        binaries {
             executable()
         }
-        it.compilations.getByName("main") {
+        compilations.getByName("main") {
             val libUsb by cinterops.creating {
-                defFile(project.file("src/linuxMain/libusb/just-enough.def"))
+                defFile(project.file("src/linuxMain/libusb.def"))
                 packageName("libusb")
             }
         }
@@ -60,9 +60,6 @@ tasks.register<Copy>("ch340gConstants") {
     )
 }
 tasks.named("compileKotlinLinuxX64") {
-    dependsOn("ch340gConstants")
-}
-tasks.named("compileKotlinLinuxArm32Hfp") {
     dependsOn("ch340gConstants")
 }
 val dependentTasks = listOf(

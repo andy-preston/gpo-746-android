@@ -50,6 +50,14 @@ class Ch340g(usbSystem: UsbSystemInterface) {
 
     private var version: UShort = 0u
 
+    public fun open() {
+        usb.open(0x1a86u, 0x7523u, 1000)
+    }
+
+    public fun close() {
+        usb.close()
+    }
+
     private fun write(request: WriteRequest, value: UShort) {
         usb.write(request.code, value, 0u)
     }

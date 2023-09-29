@@ -7,7 +7,8 @@ ENV HOME=/var/tmp
 
 RUN apt-get update && \
     apt-get -y upgrade && \
-    apt-get -y --no-install-recommends install unzip openjdk-17-jdk-headless
+    apt-get -y --no-install-recommends install \
+        unzip openjdk-17-jdk-headless libusb-1.0-0-dev
 
 ADD https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip \
     /opt/tools.zip

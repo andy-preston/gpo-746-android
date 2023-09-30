@@ -4,22 +4,7 @@ CONTAINER_SHARE="/usr/local/share"
 CONTAINER_SRC="/usr/local/src"
 CONTAINER_BIN="/usr/local/bin"
 GRADLE="/opt/gradle/gradle-8.3/bin/gradle"
-ANDROID_SDK_ROOT="${CONTAINER_SHARE/android}"
-
-LOCAL_SRC="$(pwd)/src"
-LOCAL_BIN="$(pwd)/bin"
-LOCAL_SHARE="$(pwd)/share"
-LOCAL_BUILD="${LOCAL_SHARE}/build"
-
-mkdir -p ${LOCAL_BUILD}/build-android
-mkdir -p ${LOCAL_BUILD}/build-avr
-mkdir -p ${LOCAL_BUILD}/build-buildSrc
-mkdir -p ${LOCAL_BUILD}/build-shared
-mkdir -p ${LOCAL_BUILD}/buildSrc-cache
-mkdir -p ${LOCAL_BUILD}/gradle
-mkdir -p ${LOCAL_BUILD}/konan
-mkdir -p ${LOCAL_BUILD}/project-cache
-mkdir -p ${LOCAL_SHARE}/android
+ANDROID_SDK_ROOT="${CONTAINER_SHARE}/android"
 
 case $1 in
 'sdk')
@@ -28,46 +13,68 @@ case $1 in
     COMMAND+=" platforms;android-31"
     COMMAND+=" build-tools;31.0.0"
     ;;
-'build' | 'test')
-    COMMAND="${GRADLE} ${1}"
-    ;;
 'pretest')
     COMMAND="${GRADLE} -p buildSrc test"
     ;;
-*)
+'')
     if [ -f /.dockerenv ]
     then
         echo 'Already running in container use:'
-        echo $(basename $0) 'build|test|pretest|sdk'
+        echo "$(basename $0) pretest|sdk|[any gradle command]"
         exit
     else
         COMMAND='bash'
     fi
     ;;
+*)
+    COMMAND="${GRADLE} ${@:1}"
+    ;;
 esac
+echo ${COMMAND}
 
 if [ -f /.dockerenv ]
 then
     ${COMMAND}
 else
+    LOCAL_SRC="$(pwd)/src"
+    LOCAL_BIN="$(pwd)/bin"
+    LOCAL_SHARE="$(pwd)/share"
+    LOCAL_BUILD="${LOCAL_SHARE}/build"
+    for BUILD_DIR in android avr buildSrc shared
+    do
+        mkdir -p ${LOCAL_BUILD}/build-${BUILD_DIR}
+    done
+    for CACHE_DIR in buildSrc project
+    do
+        mkdir -p ${LOCAL_BUILD}/cache-${CACHE_DIR}
+    done
+    # Note for write-up re: local_share/gradle
+    #
+    # Gradle likes to save stuff in your home directory
+    # If you're running in Docker and you've got no home directory
+    # it gets confused and starts creating directories called `(?)`
+    # willy-nilly all over your codebases
+    mkdir -p ${LOCAL_SHARE}/gradle
+    mkdir -p ${LOCAL_SHARE}/konan
+    mkdir -p ${LOCAL_SHARE}/android
     docker build --progress=plain --tag android_gpo ./docker
     docker run \
         --rm --interactive --tty \
         --volume "${LOCAL_BIN}/container:${CONTAINER_BIN}/container" \
-        --volume "${LOCAL_SRC}:${CONTAINER_SRC}" \
-        --workdir "${CONTAINER_SRC}" \
         --volume "${LOCAL_SHARE}/android:${ANDROID_SDK_ROOT}" \
         --env "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}" \
+        --volume "${LOCAL_SHARE}/gradle:${CONTAINER_SHARE}/gradle" \
+        --env "GRADLE_USER_HOME=${CONTAINER_SHARE}/gradle" \
+        --volume "${LOCAL_SHARE}/konan:${CONTAINER_SHARE}/konan" \
+        --env "KONAN_DATA_DIR=${CONTAINER_SHARE}/konan" \
+        --volume "${LOCAL_SRC}:${CONTAINER_SRC}" \
         --volume "${LOCAL_BUILD}/build-android:${CONTAINER_SRC}/android/build" \
         --volume "${LOCAL_BUILD}/build-avr:${CONTAINER_SRC}/avr/build" \
         --volume "${LOCAL_BUILD}/build-buildSrc:${CONTAINER_SRC}/buildSrc/build" \
+        --volume "${LOCAL_BUILD}/cache-buildSrc:${CONTAINER_SRC}/buildSrc/.gradle" \
         --volume "${LOCAL_BUILD}/build-shared:${CONTAINER_SRC}/shared/build" \
-        --volume "${LOCAL_BUILD}/buildSrc-cache:${CONTAINER_SRC}/buildSrc/.gradle" \
-        --volume "${LOCAL_BUILD}/gradle:${CONTAINER_SHARE}/gradle" \
-        --env "GRADLE_USER_HOME=${CONTAINER_SHARE}/gradle" \
-        --volume "${LOCAL_BUILD}/konan:${CONTAINER_SHARE}/konan" \
-        --env "KONAN_DATA_DIR=${CONTAINER_SHARE}/konan" \
-        --volume "${LOCAL_BUILD}/project-cache:${CONTAINER_SRC}/.gradle" \
+        --volume "${LOCAL_BUILD}/cache-project:${CONTAINER_SRC}/.gradle" \
+        --workdir "${CONTAINER_SRC}" \
         --user $(id -u):$(id -g) \
         --name android_gpo \
         android_gpo ${COMMAND}

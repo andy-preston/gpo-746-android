@@ -2,8 +2,8 @@ package gpo_746
 
 import android.hardware.usb.UsbInterface
 
-class UsbSystemAndroid() : UsbSystemInterface {
-
+@OptIn(kotlin.ExperimentalUnsignedTypes::class)
+class UsbSystemProduction() : UsbSystemInterface {
     override public fun open(vid: UShort, pid: UShort, timeout: Int) {
         throw Exception("Not implemented")
     }
@@ -15,14 +15,14 @@ class UsbSystemAndroid() : UsbSystemInterface {
         throw Exception("Not implemented")
     }
 
-    override public fun bulkRead(): Array<UByte> {
+    override public fun bulkRead(): UByteArray {
         throw Exception("Not implemented")
     }
 
     override public fun read(
         requestCode: UByte,
         addressOrPadding: UShort
-    ): Array<UByte> {
+    ): UByteArray {
         throw Exception("Not implemented")
     }
 

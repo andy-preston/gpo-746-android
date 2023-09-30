@@ -4,7 +4,7 @@ import kotlinx.cinterop.*
 import libusb.*
 
 @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
-class UsbSystemLinux() : UsbSystemInterface {
+class UsbSystemMock() : UsbSystemInterface {
     private var libInitialised: Boolean = false
     private var interfaceClaimed: Boolean = false
 
@@ -12,6 +12,7 @@ class UsbSystemLinux() : UsbSystemInterface {
     private var handle: CPointer<libusb_device_handle>? = null
     private var device: CPointer<libusb_device>? = null
     private var bulkReadEndpoint: UByte = 0u
+    private var packetSize: Int = 0
     private var buffer: UByteArray? = null
 
     private fun assertTrue(condition: Boolean, operationHint: String) {
@@ -35,7 +36,6 @@ class UsbSystemLinux() : UsbSystemInterface {
 
     private fun claimInterface() {
         if (libusb_kernel_driver_active(handle, 0) == 1) {
-            println("Linux driver is active... detaching")
             assertZeroStatus(
                 libusb_detach_kernel_driver(handle, 0),
                 "libusb_detach_kernel_driver"
@@ -57,12 +57,6 @@ class UsbSystemLinux() : UsbSystemInterface {
         return endpoint.bmAttributes.and(
             LIBUSB_TRANSFER_TYPE_MASK.toUByte()
         ) == LIBUSB_TRANSFER_TYPE_BULK.toUByte()
-    }
-
-    private inline fun interfaceDescriptor(
-        config: CPointerVar<libusb_config_descriptor>
-    ): libusb_interface_descriptor {
-        return config.pointed!!.`interface`!!.pointed.altsetting!!.pointed
     }
 
     private inline fun findReadEndpoint(
@@ -90,15 +84,15 @@ class UsbSystemLinux() : UsbSystemInterface {
                 libusb_get_active_config_descriptor(device, config.ptr),
                 "libusb_get_active_config_descriptor"
             )
-            val iFace = interfaceDescriptor(config)
+            val iFace = config.pointed!!.`interface`!![0].altsetting!![0]
             bulkReadEndpoint = findReadEndpoint(
                 iFace.endpoint!!,
                 iFace.bNumEndpoints.toInt()
             )
         }
         assertTrue(bulkReadEndpoint.toUInt() != 0u, "Find bulk read endpoint")
-        val packetSize = libusb_get_max_packet_size(device, bulkReadEndpoint)
-        buffer = UByteArray(packetSize)
+        packetSize = libusb_get_max_packet_size(device, bulkReadEndpoint)
+        buffer = UByteArray(packetSize + 1)
     }
 
     override public fun close() {
@@ -116,7 +110,7 @@ class UsbSystemLinux() : UsbSystemInterface {
         }
     }
 
-    override public fun bulkRead(): Array<UByte> {
+    override public fun bulkRead(): UByteArray {
         var status: Int = 0
         val transferred: Int = memScoped {
             var transferred_c = alloc<IntVar>()
@@ -124,7 +118,7 @@ class UsbSystemLinux() : UsbSystemInterface {
                 handle,
                 bulkReadEndpoint,
                 buffer!!.refTo(0),
-                16 - 1, // TODO: buffer size should be macro expansion
+                packetSize,
                 transferred_c.ptr,
                 usbTimeout
             )
@@ -134,27 +128,27 @@ class UsbSystemLinux() : UsbSystemInterface {
             throw Exception("Bulk read failed ${status}")
         }
         buffer!![transferred] = 0u
-        return buffer!!.toTypedArray()
+        return buffer!!
     }
 
     override public fun read(
         requestCode: UByte,
         addressOrPadding: UShort
-    ): Array<UByte> {
-        val status: Int = libusb_control_transfer(
+    ): UByteArray {
+        val transferred: Int = libusb_control_transfer(
             handle,
             (LIBUSB_REQUEST_TYPE_VENDOR or LIBUSB_ENDPOINT_IN).toUByte(),
             requestCode,
             addressOrPadding,
             0u,
             buffer!!.refTo(0),
-            2u,
+            packetSize.toUShort(),
             usbTimeout
         )
-        if (status != 0) {
-            throw Exception("Control transfer read failed ${status}")
+        if (transferred != 2) {
+            throw Exception("Control transfer read ${transferred} bytes, 2 expected")
         }
-        return buffer!!.toTypedArray()
+        return buffer!!
     }
 
     override public fun write(

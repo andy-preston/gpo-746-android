@@ -3,7 +3,7 @@
 (
     for DIR in $(find share/build -name reports)
     do
-        for FILE in "${DIR}/*.html"
+        for FILE in $(find ${DIR} -name index.html)
         do
             /usr/bin/chromium $FILE
         done

@@ -44,19 +44,17 @@ enum class GclInputBit(val mask: UByte)  {
     DCD(0x08u)
 }
 
+@OptIn(kotlin.ExperimentalUnsignedTypes::class)
+fun shortFromBuffer(buffer: UByteArray): UShort {
+    return (buffer[1].toUInt() shl 8).toUShort() or buffer[0].toUShort()
+}
+
+@OptIn(kotlin.ExperimentalUnsignedTypes::class)
 class Ch340g(usbSystem: UsbSystemInterface) {
 
     private val usb = usbSystem
 
     private var version: UShort = 0u
-
-    public fun open() {
-        usb.open(0x1a86u, 0x7523u, 1000)
-    }
-
-    public fun close() {
-        usb.close()
-    }
 
     private fun write(request: WriteRequest, value: UShort) {
         usb.write(request.code, value, 0u)
@@ -66,12 +64,11 @@ class Ch340g(usbSystem: UsbSystemInterface) {
         usb.write(WriteRequest.vendorWriteRegisters.code, register.address, value)
     }
 
-    private fun shortFromBuffer(buffer: Array<UByte>): UShort {
-        return (buffer[0] * 256u + buffer[1]).toUShort()
-    }
-
     private fun read(request: ReadRequest): UShort {
-        return shortFromBuffer(usb.read(request.code, 0u))
+        return shortFromBuffer(usb.read(
+            request.code,
+            0u
+        ))
     }
 
     private fun readRegisters(register: ReadRegister): UShort {
@@ -81,12 +78,26 @@ class Ch340g(usbSystem: UsbSystemInterface) {
         ))
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+
+    public fun open() {
+        usb.open(0x1A86u, 0x7523u, 1000)
+    }
+
+    public fun close() {
+        usb.close()
+    }
+
+    public fun readSerial(): String {
+        return usb.bulkRead().toString()
+    }
+
     public fun writeHandshake(handshakeOutputRTS: Boolean) {
         // DTR isn't in use so it's bit is always set "off"
         var modemControl: UByte = if (handshakeOutputRTS) GclOutputBit.RTS.mask else 0u
         // How exactly is this done in the Unix drivers?
         // Do we send it zero padded? BE? LE? or repeated?
-        write(WriteRequest.vendorModemControl, modemControl.inv().toUShort())
+        write(WriteRequest.vendorModemControl, modemControl.toUShort())
     }
 
     public fun readHandshake(): Boolean {

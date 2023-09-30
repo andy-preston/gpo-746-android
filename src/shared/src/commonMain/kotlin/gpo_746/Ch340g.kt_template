@@ -2,25 +2,16 @@ package gpo_746
 
 enum class ReadRequest(val code: UByte) {
     vendorGetVersion(0x5Fu),
-    // Does this work on single registers or register pairs
-    // or is it clever enough to do both?!
     vendorReadRegisters(0x95u)
 }
 
 enum class WriteRequest(val code: UByte) {
-    // Does this work on single registers or register pairs
-    // or is it clever enough to do both?!
     vendorWriteRegisters(0x9Au),
-    // Init or Reset - I suppose it could be both
     vendorSerialInit(0xA1u),
-    // To handle handshaking on version >= 0x20
     vendorModemControl(0xA4u)
 }
 
 enum class ReadRegister(val address: UShort) {
-    // When NetBSD reads GCL, it only uses gcl1Low - the first byte
-    // When mik3y reads GCL, it only returns the first byte from the buffer
-    // When felHR85 reads GCL, it only uses the first byte
     gcl(0x0706u)
 }
 
@@ -28,7 +19,6 @@ enum class WriteRegister(val address: UShort) {
     baudDivisorPrescale(0x1312u),
     baudMod(0x0F14u),
     lcr(0x2518u),
-    // Only NetBSD writes GCL at all - it writes the same value to gcl1Low twice
     gcl(0x0606u)
 }
 
@@ -93,16 +83,12 @@ class Ch340g(usbSystem: UsbSystemInterface) {
     }
 
     public fun writeHandshake(handshakeOutputRTS: Boolean) {
-        // DTR isn't in use so it's bit is always set "off"
         var modemControl: UByte = if (handshakeOutputRTS) GclOutputBit.RTS.mask else 0u
-        // How exactly is this done in the Unix drivers?
-        // Do we send it zero padded? BE? LE? or repeated?
         write(WriteRequest.vendorModemControl, modemControl.toUShort())
     }
 
     public fun readHandshake(): Boolean {
         val modemControl = readRegisters(ReadRegister.gcl)
-        // should we be looking at high byte or low byte in returned value?
         val mask = GclInputBit.RI.mask.toUShort()
         return (modemControl and mask) == mask
     }

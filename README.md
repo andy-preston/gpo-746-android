@@ -37,7 +37,9 @@ included in the build and testing process that assume Linux
 
 For loading the microcontroller code on the chip
 
-## Downloading The Android SDK
+## Build Environment
+
+### Downloading The Android SDK
 
 I haven't worked out how to include this in the automatic docker setup because
 there's an "I accept the license terms" hoop to jump through which seems to
@@ -45,11 +47,11 @@ necessitate a manual install which is done once the Docker container is set up
 with: `./bin/container sdk`. This command only needs to be run once - unless
 you delete the `./share/android` directory.
 
-## One-Off Build
+### One-Off Build
 
 `./bin/container build`
 
-## Development Build
+### Development Build
 
 If you're hacking with the code and are going to be doing repeated builds,
 it's better to have a shell prompt inside the container `./bin/container`.
@@ -63,7 +65,7 @@ This command, inside the container, lets you run any Gradle command you like
 and a couple of extra shortcuts... Just run `container` for a little bit of
 help.
 
-## Uploading Microncontroller Code
+### Uploading Microncontroller Code
 
 You can blow the fuses on the microcontroller with: `./bin/avrdude fuses`
 
@@ -71,11 +73,11 @@ And get a list of available HEX files (after a build) with: `./bin/avrdude`
 
 And upload one of them with `./bin/avrdude {name}`
 
-## Uploading Android App To Your Phone
+### Uploading Android App To Your Phone
 
 `./bin/adb install`
 
-## USB/Serial Testing
+### USB/Serial Testing
 
 Some of the ATTiny test code requires a USB host to communicate with and it'd
 be far too complicated, in my opinion, to do this with an Android device. So
@@ -83,7 +85,7 @@ there's a little test framework that runs on Linux to facilitate this.
 
 Once the build is done, you can access this with `./bin/usb-test`
 
-## Getting Gradle/Kotlin test reports
+### Getting Gradle/Kotlin test reports
 
 I don't like having to dig through the morass of Gradle build driectories
 looking for something useful. There's a script to find and display these:

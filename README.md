@@ -1,63 +1,141 @@
 # GPO 746 Telephone Linked to Android
 
-An ATTiny2313 microcontroler hidden away in a "hacked" GPO-746 Telephone
+An ATTiny2313 microcontroller hidden away in a "hacked" GPO-746 Telephone
 paired up with an Android App that'll allow the GPO-746 to place and receive
 calls on a mobile network.
 
-Docker container for the Android build environment.
+Test framework an experimental Android/Kotlin driver for the CH340G USB/Serial
+controller.
+
+Docker container for the build environment.
+
+## Conventions
+
+Any commands given here that are prefixed with `./bin/` (e.g. `./bin/avrdude`)
+are intended to be run from outside of the container.
+
+Any commands without that prefix should be run from inside the Docker container
+which is entered with `./bin/container`.
 
 ## Requirements
 
-The ATTiny code needs
-[GAVRAsm](http://www.avr-asm-tutorial.net/gavrasm/index_en.html).
+Many of the requirements are hidden away in the Docker container but there's
+still a couple of things needed on the outside.
 
-There's a couple of TypeScript scripts to pre-calculate constants for the
-assembly code and build a library for the CH340G and for these you need
-[Deno](https://github.com/denoland/deno).
+### Docker
 
-These can both be downloaded with
-[bin/get-binaries](https://github.com/andy-preston/gpo-746-android/blob/android_ch340g_driver/bin/get-binaries)
+Obviously
 
-The build system also uses `make`, and `avrdude`
+### A Linux system (I use Ubuntu)
 
-We also need GNU C to build a prototype CH340G controller.
+In theory at least, you can use some other
+system to build this on but there's a bunch of
+[scripts](https://github.com/andy-preston/gpo-746-android/tree/convert_it_all_to_kotlin/bin)
+included in the build and testing process that assume Linux
 
-## Build
+### AVRDude
 
-Getting the Android SDK
+For loading the microcontroller code on the chip
 
-```sh
-make sdk
+## Build Environment
+
+### Downloading The Android SDK
+
+I haven't worked out how to include this in the automatic docker setup because
+there's an "I accept the license terms" hoop to jump through which seems to
+necessitate a manual install which is done once the Docker container is set up
+with: `./bin/container sdk`. This command only needs to be run once - unless
+you delete the `./share/android` directory.
+
+### One-Off Build
+
+`./bin/container build`
+
+### Development Build
+
+If you're hacking with the code and are going to be doing repeated builds,
+it's better to have a shell prompt inside the container `./bin/container`.
+And to build from there with the `container build` command.
+
+This way, Gradle, will be able to do "all of it's stuff" with caching and
+daemons, and get your incremental builds done faster (well, considering it
+is Gradle, a little bit faster at least)
+
+This command, inside the container, lets you run any Gradle command you like
+and a couple of extra shortcuts... Just run `container` for a little bit of
+help.
+
+### Uploading Microcontroller Code
+
+You can blow the fuses on the microcontroller with: `./bin/avrdude fuses`
+
+And get a list of available HEX files (after a build) with: `./bin/avrdude`
+
+And upload one of them with `./bin/avrdude {name}`
+
+### Uploading Android App To Your Phone
+
+`./bin/adb install`
+
+### USB/Serial Testing
+
+Some of the ATTiny test code requires a USB host to communicate with and it'd
+be far too complicated, in my opinion, to do this with an Android device. So
+there's a little test framework that runs on Linux to facilitate this.
+
+Once the build is done, you can access this with `./bin/usb-test`
+
+So as to not need constant `su` commands during testing, adding the user to the
+`plugdev` group and creating `/etc/udev/rules.d/99-ch340g.rules` is advisable.
+
+```text
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", MODE="0660", GROUP="plugdev"
 ```
 
-The Android app can be built or have it's test run with
+### Getting Gradle/Kotlin test reports
 
-```sh
-make build
-make test
-```
+I don't like having to dig through the morass of Gradle build directories
+looking for something useful. There's a script to find and display these:
+`./bin/reports`
 
-The tests for the ATTiny code are run with. See Makefile for more targets.
+## Source code map
 
-```sh
-make test1
-```
+### src/android
 
-## Uploading
+Code directly related to the Android UI and APIs
 
-```sh
-bin/avrdude {target}
-```
+### src/avr
 
-Where `{target}` is any Makefile target that produces a `.hex` file (or "fuses"
-to set an ATTiny's fuses).
+Assembly code for the microcontroller
 
-```sh
-bin/adb-install
-```
+This uses
+[GAVRAsm](http://www.avr-asm-tutorial.net/gavrasm/index_en.html)
+which is included in the container and is built by Gradle just like
+all the Kotlin code.
 
-To upload a compiled app to an android device.
+### src/buildSrc
 
-## References
+Kotlin code to pre-calculate some constants before the main build and insert
+those constants into the assembly and Kotlin code prior to building.
 
-https://www.kuon.ch/post/2020-01-12-android-app/
+Sort-of, kind-of like procedural macros in other languages but shoe-horned into
+the Gradle/Kotlin ecosystem.
+
+### src/shared/src/androidMain
+
+(see also src/shared/src/androidUnitTest)
+
+All of the Android app's internal classes and stuff that I've decoupled from
+the Android UI
+
+### src/shared/src/linuxMain
+
+A test framework for the CH340G driver that can be run more comfortable on a
+Linux command line without the complexities of trying to test and debug on an
+Android device.
+
+### src/shared/src/commonMain
+
+( see also src/shared/src/commonTest)
+
+Kotlin code shared between Linux and Android

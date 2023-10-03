@@ -21,10 +21,35 @@ class UsbSystemMock() : UsbSystemInterface {
         }
     }
 
-    private fun assertZeroStatus(status: Int, operationHint: String): Boolean {
-        val condition = status == 0
-        assertTrue(condition, "${status} - ${operationHint}")
-        return condition
+    private fun assertSuccess(
+        statusCode: Int,
+        operationHint: String,
+        timeoutIsError: Boolean = true
+    ) {
+        val statusMessages = mapOf(
+            LIBUSB_SUCCESS to "",
+            LIBUSB_ERROR_IO to "IO error",
+            LIBUSB_ERROR_INVALID_PARAM to "Invalid parameter",
+            LIBUSB_ERROR_ACCESS to "Access error",
+            LIBUSB_ERROR_NO_DEVICE to "No device",
+            LIBUSB_ERROR_NOT_FOUND to "Not found",
+            LIBUSB_ERROR_BUSY to "Busy",
+            LIBUSB_ERROR_TIMEOUT to if (timeoutIsError) "Timeout" else "",
+            LIBUSB_ERROR_OVERFLOW to "Overflow",
+            LIBUSB_ERROR_PIPE to "Pipe!",
+            LIBUSB_ERROR_INTERRUPTED to "Interrupted",
+            LIBUSB_ERROR_NO_MEM to "No memory",
+            LIBUSB_ERROR_NOT_SUPPORTED to "Not supported",
+            LIBUSB_ERROR_OTHER to "Unknown error (${statusCode})",
+        )
+        val statusMessage = statusMessages[
+            if (statusMessages.keys.contains(statusCode))
+                statusCode else LIBUSB_ERROR_OTHER
+        ]
+        assertTrue(
+            statusMessage == "",
+            "${statusMessage} during ${operationHint}"
+        )
     }
 
     private fun openDevice(vid: UShort, pid: UShort) {
@@ -36,15 +61,16 @@ class UsbSystemMock() : UsbSystemInterface {
 
     private fun claimInterface() {
         if (libusb_kernel_driver_active(handle, 0) == 1) {
-            assertZeroStatus(
+            assertSuccess(
                 libusb_detach_kernel_driver(handle, 0),
                 "libusb_detach_kernel_driver"
             )
         }
-        interfaceClaimed = assertZeroStatus(
+        assertSuccess(
             libusb_claim_interface(handle, 0),
             "libusb_claim_interface"
         )
+        interfaceClaimed = true
     }
 
     private inline fun isInput(endpoint: libusb_endpoint_descriptor): Boolean {
@@ -75,12 +101,13 @@ class UsbSystemMock() : UsbSystemInterface {
     override public fun open(vid: UShort, pid: UShort, timeout: Int) {
         usbTimeout = timeout.toUInt()
 
-        libInitialised = assertZeroStatus(libusb_init(null), "libusb_init")
+        assertSuccess(libusb_init(null), "libusb_init")
+        libInitialised =  true
         openDevice(vid, pid)
         claimInterface()
         memScoped {
             val config = alloc<CPointerVar<libusb_config_descriptor>>()
-            assertZeroStatus(
+            assertSuccess(
                 libusb_get_active_config_descriptor(device, config.ptr),
                 "libusb_get_active_config_descriptor"
             )
@@ -111,10 +138,10 @@ class UsbSystemMock() : UsbSystemInterface {
     }
 
     override public fun bulkRead(): UByteArray {
-        var status: Int = 0
+        var statusCode: Int = 0
         val transferred: Int = memScoped {
-            var transferred_c = alloc<IntVar>()
-            status = libusb_bulk_transfer(
+            val transferred_c = alloc<IntVar>()
+            statusCode = libusb_bulk_transfer(
                 handle,
                 bulkReadEndpoint,
                 buffer!!.refTo(0),
@@ -124,9 +151,7 @@ class UsbSystemMock() : UsbSystemInterface {
             )
             transferred_c.value
         }
-        if (status != 0) {
-            throw Exception("Bulk read failed ${status}")
-        }
+        assertSuccess(statusCode, "Bulk read", false)
         buffer!![transferred] = 0u
         return buffer!!
     }
@@ -145,9 +170,10 @@ class UsbSystemMock() : UsbSystemInterface {
             packetSize.toUShort(),
             usbTimeout
         )
-        if (transferred != 2) {
-            throw Exception("Control transfer read ${transferred} bytes, 2 expected")
-        }
+        assertTrue(
+            transferred == 2,
+            "Control transfer read ${transferred} bytes, 2 expected"
+        )
         return buffer!!
     }
 
@@ -156,7 +182,7 @@ class UsbSystemMock() : UsbSystemInterface {
         addressOrValue: UShort,
         valueOrPadding: UShort
     ) {
-        val status: Int = libusb_control_transfer(
+        val statusCode: Int = libusb_control_transfer(
             handle,
             (LIBUSB_REQUEST_TYPE_VENDOR or LIBUSB_ENDPOINT_OUT).toUByte(),
             requestCode,
@@ -166,8 +192,6 @@ class UsbSystemMock() : UsbSystemInterface {
             0u,
             usbTimeout
         )
-        if (status != 0) {
-            throw Exception("Control transfer write failed ${status}")
-        }
+        assertSuccess(statusCode, "Control transfer write failed ${statusCode}")
     }
 }

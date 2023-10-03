@@ -15,7 +15,7 @@ graph TD
     Wait -->|Pick Up| Dial
     Wait -->|Ring Signal| Ring
     Dial -->|Dial Active| Count
-    Dial -->|Ring Signal| Calling
+    Dial --->|Ring Signal| Calling
     Dial -->|Put Down| Wait
     Count -->|Dial Inactive| SendDigit
     SendDigit -->|Sent| Dial

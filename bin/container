@@ -30,7 +30,8 @@ case $1 in
     COMMAND="${GRADLE} ${@:1}"
     ;;
 esac
-echo ${COMMAND}
+UNDERLINE=$(head -c ${#COMMAND} < /dev/zero | tr '\0' '=')
+echo -e "${UNDERLINE}\n${COMMAND}\n${UNDERLINE}"
 
 if [ -f /.dockerenv ]
 then

@@ -2,7 +2,7 @@ final class AvrConstants {
     private val clockFrequency = 14745600
 
     // To match both sides of the connection, baudRate should be one of the
-    // keys in Ch340gBaud.basis
+    // keys in Ch340gConstants.baudRate.basis
     private val baudRate = 9600
 
     private val timer1HalfPeriod = 20
@@ -13,22 +13,25 @@ final class AvrConstants {
 
     public fun map(): Map<String, String>  {
         return mapOf(
-            "baudPrescale" to "${baud()}",
-            "timer1Prescale" to timer1PrescaleBits(),
+            "usartBaudRateRegister" to "${baud()}",
+            "timer1ClockSelect" to timer1ClockSelect(),
             "timer1Ticks" to "${timer1Ticks()}"
         )
     }
 
     private fun baud(): Int {
+        // This calculation is actually quite straightforward
+        // Especially if you have a look at the one for the CH340G
+        // src/buildSrc/src/main/kotlin/gpo_746/Ch340gConstants.kt
         val multiplier: Int = baudRate * 16
-        val prescale: Int = clockFrequency / multiplier
-        require(prescale * multiplier == clockFrequency)
-        val derived: Int = clockFrequency / (16 * prescale)
+        val usartBaudRateRegister: Int = clockFrequency / multiplier
+        require(usartBaudRateRegister * multiplier == clockFrequency)
+        val derived: Int = clockFrequency / (16 * usartBaudRateRegister)
         require(derived == baudRate)
-        return prescale - 1
+        return usartBaudRateRegister - 1
     }
 
-    private fun timer1PrescaleBits(): String {
+    private fun timer1ClockSelect(): String {
         val shiftMap = mapOf(
             0 to "(1 << CS10)",
             8 to "(1 << CS11)",

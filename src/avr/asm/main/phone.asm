@@ -20,7 +20,7 @@ theBeginning:
 offHook:
     PickedUp
     GetAndSendADigit
-    rjmp theBeggining
+    rjmp theBeginning
 
 onHook:
     PutDown

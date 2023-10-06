@@ -43,8 +43,7 @@ fun shortFromBuffer(buffer: UByteArray): UShort {
 class Ch340g(usbSystem: UsbSystemInterface) {
 
     private val usb = usbSystem
-
-    private var version: UShort = 0u
+    private val worker = SerialWorker()
 
     private fun write(request: WriteRequest, value: UShort) {
         usb.write(request.code, value, 0u)
@@ -68,10 +67,23 @@ class Ch340g(usbSystem: UsbSystemInterface) {
         ))
     }
 
+    private fun initialise() {
+        val version: UShort = read(ReadRequest.vendorGetVersion)
+        if (version != @usedChipVersion@.toUShort()) {
+            throw Exception("version should be @usedChipVersion@, but it's ${version}")
+        }
+        write(WriteRequest.vendorSerialInit, 0u)
+        writeRegisters(WriteRegister.baudDivisorPrescale, @divisorPrescale@)
+        writeRegisters(WriteRegister.baudMod, @mod@)
+        writeRegisters(WriteRegister.lcr, @defaultLcr@)
+    }
+
     ////////////////////////////////////////////////////////////////////////////
 
     public fun open() {
         usb.open(0x1A86u, 0x7523u, 1000)
+        initialise()
+        worker.start(usb)
     }
 
     public fun close() {
@@ -79,7 +91,7 @@ class Ch340g(usbSystem: UsbSystemInterface) {
     }
 
     public fun readSerial(): String {
-        return usb.bulkRead().toString()
+        return worker.bulkRead()
     }
 
     public fun writeHandshake(handshakeOutputRTS: Boolean) {
@@ -91,16 +103,5 @@ class Ch340g(usbSystem: UsbSystemInterface) {
         val modemControl = readRegisters(ReadRegister.gcl)
         val mask = GclInputBit.RI.mask.toUShort()
         return (modemControl and mask) == mask
-    }
-
-    public fun initialise() {
-        version = read(ReadRequest.vendorGetVersion)
-        if (version != @usedChipVersion@.toUShort()) {
-            throw Exception("version should be @usedChipVersion@, but it's ${version}")
-        }
-        write(WriteRequest.vendorSerialInit, 0u)
-        writeRegisters(WriteRegister.baudDivisorPrescale, @divisorPrescale@)
-        writeRegisters(WriteRegister.baudMod, @mod@)
-        writeRegisters(WriteRegister.lcr, @defaultLcr@)
     }
 }

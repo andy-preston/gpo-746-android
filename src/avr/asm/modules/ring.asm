@@ -1,14 +1,3 @@
-.macro RingDelay
-    out TCNT1H, _zero                    ; before outputting the next byte
-    out TCNT1L, _zero                    ; zero the timer to wait
-    ldi _io, (1 << OCF1A)                ; and clear the output compare flag
-    out TIFR, _io                        ; TIFR (56) is out of range for `sbi`
-ringSeqWait:
-    in _check, TIFR
-    sbrs _check, OCF1A                   ; if output compare isn't triggered yet
-    rjmp ringSeqWait                     ; ... wait for it to happen
-.endMacro
-
 .macro Ringing
 restartRingSequence:
     LoadZ ringSequence                   ; ring sequence table in 20ms steps
@@ -16,7 +5,7 @@ getNextRingSeqByte:
     lpm _bell, Z+
     sbrc _bell, endDataFlag              ; skip restart if no endDataFlag
     rjmp restartRingSequence
-    RingDelay
+    WaitForRingerTicks
     out outputPort, _bell                ; flip the bells (or don't)
     SkipOffHook
     rjmp getNextRingSeqByte

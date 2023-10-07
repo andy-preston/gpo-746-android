@@ -3,6 +3,7 @@
         "*.kt_template": "kotlin"
     },
     "cSpell.words": [
+        "anchorname",
         "Arduino",
         "attiny",
         "avrdude",

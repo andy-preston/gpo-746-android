@@ -7,19 +7,20 @@ calls on a mobile network.
 Test framework an experimental Android/Kotlin driver for the CH340G USB/Serial
 controller.
 
-Docker container for the build environment.
+Docker container for the build environment
+and another to produce the schematics.
 
 ## Conventions
 
 Any commands given here that are prefixed with `./bin/` (e.g. `./bin/avrdude`)
-are intended to be run from outside of the container.
+are intended to be run from outside of the build container.
 
 Any commands without that prefix should be run from inside the Docker container
-which is entered with `./bin/container`.
+which is entered with `./bin/builder`.
 
 ## Requirements
 
-Many of the requirements are hidden away in the Docker container but there's
+Many of the requirements are hidden away in the Docker containers but there's
 still a couple of things needed on the outside.
 
 ### Docker
@@ -44,26 +45,25 @@ For loading the microcontroller code on the chip
 I haven't worked out how to include this in the automatic docker setup because
 there's an "I accept the license terms" hoop to jump through which seems to
 necessitate a manual install which is done once the Docker container is set up
-with: `./bin/container sdk`. This command only needs to be run once - unless
+with: `./bin/builder sdk`. This command only needs to be run once - unless
 you delete the `./share/android` directory.
 
 ### One-Off Build
 
-`./bin/container build`
+`./bin/builder build`
 
 ### Development Build
 
 If you're hacking with the code and are going to be doing repeated builds,
-it's better to have a shell prompt inside the container `./bin/container`.
-And to build from there with the `container build` command.
+it's better to have a shell prompt inside the container `./bin/builder`.
+And to build from there with the `builder build` command.
 
 This way, Gradle, will be able to do "all of it's stuff" with caching and
 daemons, and get your incremental builds done faster (well, considering it
 is Gradle, a little bit faster at least)
 
-This command, inside the container, lets you run any Gradle command you like
-and a couple of extra shortcuts... Just run `container` for a little bit of
-help.
+This command, inside the build container, lets you run any Gradle command
+you like and a couple of extra shortcuts... Just run `builder` for help.
 
 ### Uploading Microcontroller Code
 
@@ -110,8 +110,8 @@ Assembly code for the microcontroller
 
 This uses
 [GAVRAsm](http://www.avr-asm-tutorial.net/gavrasm/index_en.html)
-which is included in the container and is built by Gradle just like
-all the Kotlin code.
+which is included in the build container and uses Gradle just like
+the Kotlin code.
 
 ### src/buildSrc
 

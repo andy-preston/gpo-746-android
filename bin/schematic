@@ -1,0 +1,28 @@
+#!/bin/bash
+
+case $1 in
+'black')
+    COMMAND="black *.py"
+    ;;
+'lint')
+    COMMAND="pylint *.py"
+    ;;
+'draw')
+    COMMAND="python draw.py"
+    ;;
+'run')
+    COMMAND="/usr/local/src/run"
+    ;;
+*)
+    COMMAND="bash"
+    ;;
+esac
+
+docker build --progress plain --tag schematic ./docker/schematic
+docker run --rm --interactive --tty \
+    --workdir /usr/local/src \
+    --user $(id -u):$(id -g) \
+    --volume $(pwd)/schematic:/usr/local/src \
+    --name schematic \
+    schematic \
+    ${COMMAND}

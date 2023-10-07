@@ -58,10 +58,10 @@ else
     mkdir -p ${LOCAL_SHARE}/gradle
     mkdir -p ${LOCAL_SHARE}/konan
     mkdir -p ${LOCAL_SHARE}/android
-    docker build --progress=plain --tag android_gpo ./docker
+    docker build --progress=plain --tag android_gpo ./docker/builder
     docker run \
         --rm --interactive --tty \
-        --volume "${LOCAL_BIN}/container:${CONTAINER_BIN}/container" \
+        --volume "${LOCAL_BIN}/builder:${CONTAINER_BIN}/builder" \
         --volume "${LOCAL_SHARE}/android:${ANDROID_SDK_ROOT}" \
         --env "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}" \
         --volume "${LOCAL_SHARE}/gradle:${CONTAINER_SHARE}/gradle" \

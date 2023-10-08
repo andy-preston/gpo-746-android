@@ -3,6 +3,7 @@
 #PROGRAMMER='-c usbasp'
 #PROGRAMMER='-c stk500v1 -P /dev/ttyUSB0 -b 19200'
 PROGRAMMER='-c stk500v1 -P net:avrnude.lan:5000'
+
 AVRDUDE="avrdude ${PROGRAMMER} -p t2313 -V"
 
 if [ -z "$1" ]
@@ -21,4 +22,4 @@ then
     exit
 fi
 
-echo ${AVRDUDE} -U "flash:w:$1:i" -U "flash:v:$1:i"
+${AVRDUDE} -U "flash:w:$1:i" -U "flash:v:$1:i"

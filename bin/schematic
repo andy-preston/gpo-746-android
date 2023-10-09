@@ -11,7 +11,7 @@ case $1 in
     COMMAND="python draw.py"
     ;;
 'run')
-    COMMAND="/usr/local/src/run"
+    COMMAND="/usr/local/bin/run"
     ;;
 *)
     COMMAND="bash"

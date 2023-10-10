@@ -1,4 +1,4 @@
-""""GPO-746 Microcontroller Schematic"""
+""""GPO-746 Microcontroller Schematic - Digital part"""
 
 import schemdraw
 import schemdraw.elements as elm
@@ -27,7 +27,7 @@ _2313 = elm.Ic(
         elm.IcPin(name="RXD", side="right", pin="2"),
         elm.IcPin(name="TXD", side="right", pin="3"),
     ],
-    pinspacing=1.5,
+    pinspacing=1.585,
     leadlen=1,
     label="ATTiny 2313",
 )
@@ -83,13 +83,14 @@ def not_connected(dwg: schemdraw.Drawing):
         dwg += elm.NoConnect().at(pin)
 
 
-def interconnect(dwg: schemdraw.Drawing):
+def interconnect(dwg: schemdraw.Drawing) -> float:
     """simple interconnects from one IC to the other"""
     dwg += elm.Line().endpoints(_340.RI, _2313.PB0)
     dwg += elm.Line().endpoints(_340.RTS, _2313.PD6)
     dwg += elm.Line().endpoints(_340.RXD, _2313.TXD)
     dwg += elm.Line().endpoints(_340.TXD, _2313.RXD)
     dwg += elm.Line().endpoints(_340.GND, _2313.GND)
+    return dwg.here.y
 
 
 def main_vcc(dwg: schemdraw.Drawing) -> float:
@@ -121,7 +122,7 @@ def usb(dwg: schemdraw.Drawing):
     )
     dwg += header
     dwg += elm.Line().down(0.3).at(header.pin4)
-    dwg += elm.GroundChassis()
+    dwg += elm.Vss().label("0V")
     dwg += elm.Wire("-|").at(_340.UDP).to(header.pin3)
     dwg += elm.Wire("|-").at(_340.UDM).to(header.pin2)
     dwg += (
@@ -139,20 +140,21 @@ def usb(dwg: schemdraw.Drawing):
 
 def diagnostic_led(dwg: schemdraw.Drawing):
     """LED and CL Resistor for PB3 diagnostic output"""
-    dwg += elm.Resistor().at(_2313.PB3).right().label("220Ω")
+    dwg += elm.Resistor().at(_2313.PB3).right(2.66).label("220Ω")
     dwg += elm.LED().down().toy(_2313.GND).label("diagnostic", loc="top")
 
 
 def rx_led(dwg: schemdraw.Drawing):
     """LED and CL Resistor for RX data indicator"""
     dwg += elm.Resistor().down().label("1K")
-    dwg += elm.LED().down(3.2).label("RX", loc="top")
+    dwg += elm.LED().down(2.8).label("RX", loc="top")
 
 
 def _2313_reset(dwg: schemdraw.Drawing, the_top: float):
     """Pull up resistor on 2313 reset pin"""
-    dwg += elm.Resistor().at(_2313.reset).left(1.5).label("1K")
-    dwg += elm.Line().toy(the_top)
+    dwg.here = (_2313.reset.x, the_top)
+    dwg += elm.Resistor().down().label("1K")
+    dwg += elm.Line().to(_2313.reset)
 
 
 def _340_decoupling(dwg: schemdraw.Drawing, the_top: float):
@@ -174,7 +176,7 @@ def v3_and_ri_stuff(dwg: schemdraw.Drawing):
     """CH340G - a cap to ground on V3 and a pull-down resistor for RI"""
     dwg += elm.Capacitor().at(_340.V3).left().label("100n")
     dwg += elm.Line().down().toy(_340.XI).hold()
-    dwg += elm.Resistor().up(1.666666).label("10K")
+    dwg += elm.Resistor().up(1.8).label("10K")
 
 
 def digital(dwg: schemdraw.Drawing):
@@ -185,7 +187,7 @@ def digital(dwg: schemdraw.Drawing):
     dwg += _340.right()
 
     the_top = main_vcc(dwg)
-    interconnect(dwg)
+    the_bottom = interconnect(dwg)
     not_connected(dwg)
 
     _340_clock(dwg)
@@ -201,3 +203,8 @@ def digital(dwg: schemdraw.Drawing):
     _2313_decoupling(dwg, the_top, the_left)
     io_header(dwg)
     diagnostic_led(dwg)
+
+    dwg.here = (the_left, the_top)
+    dwg += elm.Vdd().label("5V")
+    dwg.here = (the_left, the_bottom)
+    dwg += elm.Vss().label("0V")

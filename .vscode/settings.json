@@ -33,6 +33,7 @@
         "PORTD",
         "println",
         "pylint",
+        "QinHeng",
         "rjmp",
         "RXEN",
         "sbic",

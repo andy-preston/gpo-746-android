@@ -2,7 +2,7 @@
 
 import schemdraw
 import schemdraw.elements as elm
-from old_school_nc import OldSchoolNC
+from custom_elements import OldSchoolNC, ElectrolyticCapacitor
 
 
 class AnalogPart:
@@ -27,14 +27,19 @@ class AnalogPart:
             label="7805",
         )
         self.dwg += _7805
-        self.dwg += elm.Capacitor().at(_7805.input).toy(self._0v.y).label(".47μ", loc="bottom")
+        self.dwg += (
+            ElectrolyticCapacitor()
+            .at(_7805.input)
+            .toy(self._0v.y)
+            .label("0.47μ", loc="bottom")
+        )
         self.dwg.push()
         self.dwg += elm.Line().left()
         self.dwg += elm.Vss().label("0V")
         self.dwg += elm.Resistor().up(3.5).label("1K2 1W", loc="bottom")
         self.dwg += elm.Line().right().label("8v").hold()
         self.dwg += elm.Resistor().toy(self._5v.y).label("1K8 1W", loc="bottom")
-        self.dwg += elm.Vdd().label("20V")
+        self.dwg += elm.Vdd().label("(Supply)\n20V")
         self._20v = self.dwg.here
         self.dwg.pop()
         self.dwg += elm.Wire("-|").to(_7805.ground)

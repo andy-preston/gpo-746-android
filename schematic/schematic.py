@@ -11,5 +11,5 @@ def schematic(dwg: schemdraw.Drawing):
     dwg.config(fontsize=12)
     elm.style(elm.STYLE_IEC)
     anchor_point: schemdraw.util.Point = AnalogPart(dwg).draw()
-    dwg.move_from(anchor_point, 0, -23)
+    dwg.move_from(anchor_point, 4, -23)
     digital(dwg)

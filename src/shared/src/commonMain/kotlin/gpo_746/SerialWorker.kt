@@ -17,7 +17,7 @@ class SerialWorker() {
             serialChannel.send("")
             while (true) {
                 serialChannel.send(
-                    usbSystem.bulkRead().toByteArray().decodeToString()
+                    usbSystem.bulkRead().decodeToString()
                 )
             }
         }

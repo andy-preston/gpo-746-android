@@ -35,8 +35,11 @@ enum class GclInputBit(val mask: UByte)  {
 }
 
 @OptIn(kotlin.ExperimentalUnsignedTypes::class)
-fun shortFromBuffer(buffer: UByteArray): UShort {
-    return (buffer[1].toUInt() shl 8).toUShort() or buffer[0].toUShort()
+fun shortFromBuffer(buffer: ByteArray): UShort {
+    return (
+        ((buffer[1].toUInt() and 0xFFu) shl 8) or
+        (buffer[0].toUInt() and 0xFFu)
+    ).toUShort()
 }
 
 @OptIn(kotlin.ExperimentalUnsignedTypes::class)

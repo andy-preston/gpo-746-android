@@ -98,6 +98,8 @@ class UsbSystemMock() : UsbSystemInterface {
         return 0u
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+
     override public fun open(vid: UShort, pid: UShort, timeout: Int) {
         usbTimeout = timeout.toUInt()
 
@@ -119,7 +121,7 @@ class UsbSystemMock() : UsbSystemInterface {
         }
         assertTrue(bulkReadEndpoint.toUInt() != 0u, "Find bulk read endpoint")
         packetSize = libusb_get_max_packet_size(device, bulkReadEndpoint)
-        buffer = UByteArray(packetSize + 1)
+        buffer = UByteArray(maxOf(packetSize + 1, 2))
     }
 
     override public fun close() {
@@ -137,7 +139,7 @@ class UsbSystemMock() : UsbSystemInterface {
         }
     }
 
-    override public fun bulkRead(): UByteArray {
+    override public fun bulkRead(): ByteArray {
         var statusCode: Int = 0
         val transferred: Int = memScoped {
             val transferred_c = alloc<IntVar>()
@@ -153,13 +155,13 @@ class UsbSystemMock() : UsbSystemInterface {
         }
         assertSuccess(statusCode, "Bulk read", false)
         buffer!![transferred] = 0u
-        return buffer!!
+        return buffer!!.toByteArray()
     }
 
     override public fun read(
         requestCode: UByte,
         addressOrPadding: UShort
-    ): UByteArray {
+    ): ByteArray {
         val transferred: Int = libusb_control_transfer(
             handle,
             (LIBUSB_REQUEST_TYPE_VENDOR or LIBUSB_ENDPOINT_IN).toUByte(),
@@ -174,7 +176,7 @@ class UsbSystemMock() : UsbSystemInterface {
             transferred == 2,
             "Control transfer read ${transferred} bytes, 2 expected"
         )
-        return buffer!!
+        return buffer!!.toByteArray()
     }
 
     override public fun write(

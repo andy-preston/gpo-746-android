@@ -60,8 +60,8 @@ _340 = elm.Ic(
 def _340_clock(dwg: schemdraw.Drawing):
     """Clock crystal and caps for CH340G"""
     dwg += elm.Crystal().endpoints(_340.XI, _340.XO).label("12 MHz")
-    dwg += elm.Capacitor().at(_340.XO).left().label("22pf", loc="bottom")
-    dwg += elm.Capacitor().at(_340.XI).left().label("22pf")
+    dwg += elm.Capacitor().at(_340.XO).left().label("22p", loc="bottom")
+    dwg += elm.Capacitor().at(_340.XI).left().label("22p")
     dwg += elm.Line().down().toy(_340.XO)
     dwg += elm.Wire("|-").to(_340.GND)
 
@@ -69,8 +69,8 @@ def _340_clock(dwg: schemdraw.Drawing):
 def _2313_clock(dwg: schemdraw.Drawing) -> float:
     """Clock crystal and caps for ATTiny 2313"""
     dwg += elm.Crystal().endpoints(_2313.XTAL1, _2313.XTAL2).label("14.7456 MHz")
-    dwg += elm.Capacitor().at(_2313.XTAL2).left().label("22pf", loc="bottom")
-    dwg += elm.Capacitor().at(_2313.XTAL1).left().label("22pf")
+    dwg += elm.Capacitor().at(_2313.XTAL2).left().label("22p", loc="bottom")
+    dwg += elm.Capacitor().at(_2313.XTAL1).left().label("22p")
     dwg += elm.Line().down().toy(_2313.XTAL2)
     the_left = dwg.here.x
     dwg += elm.Wire("|-").to(_2313.GND)

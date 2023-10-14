@@ -5,7 +5,12 @@
     do
         for FILE in $(find ${DIR} -name index.html)
         do
-            /usr/bin/chromium $FILE
+            if [ "$1" == "clean" ]
+            then
+                rm ${FILE}
+            else
+                /usr/bin/chromium ${FILE}
+            fi
         done
     done
 )

@@ -57,7 +57,20 @@ class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
     }
 
     override public fun bulkRead(): ByteArray {
-        throw Exception("Not implemented")
+        val buffer = ByteArray(packetSize + 1)
+        val bytesRead: Int? = connection?.let {
+            it.bulkTransfer(
+                bulkReadEndpoint,
+                buffer,
+                packetSize,
+                usbTimeout
+            )
+        }
+        if (bytesRead != null && bytesRead < 0) {
+            throw Exception("Bulk transfer failed? ${bytesRead}")
+        }
+        buffer[bytesRead] = 0
+        return buffer
     }
 
     override public fun read(
@@ -65,7 +78,7 @@ class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
         addressOrPadding: UShort
     ): ByteArray {
         val buffer = ByteArray(2)
-        val ret: Int? = connection?.let {
+        val bytesRead: Int? = connection?.let {
             it.controlTransfer(
                 UsbConstants.USB_TYPE_VENDOR or UsbConstants.USB_DIR_IN,
                 requestCode.toInt(),
@@ -76,8 +89,8 @@ class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
                 usbTimeout
             )
         }
-        if (ret != 2) {
-            throw Exception("USB Read Registers did not return 2 bytes")
+        if (bytesRead != 2) {
+            throw Exception("Read Registers did not return 2 bytes ${bytesRead}")
         }
         return buffer
     }
@@ -87,6 +100,19 @@ class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
         addressOrValue: UShort,
         valueOrPadding: UShort
     ) {
-        throw Exception("Not implemented")
+        val result: Int? = connection?.let {
+            it.controlTransfer(
+                UsbConstants.USB_TYPE_VENDOR or UsbConstants.USB_DIR_OUT,
+                requestCode.toInt(),
+                addressOrValue.toInt(),
+                valueOrPadding.toInt(),
+                null,
+                0,
+                usbTimeout
+            )
+        }
+        if (result != null && result < 0) {
+            throw Exception("Write Registers failed ${result}");
+        }
     }
 }

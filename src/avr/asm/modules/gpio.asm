@@ -1,3 +1,6 @@
+; To keep things as simple to implement as possible, all output are done on
+; one GPIO port and all inputs on the other.
+
     .equ outputPort = PORTB
     .equ outputDDR = DDRB
 
@@ -10,8 +13,10 @@
     .equ inputPins = PIND
     .equ inputDDR = DDRD
 
-    ; D4 is included here only for completeness. It's not used as a GPIO.
-    ; See ./dial.asm `SetupTimerCounter0` for usage details.
+    ; PD4 is included here only for completeness.
+    ; It's not used as a GPIO but for as the T0 pin for TimerCounter0 to count
+    ; pulses from the dial.
+    ; See `SetupTimerCounter0` in `./dial.asm` for usage details.
 
     .equ pinHook = 3
     .equ pinDialPink = 4                 ; Pulse - orange (GND) -> pink low

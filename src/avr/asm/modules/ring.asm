@@ -1,6 +1,6 @@
 .macro Ringing
     ; Step through the ringing sequence, outputting the next step each 20ms
-    ; It will only "fall through" if the reciever is picked up.
+    ; It will only "fall through" if the receiver is picked up.
     ; Whilst the sequence is playing all outputs on the port will go low
     ; which includes the diagnostic LED and the external "picked-up" signal
     ; to the Android device. The first is a little inconvenient the latter
@@ -25,7 +25,7 @@ getNextRingSeqByte:
     ; dummy output bit used to mark the end of the sequence data
     .equ endDataFlag = 7
     .equ endData = 1 << endDataFlag
-    
+
     .equ emulatedRing = 1
     .equ realRing = 2
 
@@ -44,9 +44,9 @@ getNextRingSeqByte:
 
     ; Original GPO phones have the ringer solenoids wired in such a way that
     ; they respond to AC pulses at 25Hz (half-period = 20mS).
-    ; For this system, they have been wired sepeately to an IO pin and to ground
-    ; so that they can easily be driven digitally.
-    ; The traditional British ring cadence is 
+    ; For this system, they have been wired separately to an IO pin and to
+    ; ground so that they can easily be driven digitally.
+    ; The traditional British ring cadence is
     ; 400mS ring, 200mS silence, 400mS ring, 2000mS silence (3 second total)
 
     .db ding, dong, ding, dong, ding, dong, ding, dong, ding, dong ; 20X20

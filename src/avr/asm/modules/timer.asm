@@ -14,11 +14,11 @@
     ; Set the timer in normal mode rather than an of the
     ; PWM options, etc.
     out TCCR1A, _zero
-    
-    ; Set up the timer prescaler bits
+
+    ; Set up the timer pre-scaler bits
     ldi _io, @timer1ClockSelect@
     out TCCR1B, _io
-    
+
     ; Set the number of timer ticks to count to
     ; in the timer's output compare register
     ldi _io, high(@timer1Ticks@)
@@ -31,12 +31,12 @@
     ; start a timer count at zero
     out TCNT1H, _zero
     out TCNT1L, _zero
-    
+
     ; clear the output compare flag
     ; which will be set again when the timer count is complete
     ldi _io, (1 << OCF1A)
     out TIFR, _io ; TIFR (56) is out of range for `sbi`
-    
+
     ; Wait for @timer1Ticks@ ticks to complete
     ; at which point the timer sets the output compare flag again
 waitForTimer1:

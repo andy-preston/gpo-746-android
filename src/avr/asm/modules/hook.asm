@@ -6,7 +6,7 @@
 ; hook switch changes state.
 
 ; I've even pre-empted future code with the macros to switch audio on and off
-; that aren't even written yet - the elecronics hasn't even been designed.
+; that aren't even written yet - the electronics hasn't even been designed.
 
 ; `AbortDialing` can be found in `dial.asm`
 

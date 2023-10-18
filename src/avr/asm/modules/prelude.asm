@@ -2,7 +2,7 @@
 
     ; I'm trying to arrange things so that each register has a single function
     ; so that on entering macros or subroutines, we don't need to concern
-    ; ourselves with which registers we might be overwriting and saving 
+    ; ourselves with which registers we might be overwriting and saving
     ; precious stack space by not need to keep pushing and popping them.
     ; There's still quite a few registers free so this scheme can still be
     ; expanded quite a bit
@@ -11,7 +11,7 @@
     .def _zero = r0
 
     ; Used in timer loops when we're checking some IO register for an
-    ; "operation compled" flag
+    ; "operation completed" flag
     .def _check = r1
 
     ; Used in delay functions to count the number of timer loops that have
@@ -25,7 +25,7 @@
     ; the output GPIO port
     .def _bell = r18
 
-    ; Used to store the dialed digit in the form of a pulse count or ASCII
+    ; Used to store the dialled digit in the form of a pulse count or ASCII
     ; digit during the dial handling and serial output routines
     .def _digit = r19
 
@@ -42,14 +42,29 @@
 
     .org 0x0000
 
-    ; As interrupts are disabled in this code, I haven't bothered setting up
-    ; any interrupt vectors. Just the reset vector
-
-    rjmp progStart
-
-    ; Although, the space for the interrup vectors is still "reserved"
-
-    .org 0x003E
+    ; Standard Interrupt Vector Table taken from page 44 of
+    ; https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-2543-AVR-ATtiny2313_Datasheet.pdf
+    ; See also:
+    ; http://www.avr-asm-tutorial.net/avr_en/interrupts/int_source.html
+    rjmp progStart ; Reset Handler
+    reti ; External Interrupt 0 Handler
+    reti ; External Interrupt 1 Handler
+    reti ; Timer 1 Capture Handler
+    reti ; Timer 1 Compare A Handler
+    reti ; Timer 1 Overflow Handler
+    reti ; Timer 0 Overflow Handler
+    reti ; USART 0 RX Complete Handler
+    reti ; USART 0 UDR Empty Handler
+    reti ; USART 0 TX Complete Handler
+    reti ; Analog Comparator Handler
+    reti ; Pin Change Interrupt
+    reti ; Timer 1 Compare B Handler
+    reti ; Timer 0 Compare A Handler
+    reti ; Timer 0 Compare B Handler
+    reti ; USI Start Handler
+    reti ; USI Overflow Handler
+    reti ; EEPROM Ready Handler
+    reti ; Watchdog Overflow Handler
 
 
 progStart:

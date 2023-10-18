@@ -13,7 +13,7 @@
     ; Set the counter to normal mode
     out TCCR0A, _zero
 
-    ; Set the counter to count rising edges on the T0 pin    
+    ; Set the counter to count rising edges on the T0 pin
     ; PD4 stops acting as a GPIO at this point
     ldi _io, t0Rising
     out TCCR0B, _io
@@ -25,7 +25,7 @@
 
 .macro GetDialPulseCount
     ; Clear the digit value so that when we "fall through" this macro
-    ; with no digit dialed yet, the result is correctly zero
+    ; with no digit dialled yet, the result is correctly zero
     clr _digit
 
     ; If the dial is active then the full pulse count is not yet available

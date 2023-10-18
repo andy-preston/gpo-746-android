@@ -1,4 +1,4 @@
-; This is the stuff that deals with sending dialed digits down the serial link.
+; This is the stuff that deals with sending dialled digits down the serial link.
 ; For `GetDialPulseCount`, see `./dial.asm`
 ; For `WriteSerial`, see `./serial.asm`
 
@@ -11,14 +11,14 @@
     ; If digit is zer0, ignore it
     tst _digit
     breq endAsciiCount
-    
-    ; If there is 10 pulses, the digit "0" has been dialed
+
+    ; If there were 10 pulses, the digit "0" has been dialled
     cpi _digit, 10
 
     ; If it's not 10 pulses, skip to the end - the number of pulses is the
     ; digit dialled
     brne digitFound
-    
+
     ; But it it was 10 pulses, clear _digit so that it;s the digit "0"
     clr _digit
 
@@ -39,7 +39,7 @@ endAsciiCount:
     ; If there are no pulses, then we can just skip to the end
     tst _digit
     breq nothingToSend
-    
+
     ; But if there is a digit, convert it to ASCII
     ; and send it to the serial port
     ConvertPulseCountToAscii

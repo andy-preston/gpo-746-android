@@ -6,7 +6,7 @@
     ; If the LED bit is 0 (off)
     sbic outputPort, pinBlink
     rjmp blinkOff
-    
+
     ; Switch it on
     BlinkOn
     rjmp blinkEnd
@@ -28,12 +28,12 @@ blinkLoop:
     ; If the count has reached zero, skip to the end
     tst _digit
     breq blinkEnd
-    
+
     BlinkOn
     TestDelay 0x10
     BlinkOff
     TestDelay 0x10
-    
+
     dec _digit
     rjmp blinkLoop
 

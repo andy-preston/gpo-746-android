@@ -31,7 +31,7 @@ class AnalogPart:
             ElectrolyticCapacitor()
             .at(_7805.input)
             .toy(self._0v.y)
-            .label("0.47μ", loc="bottom")
+            .label("0μ47", loc="bottom")
         )
         self.dwg.push()
         self.dwg += elm.Line().left()
@@ -55,9 +55,9 @@ class AnalogPart:
 
         header = elm.Header(rows=1, pinsleft=[pin], pinalignleft="center")
         solenoid = elm.Transformer(t1=7, t2=0).right()
-        transistor = elm.BjtNpn(circle=True).right().label("BC548B")
-        diode = elm.Diode().label("IN4001").toy(self._20v)
 
+        transistor = elm.BjtNpn(circle=True).right().label("BC548B", loc="top")
+        diode = elm.Diode().label("1N4001").toy(self._20v)
         self.dwg += header
         self.dwg.move_from(header.pin1, 3, 0)
         self.dwg += transistor

@@ -8,12 +8,12 @@
     out UBRRH, _io
     ldi _io, low(@usartBaudRateRegister@)
     out UBRRL, _io
-    
-    ; Clear the transmssion complete flag
+
+    ; Clear the transmission complete flag
     ; Disable double speed mode(U2X) and
     ; multi-processor communication mode (MPCM)
     out UCSRA, _zero
-    
+
     ; Disable interrupts and enable transmission (TX)
     ; Clear UCSZ2 and TXB8 as we are not using 9-bit transfer
     ldi _io, (1 << TXEN)
@@ -30,14 +30,14 @@
 
 .macro ReadSerial
     ; ReadSerial isn't actually used anywhere in the code but it's been left
-    ; here "for completness" and, I suppose, to blatantly ignore the YAGNI
+    ; here "for completeness" and, I suppose, to blatantly ignore the YAGNI
     ; principle.
 
     ldi _digit, 0                          ; Return NULL if no data
 
     sbis UCSRA, RXC                        ; If data available skip the skip ;)
     rjmp finished                          ; Don't read if no data available
-    
+
     in _digit, UDR                         ; Returns data or NULL in _digit
 finished:
 .endMacro

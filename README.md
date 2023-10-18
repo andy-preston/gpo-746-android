@@ -4,7 +4,7 @@ An ATTiny2313 microcontroller hidden away in a "hacked" GPO-746 Telephone
 paired up with an Android App that'll allow the GPO-746 to place and receive
 calls on a mobile network.
 
-Test framework an experimental Android/Kotlin driver for the CH340G USB/Serial
+Test framework and experimental Android/Kotlin driver for the CH340G USB/Serial
 controller.
 
 Docker container for the build environment
@@ -136,6 +136,6 @@ Android device.
 
 ### src/shared/src/commonMain
 
-( see also src/shared/src/commonTest)
+(see also src/shared/src/commonTest)
 
 Kotlin code shared between Linux and Android

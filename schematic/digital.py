@@ -147,7 +147,7 @@ def diagnostic_led(dwg: schemdraw.Drawing):
 def rx_led(dwg: schemdraw.Drawing):
     """LED and CL Resistor for RX data indicator"""
     dwg += elm.Resistor().down().label("1K")
-    dwg += elm.LED().down(2.8).label("RX", loc="top")
+    dwg += elm.LED().down(2.8).label("Data", loc="top")
 
 
 def _2313_reset(dwg: schemdraw.Drawing, the_top: float):

@@ -4,14 +4,14 @@
     .include "gpio.asm"
     .include "blinks.asm"
 
-    SetupTimer
+    Setup20msTimer
     SetupSerial
 
 theTop:
     LoadZ digitsToSend
     BlinkFlip
 sendDigit:
-    TestDelay 0x01
+    WaitForMultiple20ms 0x01
     lpm _digit, Z+
     cpi _digit, ' '
     breq theTop

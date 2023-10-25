@@ -4,7 +4,7 @@
     .include "ring.asm"
 
     SetupOutputs
-    SetupTimer
+    Setup20msTimer
 testLoop:
     Ringing
     rjmp testLoop

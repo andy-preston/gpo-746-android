@@ -16,7 +16,7 @@
     ; PD4 is included here only for completeness.
     ; It's not used as a GPIO but for as the T0 pin for TimerCounter0 to count
     ; pulses from the dial.
-    ; See `SetupTimerCounter0` in `./dial.asm` for usage details.
+    ; See `Setup20msTimerCounter0` in `./dial.asm` for usage details.
 
     .equ pinHook = 3
     .equ pinDialPink = 4                 ; Pulse - orange (GND) -> pink low

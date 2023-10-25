@@ -115,27 +115,20 @@ def io_header(dwg: schemdraw.Drawing):
     dwg += elm.Line().at(_2313.PD5).to(header.pin5)
 
 
-def usb(dwg: schemdraw.Drawing):
+def usb(dwg: schemdraw.Drawing, _5v: float):
     """The USB header and USB/main power selection switch"""
     header = elm.Header(
-        rows=4, pinsleft=["5V", "D-", "D+", "GND"], pinalignleft="center"
+        rows=4,
+        pinsleft=["USB 5V", "USB D-", "USB D+", "USB GND"],
+        pinalignleft="center",
     )
     dwg += header
-    dwg += elm.Line().down(0.3).at(header.pin4)
+    dwg += elm.Line().at(header.pin4).down(0.3)
     dwg += elm.Vss().label("0V")
-    dwg += elm.Wire("-|").at(_340.UDP).to(header.pin3)
+    dwg += elm.Wire("|-").at(_340.UDP).to(header.pin3)
     dwg += elm.Wire("|-").at(_340.UDM).to(header.pin2)
-    dwg += (
-        elm.Switch()
-        .at(header.pin1)
-        .right()
-        .label(
-            label="Open when PSU is\nconnected. Closed\nonly for USB testing",
-            halign="right",
-            ofst=(1.4, 0.1),
-        )
-    )
-    dwg += elm.Line().up(1.8)
+    dwg += elm.Switch().at(header.pin1).tox(_340.UDM)
+    dwg += elm.Line().toy(_5v)
 
 
 def diagnostic_led(dwg: schemdraw.Drawing):
@@ -193,8 +186,8 @@ def digital(dwg: schemdraw.Drawing):
     _340_clock(dwg)
     _340_decoupling(dwg, the_top)
     v3_and_ri_stuff(dwg)
-    dwg.move_from(_340.UDP, -5, -0.9)
-    usb(dwg)
+    dwg.move_from(_340.UDP, -3.5, 0)
+    usb(dwg, the_top)
     dwg.move_from(_340.UDP, -8, 3)
     rx_led(dwg)
 

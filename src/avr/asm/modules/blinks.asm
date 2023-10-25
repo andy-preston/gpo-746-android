@@ -22,11 +22,12 @@ blinkEnd:
 
 .macro BlinkCount
     ; Flash the LED, the number of times indicated by _digit
-    ; _digit will be zero by the time this routine finishes but it is only for
-    ; use in the testing phase.
+
+    mov _blink_count, _digit
+
 blinkLoop:
     ; If the count has reached zero, skip to the end
-    tst _digit
+    tst _blink_count
     breq blinkEnd
 
     BlinkOn
@@ -34,7 +35,7 @@ blinkLoop:
     BlinkOff
     WaitForMultiple20ms 0x10
 
-    dec _digit
+    dec _blink_count
     rjmp blinkLoop
 
 blinkEnd:

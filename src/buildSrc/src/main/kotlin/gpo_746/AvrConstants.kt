@@ -5,11 +5,11 @@ final class AvrConstants {
     // keys in Ch340gConstants.baudRate.basis
     private val baudRate = 9600
 
-    private val timer1HalfPeriod = 20
+    private val ringHalfPeriodMilliseconds = 20
 
-    // Better to calculate prescale and get an optimal value
+    // Better to calculate PreScale and get an optimal value
     // (Which, it looks like, I've already done by hand)
-    private val timer1Prescale = 256
+    private val timer1PreScale = 256
 
     public fun map(): Map<String, String>  {
         return mapOf(
@@ -39,15 +39,15 @@ final class AvrConstants {
             256 to "(1 << CS12)",
             1024 to "(1 << CS12) | (1 << CS10)"
         )
-        val shifted = shiftMap[timer1Prescale]
+        val shifted = shiftMap[timer1PreScale]
         require(shifted != null)
         return shifted
     }
 
-    private fun timer1Ticks(): Int {
-        val timerFrequency: Int = clockFrequency / timer1Prescale
+    private fun timer1Ticks20ms(): Int {
+        val timerFrequency: Int = clockFrequency / timer1PreScale
         val tick: Double = (1.0 / timerFrequency) * 1000.0
-        val ticks: Double = timer1HalfPeriod.toDouble() / tick
+        val ticks: Double = ringHalfPeriodMilliseconds.toDouble() / tick
         val approxTicks = ticks.toInt()
         require(approxTicks <= 0xffff && approxTicks > 1)
         return approxTicks

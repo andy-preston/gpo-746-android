@@ -14,6 +14,9 @@
     ; "operation completed" flag
     .def _check = r1
 
+    ; Used purely for the blink count test routine
+    .def _blink_count = r2
+
     ; Used in delay functions to count the number of timer loops that have
     ; been completed so far
     .def _loops = r16
@@ -71,7 +74,8 @@ progStart:
     cli
 
     ; As far as I can remember, there's no subroutines or pushes anywhere.
-    ; But I'm still setting up the stack for completeness
+    ; There's also, no static variables to get in the way of the default stack.
+    ; But I'm still setting up the stack for completeness.
     ; There's no SPH to setup on the ATTiny2313 because it hasn't got enough
     ; RAM to need a high byte in it's stack pointer.
     ldi _io, RamEnd

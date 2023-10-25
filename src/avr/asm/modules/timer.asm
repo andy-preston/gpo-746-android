@@ -27,11 +27,11 @@
     out OCR1AL, _io
 .endMacro
 
+
 .macro Start20msWait
     ; start a timer count at zero
     out TCNT1H, _zero
     out TCNT1L, _zero
-
     ; clear the output compare flag
     ; which will be set again when the timer count is complete
     ldi _io, (1 << OCF1A)
@@ -54,10 +54,14 @@ waitForTimer1:
     Complete20msWait
 .endMacro
 
+
 .macro WaitForMultiple20ms
+    ; Used in tests where @timer1Ticks20ms@ is too short for a human to notice.
     ; Because we're re-using a delay loop with a specific purpose just to
     ; get a human visible delay, the timing is a bit odd here:
-    ; The parameter is duration in with a value of 40 indicating 1 second
+    ; The parameter is duration with a value of 50 indicating 1 second
+    ; (Plus a little bit extra as we're ignoring the time it takes the loop
+    ; itself to execute)
     ldi _loops, @0
 delay:
     WaitFor20ms

@@ -5,13 +5,15 @@ import xmlformatter
 from schematic import schematic
 
 with open("schematic.html", "r", encoding="UTF-8") as file:
-    old_contents = file.read().replace("<!DOCTYPE html>", "")
-    html_header = old_contents.split("<svg")[0]
-    html_footer = old_contents.split("</svg>")[-1]
+    old_contents: str = file.read().replace("<!DOCTYPE html>", "")
 
 with schemdraw.Drawing() as drawing:
     schematic(drawing)
-    rawXml: str = html_header + drawing.get_imagedata().decode("UTF-8") + html_footer
+    drawing_xml: str = drawing.get_imagedata().decode("UTF-8")
+
+rawXml: str = (
+    old_contents.split("<svg")[0] + drawing_xml + old_contents.split("</svg>")[-1]
+)
 
 formatted: str = (
     xmlformatter.Formatter(

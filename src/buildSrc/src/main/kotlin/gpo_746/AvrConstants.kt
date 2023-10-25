@@ -15,7 +15,7 @@ final class AvrConstants {
         return mapOf(
             "usartBaudRateRegister" to "${baud()}",
             "timer1ClockSelect" to timer1ClockSelect(),
-            "timer1Ticks" to "${timer1Ticks()}"
+            "timer1Ticks20ms" to "${timer1Ticks20ms()}"
         )
     }
 

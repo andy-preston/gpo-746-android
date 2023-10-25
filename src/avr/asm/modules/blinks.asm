@@ -30,13 +30,13 @@ blinkLoop:
     breq blinkEnd
 
     BlinkOn
-    TestDelay 0x10
+    WaitForMultiple20ms 0x10
     BlinkOff
-    TestDelay 0x10
+    WaitForMultiple20ms 0x10
 
     dec _digit
     rjmp blinkLoop
 
 blinkEnd:
-    TestDelay 0x20
+    WaitForMultiple20ms 0x20
 .endMacro

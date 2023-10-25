@@ -4,7 +4,7 @@
     .include "blinks.asm"
 
     SetupOutputs
-    SetupTimer
+    Setup20msTimer
 seqStart:
     ldi _digit, 5
 loop:

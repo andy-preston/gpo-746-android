@@ -9,7 +9,7 @@
     .include "hook.asm"
 
     SetupOutputs
-    SetupTimer
+    Setup20msTimer
     SetupDial
     SetupSerial
 

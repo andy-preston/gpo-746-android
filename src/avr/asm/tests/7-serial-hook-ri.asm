@@ -3,15 +3,15 @@
     .include "timer.asm"
 
     SetupOutputs
-    SetupTimer
+    Setup20msTimer
 
 theTop:
     BlinkOn
     SendOffHookSignal
-    TestDelay 0x20
+    WaitForMultiple20ms 0x20
 
     BlinkOff
     SendOnHookSignal
-    TestDelay 0x20
+    WaitForMultiple20ms 0x20
 
     rjmp theTop

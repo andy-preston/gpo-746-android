@@ -5,7 +5,7 @@
     .include "blinks.asm"
 
     SetupOutputs
-    SetupTimer
+    Setup20msTimer
     SetupDial
     BlinkOff
 checkDial:

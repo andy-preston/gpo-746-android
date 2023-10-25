@@ -4,7 +4,7 @@ import schemdraw
 import xmlformatter
 from schematic import schematic
 
-with open("README.html", "r", encoding="UTF-8") as file:
+with open("schematic.html", "r", encoding="UTF-8") as file:
     old_contents = file.read().replace("<!DOCTYPE html>", "")
     html_header = old_contents.split("<svg")[0]
     html_footer = old_contents.split("</svg>")[-1]
@@ -21,6 +21,6 @@ formatted: str = (
     .decode("UTF-8")
 )
 
-with open("README.html", "w", encoding="UTF-8") as file:
+with open("schematic.html", "w", encoding="UTF-8") as file:
     file.write("<!DOCTYPE html>\n")
     file.write(formatted)

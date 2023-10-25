@@ -39,6 +39,7 @@
         "RXEN",
         "sbic",
         "sbis",
+        "sbrc",
         "sbrs",
         "schemdraw",
         "sdkmanager",

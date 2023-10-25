@@ -2,6 +2,7 @@ FROM python:3.11.1-bullseye
 
 ENV TERM=linux
 ENV DEBIAN_FRONTEND=noninteractive
+ENV PIP_ROOT_USER_ACTION=ignore
 ENV PYLINTHOME=/var/tmp
 
 ADD run /usr/local/bin/run

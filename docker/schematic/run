@@ -1,3 +1,5 @@
 #!/bin/bash
 
-black *.py && pylint *.py && python draw.py
+black *.py
+pylint *.py
+python draw.py

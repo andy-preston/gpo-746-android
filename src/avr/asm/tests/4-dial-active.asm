@@ -3,15 +3,15 @@
 
     ; Dial a digit and as the dial is returning the LED should light.
 
-    SetupOutputs
-    BlinkOff
-checkDial:
-    SkipDialInactive
+    setup_outputs
+    blink_off
+check_dial:
+    skip_instruction_dial_inactive
     rjmp active
 
-    BlinkOff
-    rjmp checkDial
+    blink_off
+    rjmp check_dial
 
 active:
-    BlinkOn
-    rjmp checkDial
+    blink_on
+    rjmp check_dial

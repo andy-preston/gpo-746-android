@@ -4,14 +4,14 @@
     ; When a connected serial device raises RTS, the LED should light and
     ; when the device lowers RTS the LED should go out.
 
-theTop:
-    SkipOnNoIncoming
+the_top:
+    skip_instruction_on_no_incoming
     rjmp incoming
 
-noIncoming:
-    BlinkOff
-    rjmp theTop
+no_incoming:
+    blink_off
+    rjmp the_top
 
 incoming:
-    BlinkOn
-    rjmp theTop
+    blink_on
+    rjmp the_top

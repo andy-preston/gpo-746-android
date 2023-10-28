@@ -8,16 +8,16 @@
 ; I've even pre-empted future code with the macros to switch audio on and off
 ; that aren't even written yet - the electronics hasn't even been designed.
 
-; `AbortDialing` can be found in `dial.asm`
+; `reset_or_abort_dialing` can be found in `dial-counter.asm`
 
-.macro PickedUp
-    SendOffHookSignal
+.macro receiver_picked_up
+    send_off_hook_signal
     ; ActivateAmplifier
-    ResetOrAbortDialing
+    reset_or_abort_dialing
 .endMacro
 
-.macro PutDown
-    SendOnHookSignal
+.macro receiver_put_down
+    send_on_hook_signal
     ; DeactivateAmplifier
-    ResetOrAbortDialing
+    reset_or_abort_dialing
 .endMacro

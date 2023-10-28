@@ -1,14 +1,14 @@
     .include "prelude.asm"
     .include "gpio.asm"
-    .include "timer.asm"
+    .include "ring-timer.asm"
     .include "blinks.asm"
 
     ; A Very simple test which will blink the LED 5 times with a 200ms delay,
     ; wait 500ms and blink it 5 times again... ad infinitum.
 
-    SetupOutputs
-    Setup20msTimer
-    ldi _digit, 5
+    setup_outputs
+    setup_20ms_timer
+    ldi _dialled_digit, 5
 loop:
-    BlinkCount
+    blink_count
     rjmp loop

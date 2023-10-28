@@ -8,9 +8,9 @@ class AvrConstantsTest {
     @Test
     fun values_are_what_I_have_already_pre_calculated() {
         val map = AvrConstants().map()
-        assertEquals("95", map["baudPrescale"])
-        assertEquals("1152", map["timer1Ticks20ms"])
-        assertEquals("(1 << CS12)", map["timer1Prescale"])
+        assertEquals("95", map["usart_baud_rate_register"])
+        assertEquals("1152", map["timer1_20ms_ticks"])
+        assertEquals("(1 << CS12)", map["timer1_clock_select"])
     }
 
 }

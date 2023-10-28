@@ -5,13 +5,13 @@
     ; put it down again and the LED should go out.
 
     setup_outputs
-checkHook:
+check_hook:
     skip_instruction_when_off_hook
-    rjmp onHook
+    rjmp on_the_hook
 
     blink_on
-    rjmp checkHook
+    rjmp check_hook
 
-onHook:
+on_the_hook:
     blink_off
-    rjmp checkHook
+    rjmp check_hook

@@ -13,9 +13,9 @@ final class AvrConstants {
 
     public fun map(): Map<String, String>  {
         return mapOf(
-            "usartBaudRateRegister" to "${baud()}",
-            "timer1ClockSelect" to timer1ClockSelect(),
-            "timer1Ticks20ms" to "${timer1Ticks20ms()}"
+            "usart_baud_rate_register" to "${baud()}",
+            "timer1_clock_select" to timer1ClockSelect(),
+            "timer1_20ms_ticks" to "${timer1Ticks20ms()}"
         )
     }
 

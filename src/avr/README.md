@@ -12,15 +12,15 @@ Scan the dial when the receiver is lifted
 
 ```mermaid
 graph TD
-    Wait -->|Pick Up| Dial
-    Wait -->|Ring Signal| Ring
-    Dial -->|Dial Active| Count
-    Dial --->|Ring Signal| Calling
-    Dial -->|Put Down| Wait
-    Count -->|Dial Inactive| Send_Digit
-    Send_Digit -->|Sent| Dial
-    Ring -->|Pick Up| Calling
-    Calling -->|Put Down| Wait
+    Wait-->|Pick Up|Dial
+    Wait-->|Ring Signal|Ring
+    Dial-->|Dial Active|Count
+    Dial--->|Ring Signal|Calling
+    Dial-->|Put Down|Wait
+    Count-->|Dial Inactive|sd[Send Digit]
+    sd[Send Digit]-->|Sent|Dial
+    Ring-->|Pick Up|Calling
+    Calling-->|Put Down|Wait
 ```
 
 ## Testing

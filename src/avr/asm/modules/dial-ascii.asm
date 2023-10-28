@@ -28,21 +28,3 @@ digit_found:
     add _dialled_digit, _ascii_zero
 end_ascii_count:
 .endMacro
-
-
-.macro get_and_send_digit
-    ; Reads the dial. If there are any pulses, convert the number to ASCII and
-    ; write it to the serial link
-
-    get_dial_pulse_count
-
-    ; If there are no pulses, then we can just skip to the end
-    tst _dialled_digit
-    breq nothing_to_send
-
-    ; But if there is a digit, convert it to ASCII
-    ; and send it to the serial port
-    convert_pulse_count_to_ascii
-    write_serial
-nothing_to_send:
-.endMacro

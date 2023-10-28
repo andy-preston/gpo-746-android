@@ -43,8 +43,6 @@ got_pulse_count:
 
 
 .macro reset_or_abort_dialing
-    ; Called either from macros in this file or from `receiver_picked_up` or `receiver_put_down` in
-    ; `./hook-state.asm`.
     ; Clear the counter ready for pulses to come in
     ; And "throw away" any pulses that may have accumulated in TimerCounter0
     ; "by accident"

@@ -1,12 +1,12 @@
-.macro SetupSerial
+.macro setup_serial
     ; Set the baud rate.
     ; Always set high before low! Writing UBRRL triggers an immediate
     ; update of the baud rate register.
-    ; For @usartBaudRateRegister@ calculations, see:
+    ; For @usart_baud_rate_register@ calculations, see:
     ;     src/buildSrc/src/main/kotlin/gpo_746/AvrConstants.kt
-    ldi _io, high(@usartBaudRateRegister@)
+    ldi _io, high(@usart_baud_rate_register@)
     out UBRRH, _io
-    ldi _io, low(@usartBaudRateRegister@)
+    ldi _io, low(@usart_baud_rate_register@)
     out UBRRL, _io
 
     ; Clear the transmission complete flag
@@ -28,28 +28,13 @@
 .endMacro
 
 
-.macro ReadSerial
-    ; ReadSerial isn't actually used anywhere in the code but it's been left
-    ; here "for completeness" and, I suppose, to blatantly ignore the YAGNI
-    ; principle.
-
-    ldi _digit, 0                          ; Return NULL if no data
-
-    sbis UCSRA, RXC                        ; If data available skip the skip ;)
-    rjmp finished                          ; Don't read if no data available
-
-    in _digit, UDR                         ; Returns data or NULL in _digit
-finished:
-.endMacro
-
-
-.macro WriteSerial
+.macro write_serial
     ; This should only be called when there's specifically an ASCII digit to
-    ; output in _digit. It doesn't do anything clever to ignore null values or
-    ; anything like that.
-bufferWait:
+    ; output in _dialled_digit. It doesn't do anything clever to ignore null
+    ; values or anything like that.
+buffer_wait:
     sbis UCSRA, UDRE                       ; If buffer is empty, don't wait
-    rjmp bufferWait
+    rjmp buffer_wait
 
-    out	UDR, _digit
+    out	UDR, _dialled_digit
 .endMacro

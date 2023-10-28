@@ -1,5 +1,5 @@
     .include "prelude.asm"
-    .include "timer.asm"
+    .include "ring-timer.asm"
     .include "serial.asm"
     .include "gpio.asm"
     .include "blinks.asm"
@@ -7,23 +7,23 @@
     ; Continuously sends the given string across the serial port which should be
     ; detected by the attached device.
 
-    Setup20msTimer
-    SetupSerial
+    setup_20ms_timer
+    setup_serial
 
-theTop:
+the_top:
     ; lpm always uses the Z-Register and never X and Y
     ; It's OK for us to have a table in program memory here
     ; But, in "production", the Z-Register is used to hold our current
     ; position in the ring sequence and any other use of Z will clash with that.
-    LoadZ digitsToSend
-    BlinkFlip
-sendDigit:
-    WaitForMultiple20ms 0x01
-    lpm _digit, Z+
-    cpi _digit, ' '
-    breq theTop
-    WriteSerial
-    rjmp sendDigit
+    load_z_for_lpm digits_to_send
+    blink_flip
+send_digit:
+    wait_for_multiple_20ms 0x01
+    lpm _dialled_digit, Z+
+    cpi _dialled_digit, ' '
+    breq the_top
+    write_serial
+    rjmp send_digit
 
-digitsToSend:
+digits_to_send:
     .db "Testing1234 "

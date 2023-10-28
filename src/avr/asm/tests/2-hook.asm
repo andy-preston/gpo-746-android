@@ -4,14 +4,14 @@
     ; Test the hook switch, pick up the phone and the LED should light,
     ; put it down again and the LED should go out.
 
-    SetupOutputs
+    setup_outputs
 checkHook:
-    SkipOffHook
+    skip_instruction_when_off_hook
     rjmp onHook
 
-    BlinkOn
+    blink_on
     rjmp checkHook
 
 onHook:
-    BlinkOff
+    blink_off
     rjmp checkHook

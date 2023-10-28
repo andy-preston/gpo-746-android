@@ -1,58 +1,72 @@
 ; To keep things as simple to implement as possible, all output are done on
 ; one GPIO port and all inputs on the other.
 
-    .equ outputPort = PORTB
-    .equ outputDDR = DDRB
+    .equ output_port = PORTB
+    .equ output_DDR = DDRB
 
-    .equ pinRI = 0
-    .equ pinDing = 1
-    .equ pinDong = 2
-    .equ pinBlink = 3
+    .equ pin_out_RI = 0
+    .equ pin_out_ding = 1
+    .equ pin_out_dong = 2
+    .equ pin_out_LED = 3
+    .equ pin_out_spare_B4 = 4
+    .equ pin_out_absent_B5 = 5
+    .equ pin_out_absent_B6 = 6
+    .equ pin_out_UCSK_B7 = 7
 
-    .equ inputPort = PORTD
-    .equ inputPins = PIND
-    .equ inputDDR = DDRD
+    .equ input_port = PORTD
+    .equ input_pins = PIND
+    .equ input_DDR = DDRD
 
-    ; PD4 is included here only for completeness.
-    ; It's not used as a GPIO but for as the T0 pin for TimerCounter0 to count
+    .equ pin_in_RX_D0 = 0
+    .equ pin_in_TX_D1 = 1
+    .equ pin_in_spare_D2 = 2
+    .equ pin_in_hook = 3
+    ; D4 isn't used as a GPIO but for as the T0 pin for TimerCounter0 to count
     ; pulses from the dial.
-    ; See `Setup20msTimerCounter0` in `./dial.asm` for usage details.
+    ; See `setup_20ms_timerCounter0` in `./dial-counter.asm` for usage details.
+    .equ pin_in_dial_pink = 4  ; Pulse - orange (GND) -> pink low
+    .equ pin_in_dial_grey = 5  ; Active - blue (VCC) -> grey high
+    .equ pin_in_RTS = 6
+    .equ pin_in_absent_D7 = 7
 
-    .equ pinHook = 3
-    .equ pinDialPink = 4                 ; Pulse - orange (GND) -> pink low
-    .equ pinDialGrey = 5                 ; Active - blue (VCC) -> grey high
-    .equ pinRTS = 6
 
-.macro SetupOutputs
-    ldi _io, (1 << pinBlink) | (1 << pinRI) | (1 << pinDing) | (1 << pinDong)
-    out outputDDR, _io
-    sbi outputPort, pinBlink
+.macro setup_outputs
+    ldi _io, (1 << pin_out_LED) | (1 << pin_out_RI) | (1 << pin_out_ding) | (1 << pin_out_dong)
+    out output_DDR, _io
+    sbi output_port, pin_out_LED
 .endMacro
 
-.macro BlinkOn
-    sbi outputPort, pinBlink
+
+.macro blink_on
+    sbi output_port, pin_out_LED
 .endMacro
 
-.macro BlinkOff
-    cbi outputPort, pinBlink
+
+.macro blink_off
+    cbi output_port, pin_out_LED
 .endMacro
 
-.macro SendOffHookSignal
-    sbi outputPort, pinRI
+
+.macro send_off_hook_signal
+    sbi output_port, pin_out_RI
 .endMacro
 
-.macro SendOnHookSignal
-    cbi outputPort, pinRI
+
+.macro send_on_hook_signal
+    cbi output_port, pin_out_RI
 .endMacro
 
-.macro SkipOnNoIncoming
-    sbic inputPins, pinRTS
+
+.macro skip_instruction_on_no_incoming
+    sbic input_pins, pin_in_RTS
 .endMacro
 
-.macro SkipOffHook
-    sbis inputPins, pinHook
+
+.macro skip_instruction_when_off_hook
+    sbis input_pins, pin_in_hook
 .endMacro
 
-.macro SkipDialInactive
-    sbic inputPins, pinDialGrey
+
+.macro skip_instruction_dial_inactive
+    sbic input_pins, pin_in_dial_grey
 .endMacro

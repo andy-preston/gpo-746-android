@@ -2,33 +2,33 @@
 ; test! Using the blink test as part of the test for the ringer that way.
 
 ; The 8-bit TimerCounter0 is used as part of the dial reading procedures
-; but it's setup and operation code isn't here, see `dial.asm`
+; but it's setup and operation code isn't here, see `dial-counter.asm`
 
-; For timer1ClockSelect and timer1Ticks20ms calculations, see:
+; For timer1_clock_select and timer1_20ms_ticks calculations, see:
 ;     src/buildSrc/src/main/kotlin/gpo_746/AvrConstants.kt
 
-; For details of @timer1ClockSelect@ and @timer1Ticks20ms@,
+; For details of @timer1_clock_select@ and @timer1_20ms_ticks@,
 ; see `src/buildSrc/src/main/kotlin/gpo_746/AvrConstants.kt`
 
-.macro Setup20msTimer
+.macro setup_20ms_timer
     ; Set the timer in normal mode rather than an of the
     ; PWM options, etc.
     out TCCR1A, _zero
 
     ; Set up the timer pre-scaler bits
-    ldi _io, @timer1ClockSelect@
+    ldi _io, @timer1_clock_select@
     out TCCR1B, _io
 
     ; Set the number of timer ticks to count to
     ; in the timer's output compare register
-    ldi _io, high(@timer1Ticks20ms@)
+    ldi _io, high(@timer1_20ms_ticks@)
     out OCR1AH, _io
-    ldi _io, low(@timer1Ticks20ms@)
+    ldi _io, low(@timer1_20ms_ticks@)
     out OCR1AL, _io
 .endMacro
 
 
-.macro Start20msWait
+.macro start_20ms_wait
     ; start a timer count at zero
     out TCNT1H, _zero
     out TCNT1L, _zero
@@ -39,32 +39,32 @@
 .endMacro
 
 
-.macro Complete20msWait
-    ; Wait for @timer1Ticks20ms@ ticks to complete
+.macro complete_20ms_wait
+    ; Wait for @timer1_20ms_ticks@ ticks to complete
     ; at which point the timer sets the output compare flag again
-waitForTimer1:
-    in _check, TIFR
-    sbrs _check, OCF1A
-    rjmp waitForTimer1
+wait_for_timer1:
+    in _timer_wait, TIFR
+    sbrs _timer_wait, OCF1A
+    rjmp wait_for_timer1
 .endMacro
 
 
-.macro WaitFor20ms
-    Start20msWait
-    Complete20msWait
+.macro wait_for_20ms
+    start_20ms_wait
+    complete_20ms_wait
 .endMacro
 
 
-.macro WaitForMultiple20ms
-    ; Used in tests where @timer1Ticks20ms@ is too short for a human to notice.
+.macro wait_for_multiple_20ms
+    ; Used in tests where @timer1_20ms_ticks@ is too short for a human to notice.
     ; Because we're re-using a delay loop with a specific purpose just to
     ; get a human visible delay, the timing is a bit odd here:
     ; The parameter is duration with a value of 50 indicating 1 second
     ; (Plus a little bit extra as we're ignoring the time it takes the loop
     ; itself to execute)
-    ldi _loops, @0
+    ldi _delay_repeat, @0
 delay:
-    WaitFor20ms
-    dec _loops
+    wait_for_20ms
+    dec _delay_repeat
     brne delay
 .endMacro

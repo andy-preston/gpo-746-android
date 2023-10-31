@@ -5,7 +5,7 @@
     ; when the device lowers RTS the LED should go out.
 
 the_top:
-    skip_instruction_on_no_incoming
+    skip_on_no_incoming
     rjmp incoming
 
 no_incoming:

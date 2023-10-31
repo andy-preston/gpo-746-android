@@ -11,11 +11,11 @@
 
 the_top:
     blink_on
-    send_off_hook_signal
+    send_picked_up_signal
     wait_for_multiple_20ms 0x20
 
     blink_off
-    send_on_hook_signal
+    send_put_down_signal
     wait_for_multiple_20ms 0x20
 
     rjmp the_top

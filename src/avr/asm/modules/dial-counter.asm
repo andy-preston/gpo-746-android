@@ -1,6 +1,6 @@
     ; This is stuff for reading the dial which uses The 8-bit Timer/Counter 0
     ; to count pulses coming from the dial.
-    ; For `skip_instruction_dial_inactive`, see `gpio.asm`
+    ; For `skip_dial_inactive`, see `gpio.asm`
 
 
     ; Timer/Counter 0 can either count the rising edge or the falling edge of
@@ -29,7 +29,7 @@
     clr _dialled_digit
 
     ; If the dial is active then the full pulse count is not yet available
-    skip_instruction_dial_inactive
+    skip_dial_inactive
     rjmp got_pulse_count
 
     ; Otherwise get the pulse count from the TimerCounter0 register quickly

@@ -1,17 +1,17 @@
     .include "prelude.asm"
     .include "gpio.asm"
 
-    ; Test the hook switch, pick up the phone and the LED should light,
-    ; put it down again and the LED should go out.
+    ; Test the receiver state switch, pick up the phone and the LED should
+    ; light, put it down again and the LED should go out.
 
     setup_outputs
-check_hook:
-    skip_instruction_when_off_hook
-    rjmp on_the_hook
+check_receiver_state:
+    skip_when_picked_up
+    rjmp receiver_down
 
     blink_on
-    rjmp check_hook
+    rjmp check_receiver_state
 
-on_the_hook:
+receiver_down:
     blink_off
-    rjmp check_hook
+    rjmp check_receiver_state

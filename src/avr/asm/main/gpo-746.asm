@@ -40,10 +40,10 @@
 
 enter_waiting:
 state_waiting:
-    skip_instruction_on_no_incoming
+    skip_on_no_incoming
     rjmp enter_ringing
 
-    skip_instruction_when_off_hook
+    skip_when_picked_up
     rjmp enter_dialing
 
     rjmp state_waiting
@@ -54,7 +54,7 @@ enter_ringing:
     start_ringing
 state_ringing:
     ring_sequence_step
-    skip_instruction_when_off_hook
+    skip_when_picked_up
     rjmp state_ringing
 
     ; otherwise "fall through" straight into enter_calling
@@ -63,7 +63,7 @@ state_ringing:
 
 enter_calling:
 state_calling:
-    skip_instruction_when_off_hook
+    skip_when_picked_up
     rjmp enter_waiting
 
     rjmp state_calling
@@ -74,14 +74,14 @@ enter_dialing:
     reset_or_abort_dialing
 state_dialing:
     ; This is a peculiar state that never happens with a real phone.
-    ; The hook is off, the user is dialing and a call comes in
+    ; The receiver is picked up, the user is dialing and a call comes in
     ; On a real phone, the line would be engaged at this point.
     ; I'm not sure if it's possible to make an Android phone "believe" it's
     ; engaged when it's, technically, not so.
-    skip_instruction_on_no_incoming
+    skip_on_no_incoming
     rjmp enter_calling
 
-    skip_instruction_when_off_hook
+    skip_when_picked_up
     rjmp abandon_dialing
 
     get_dial_pulse_count

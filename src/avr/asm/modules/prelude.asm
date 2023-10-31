@@ -1,4 +1,4 @@
-    .device ATTiny2313
+    .device ATTiny2313 ; 14745600 crystal
 
 
     ; I'm trying to arrange things so that each register has a single function

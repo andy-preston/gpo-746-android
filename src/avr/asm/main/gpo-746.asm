@@ -14,6 +14,30 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;             +-----------+
+;             |  Ringing  | --------------+
+;             +-----------+               |
+;               ^                         |
+;               | incoming                |
+;               |                         |
+;             +-----------+               |
+;  +--------> |  Waiting  | <--+          |
+;  |          +-----------+    |          |
+;  |            |              |          |
+;  |            | pick up      | put down |
+;  |            v              |          |
+;  |          +-----------+    |          |
+;  | put down |  Dialing  | ---+          |
+;  |          +-----------+               |
+;  |            |                         |
+;  |            | INCOMING (Abnormal)     |
+;  |            v                         |
+;  |          +-----------+  pick up      |
+;  +--------- |  Calling  | <-------------+
+;             +-----------+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 enter_waiting:
 state_waiting:
     skip_instruction_on_no_incoming
@@ -32,6 +56,7 @@ state_ringing:
     ring_sequence_step
     skip_instruction_when_off_hook
     rjmp state_ringing
+
     ; otherwise "fall through" straight into enter_calling
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -63,6 +88,7 @@ state_dialing:
     ; If there are no pulses, then we can just skip to the end
     tst _dialled_digit
     breq state_dialing
+
     ; ... otherwise
     convert_pulse_count_to_ascii
     write_serial

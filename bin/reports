@@ -3,7 +3,9 @@
 (
     for DIR in $(find share/build -name reports)
     do
-        for FILE in $(find ${DIR} -name index.html)
+        for FILE in $(
+            find ${DIR} \( -name index.html -o -name lint\*.html \)
+        )
         do
             if [ "$1" == "clean" ]
             then

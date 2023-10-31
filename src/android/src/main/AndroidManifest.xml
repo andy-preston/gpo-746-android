@@ -9,7 +9,6 @@
         android:name="android.permission.USB_PERMISSION"
     />
     <application
-        android:allowBackup="false"
         android:supportsRtl="false"
         android:icon="@mipmap/ic_launcher"
         android:label="GPO 746"

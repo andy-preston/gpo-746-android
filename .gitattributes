@@ -1,3 +1,4 @@
 *.kt_template linguist-language=kotlin
 *.kts linguist-language=kotlin
 *.html linguist-documentation
+*.xml linguist-detect

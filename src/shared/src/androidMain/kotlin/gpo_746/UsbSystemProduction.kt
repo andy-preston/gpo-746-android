@@ -66,10 +66,19 @@ class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
                 usbTimeout
             )
         }
-        if (bytesRead != null && bytesRead < 0) {
+        if (bytesRead == null) {
+            throw Exception("Attempted bulk transfer with null connection");
+        } else if (bytesRead < 0) {
+            /* Regarding the return value of bulk transfer, the docs say:
+            "length of data transferred (or zero) for success,
+                    or negative value for failure"
+            Yeah, thanks for that - "a negative value" is very helpful!
+            Watch out that timeout doesn't return an error code like libusb does.
+            */
             throw Exception("Bulk transfer failed? ${bytesRead}")
+        } else {
+            buffer[bytesRead] = 0
         }
-        buffer[bytesRead] = 0
         return buffer
     }
 

@@ -19,6 +19,20 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.2"
     }
+    lint {
+        textReport = false
+        xmlReport = false
+        htmlReport = true
+        // I'm specifically targeting MY phone, which runs Android 12
+        // I need to understand how SDK versions work for old versions
+        // before paying any attention to this.
+        disable += "OldTargetApi"
+        disable += "GradleDependency"
+        // The App is in English only, if we need i18n down the line,
+        // then it can be added.
+        disable +=  "SetTextI18n"
+        disable += "HardcodedText"
+    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"

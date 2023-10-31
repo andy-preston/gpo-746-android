@@ -1,5 +1,7 @@
+package gpo_746
+
 final class Tones {
-    dial_tone_8000Hz_8bit_mono = byteArrayOf(
+    val dial_tone_8000Hz_8bit_mono = byteArrayOf(
         // I really should do a Fourier analysis of this and work out what it's
         // made of. I started with a 32bit float 44.1 recording and cut it down,
         // dropped the word-length and down-sampled it checking it still sounded

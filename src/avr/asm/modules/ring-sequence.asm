@@ -24,10 +24,9 @@ not_at_end_of_data:
 
 .macro output_ring_sequence_byte
     ; This will also clear all other output bits which includes the signal
-    ; to the android device that the receiver has been picked up (the phone is
-    ; off-hook).
+    ; to the android device that the receiver has been picked up.
     ; I don't anticipate that causing any problems as the phone shouldn't be
-    ; ringing once the off-shook signal is being sent.
+    ; ringing once the picked-up signal is being sent.
     out output_port, _ring_sequence_byte
 .endMacro
 

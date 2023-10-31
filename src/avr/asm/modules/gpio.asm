@@ -20,7 +20,7 @@
     .equ pin_in_RX_D0 = 0
     .equ pin_in_TX_D1 = 1
     .equ pin_in_spare_D2 = 2
-    .equ pin_in_hook = 3
+    .equ pin_in_receiver = 3
     ; D4 isn't used as a GPIO but for as the T0 pin for TimerCounter0 to count
     ; pulses from the dial.
     ; See `setup_20ms_timerCounter0` in `./dial-counter.asm` for usage details.
@@ -47,26 +47,26 @@
 .endMacro
 
 
-.macro send_off_hook_signal
+.macro send_picked_up_signal
     sbi output_port, pin_out_RI
 .endMacro
 
 
-.macro send_on_hook_signal
+.macro send_put_down_signal
     cbi output_port, pin_out_RI
 .endMacro
 
 
-.macro skip_instruction_on_no_incoming
+.macro skip_on_no_incoming
     sbic input_pins, pin_in_RTS
 .endMacro
 
 
-.macro skip_instruction_when_off_hook
-    sbis input_pins, pin_in_hook
+.macro skip_when_picked_up
+    sbis input_pins, pin_in_receiver
 .endMacro
 
 
-.macro skip_instruction_dial_inactive
+.macro skip_dial_inactive
     sbic input_pins, pin_in_dial_grey
 .endMacro

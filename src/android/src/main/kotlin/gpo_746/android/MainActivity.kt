@@ -40,7 +40,6 @@ class MainActivity : Activity() {
         validIndicator = findViewById<CheckBox>(R.id.validIndicator)
         ringButton = findViewById<Button>(R.id.ringButton)
         numberDisplay = findViewById<TextView>(R.id.numberDisplay)
-        numberDisplay.apply { text = "placeholder" }
         val device = getIntent().getParcelableExtra<UsbDevice>(
             UsbManager.EXTRA_DEVICE
         )

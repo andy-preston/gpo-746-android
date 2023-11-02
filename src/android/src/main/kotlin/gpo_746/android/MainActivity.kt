@@ -10,6 +10,7 @@ import android.hardware.usb.UsbManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
@@ -35,30 +36,37 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        hookIndicator = findViewById<CheckBox>(R.id.hookIndicator)
+        validIndicator = findViewById<CheckBox>(R.id.validIndicator)
+        ringButton = findViewById<Button>(R.id.ringButton)
         numberDisplay = findViewById<TextView>(R.id.numberDisplay)
         numberDisplay.apply { text = "placeholder" }
-
-        ch340g = Ch340g(
-            UsbSystemProduction(
-                getSystemService(UsbManager::class.java),
-                deviceFromIntent(getIntent())
-            )
+        val device = getIntent().getParcelableExtra<UsbDevice>(
+            UsbManager.EXTRA_DEVICE
         )
+        if (device == null) {
+            reportError("Failed to get device from intent")
+        } else {
+            ch340g = Ch340g(UsbSystemProduction(
+                getSystemService(UsbManager::class.java),
+                device
+            ))
+        }
         registerReceiver(
             detachReceiver,
             IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED)
         )
-        try {
-            /*val started =*/ ch340g.open()
-        } catch(e: Exception) {
-            reportException(e)
-            return
+        if (noErrors) {
+            try {
+                ch340g.open()
+            } catch(e: Exception) {
+                reportException(e)
+            }
         }
-        hookIndicator = findViewById<CheckBox>(R.id.hookIndicator)
-        validIndicator = findViewById<CheckBox>(R.id.validIndicator)
-        ringButton = findViewById<Button>(R.id.ringButton)
-        ringButtonListen()
-        pollHandset()
+        if (noErrors) {
+            ringButtonListen()
+            pollHandset()
+        }
     }
 
     override fun onDestroy() {
@@ -66,19 +74,11 @@ class MainActivity : Activity() {
         unregisterReceiver(detachReceiver)
     }
 
-    private fun deviceFromIntent(intent: Intent): UsbDevice {
-        val device = intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE)
-        if (device == null) {
-            throw Exception("Failed to get device from intent")
-        } else {
-            return device
-        }
-    }
-
     private val detachReceiver = object: BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (UsbManager.ACTION_USB_DEVICE_DETACHED == intent.action) {
                 ch340g.close()
+                reportError("detachReceiver - should close now.")
                 finish()
             }
         }
@@ -137,6 +137,7 @@ class MainActivity : Activity() {
     }
 
     private fun reportError(message: String) {
+        Log.e("gpo746", message)
         numberDisplay.apply { text = message }
         noErrors = false
     }

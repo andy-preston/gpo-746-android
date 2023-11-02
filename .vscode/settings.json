@@ -22,6 +22,7 @@
         "lateinit",
         "leadlen",
         "libusb",
+        "logcat",
         "MISO",
         "MOSI",
         "MPCM",

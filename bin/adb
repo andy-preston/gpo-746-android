@@ -5,11 +5,14 @@
 
 case $1 in
 'install')
-    COMMAND="install -r -d share/build/build-android/outputs/apk/release/android-release-unsigned.apk"
+    COMMAND="install -r -d ./share/build/build-android/outputs/apk/debug/android-debug.apk"
+    ;;
+'log')
+    COMMAND="logcat -s gpo746"
     ;;
 *)
     COMMAND="$@"
     ;;
 esac
 
-./share/platform-tools/adb $COMMAND
+./share/android/platform-tools/adb  $COMMAND

@@ -6,6 +6,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
+/*
+ * Non blocking IO for USB bulk reads
+ */
 @OptIn(kotlin.ExperimentalUnsignedTypes::class)
 class SerialWorker() {
     private val serialChannel = Channel<String>()
@@ -17,7 +20,7 @@ class SerialWorker() {
             serialChannel.send("")
             while (true) {
                 serialChannel.send(
-                    usbSystem.bulkRead().decodeToString()
+                    usbSystem.bulkRead().decodeToString().substringBefore('\u0000')
                 )
             }
         }

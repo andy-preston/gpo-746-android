@@ -6,6 +6,7 @@ import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbEndpoint
 import android.hardware.usb.UsbInterface
 import android.hardware.usb.UsbManager
+import android.util.Log
 
 @OptIn(kotlin.ExperimentalUnsignedTypes::class)
 class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
@@ -33,13 +34,18 @@ class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
 
     ////////////////////////////////////////////////////////////////////////////
 
+    private fun exception(message: String) {
+        Log.e("gpo746", message);
+        throw Exception(message);
+    }
+
     override public fun open(vid: UShort, pid: UShort, timeout: Int) {
         usbTimeout = timeout
         connection = usbManager.openDevice(device)
         val usbInterface = device.getInterface(0)
         val connected = connection?.let { it.claimInterface(usbInterface, true)}
         if (connected == null || !connected) {
-            throw Exception("Could not claim interface")
+            exception("Could not claim interface")
         }
         bulkReadEndpoint = findBulkReadEndpoint(usbInterface)
         val size = bulkReadEndpoint?.let { it.getMaxPacketSize() }
@@ -49,7 +55,7 @@ class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
     override public fun close() {
         connection?.let {
             if (!it.releaseInterface(device.getInterface(0))) {
-                throw Exception("Could not release interfaces")
+                exception("Could not release interfaces")
             }
             it.close()
         }
@@ -67,15 +73,21 @@ class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
             )
         }
         if (bytesRead == null) {
-            throw Exception("Attempted bulk transfer with null connection");
+            exception("Attempted bulk transfer with null connection");
         } else if (bytesRead < 0) {
             /* Regarding the return value of bulk transfer, the docs say:
             "length of data transferred (or zero) for success,
                     or negative value for failure"
             Yeah, thanks for that - "a negative value" is very helpful!
-            Watch out that timeout doesn't return an error code like libusb does.
+            I'm certainly getting -1 returned for timeouts, whether I get -1
+            for other errors or specific codes, I still don't know.
+            (Just for reference, in libusb TIMEOUT is -7 - but there's no
+            reason for parity in error codes.)
             */
-            throw Exception("Bulk transfer failed? ${bytesRead}")
+            if (bytesRead != -1) {
+                exception("Bulk read returned error code ${bytesRead}")
+            }
+            buffer[0] = 0
         } else {
             buffer[bytesRead] = 0
         }
@@ -99,7 +111,7 @@ class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
             )
         }
         if (bytesRead != 2) {
-            throw Exception("Read Registers did not return 2 bytes ${bytesRead}")
+            exception("Read Registers did not return 2 bytes ${bytesRead}")
         }
         return buffer
     }
@@ -121,7 +133,7 @@ class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
             )
         }
         if (result != null && result < 0) {
-            throw Exception("Write Registers failed ${result}");
+            exception("Write Registers failed ${result}");
         }
     }
 }

@@ -18,7 +18,7 @@ the_top:
     load_z_for_lpm digits_to_send
     blink_flip
 send_digit:
-    wait_for_multiple_20ms 0x01
+    wait_for_20ms
     lpm _dialled_digit, Z+
     cpi _dialled_digit, ' '
     breq the_top

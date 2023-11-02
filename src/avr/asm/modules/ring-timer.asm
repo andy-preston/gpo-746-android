@@ -68,3 +68,10 @@ delay:
     dec _delay_repeat
     brne delay
 .endMacro
+
+.macro wait_for_a_second
+    ; I've found myself wanting a one-second delay in a few tests and
+    ; found myself typing wait_for_multiple_20ms 0x50 . which isn't what we
+    ; want... the hexadecimal obsession of the assembly programmer strikes!
+    wait_for_multiple_20ms 50
+.endMacro

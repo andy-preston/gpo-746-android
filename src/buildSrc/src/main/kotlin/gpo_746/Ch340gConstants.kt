@@ -35,6 +35,13 @@ final class Ch340gConstants {
         return lowByte * 256 + highByte
     }
 
+    /* For details of sources, etc, see:
+     * src/shared/src/commonMain/kotlin/gpo_746/Ch340g.kt_template
+     *
+     * There's also a very interesting, but quite long, explanation of baud rate
+     * calculation at:
+     * https://github.com/nospam2000/ch341-baudrate-calculation
+     */
     public fun baudRate(rate: Int): List<Int> {
         val basis = mapOf(
             2400 to listOf(93750, 1),

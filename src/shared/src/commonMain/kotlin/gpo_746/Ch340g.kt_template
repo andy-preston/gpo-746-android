@@ -1,5 +1,28 @@
 package gpo_746
 
+/*
+ * For the compile time calculations see:
+ * ./src/buildSrc/src/main/kotlin/gpo_746/Ch340gConstants.kt
+ *
+ * For want of ANY official documentation at all, this has been cargo-culted
+ * from various sources.
+ *
+ * Android USB host serial driver library.
+ * https://github.com/mik3y/usb-serial-for-android
+ *
+ * Usb serial controller for Android
+ * https://github.com/felHR85/UsbSerial
+ *
+ * The FreeBSD CH341/340 Driver
+ * https://github.com/freebsd/freebsd-src/blob/master/sys/dev/usb/serial/uchcom.c
+ *
+ * The NetBSD CH341/340 Driver
+ * http://cvsweb.netbsd.org/bsdweb.cgi/~checkout~/src/sys/dev/usb/uchcom.c
+ *
+ * The Linux CH341 Driver
+ * https://github.com/torvalds/linux/blob/master/drivers/usb/serial/ch341.c
+ */
+
 enum class ReadRequest(val code: UByte) {
     vendorGetVersion(0x5Fu),
     vendorReadRegisters(0x95u)
@@ -12,6 +35,9 @@ enum class WriteRequest(val code: UByte) {
 }
 
 enum class ReadRegister(val address: UShort) {
+    // When NetBSD reads GCL, it only uses gcl1Low - the first byte
+    // When mik3y reads GCL, it only returns the first byte from the buffer
+    // When felHR85 reads GCL, it only uses the first byte
     gcl(0x0706u)
 }
 
@@ -19,6 +45,7 @@ enum class WriteRegister(val address: UShort) {
     baudDivisorPrescale(0x1312u),
     baudMod(0x0F14u),
     lcr(0x2518u),
+    // Only NetBSD writes GCL at all - it writes the same value to gcl1Low twice
     gcl(0x0606u)
 }
 

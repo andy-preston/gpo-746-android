@@ -53,9 +53,11 @@ class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
     }
 
     override public fun close() {
+        val usbInterface = device.getInterface(0)
         connection?.let {
-            if (!it.releaseInterface(device.getInterface(0))) {
-                exception("Could not release interfaces")
+            val result = it.releaseInterface(device.getInterface(0))
+            if (!result) {
+                Log.e("gpo746", "Could not release interface")
             }
             it.close()
         }

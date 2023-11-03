@@ -46,7 +46,6 @@ fun shortFromBuffer(buffer: ByteArray): UShort {
 class Ch340g(usbSystem: UsbSystemInterface) {
 
     private val usb = usbSystem
-    private val worker = SerialWorker()
 
     private fun write(request: WriteRequest, value: UShort) {
         usb.write(request.code, value, 0u)
@@ -84,9 +83,9 @@ class Ch340g(usbSystem: UsbSystemInterface) {
     ////////////////////////////////////////////////////////////////////////////
 
     public fun open() {
-        usb.open(0x1A86u, 0x7523u, 1000)
+        val timeoutMilliseconds = 10
+        usb.open(0x1A86u, 0x7523u, timeoutMilliseconds)
         initialise()
-        worker.start(usb)
     }
 
     public fun close() {
@@ -94,7 +93,7 @@ class Ch340g(usbSystem: UsbSystemInterface) {
     }
 
     public fun readSerial(): String {
-        return worker.bulkRead()
+        return usb.bulkRead().decodeToString().substringBefore('\u0000')
     }
 
     public fun writeHandshake(handshakeOutputRTS: Boolean) {

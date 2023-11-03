@@ -14,7 +14,7 @@ class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
     private val usbManager = m
     private val device = d
 
-    private var usbTimeout: Int = 1000
+    private var timeoutMilliseconds: Int = 1000
     private var connection: UsbDeviceConnection? = null
     private var bulkReadEndpoint: UsbEndpoint? = null
     private var packetSize: Int = 0
@@ -40,7 +40,7 @@ class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
     }
 
     override public fun open(vid: UShort, pid: UShort, timeout: Int) {
-        usbTimeout = timeout
+        timeoutMilliseconds = timeout
         connection = usbManager.openDevice(device)
         val usbInterface = device.getInterface(0)
         val connected = connection?.let { it.claimInterface(usbInterface, true)}
@@ -69,7 +69,7 @@ class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
                 bulkReadEndpoint,
                 buffer,
                 packetSize,
-                usbTimeout
+                timeoutMilliseconds
             )
         }
         if (bytesRead == null) {
@@ -107,7 +107,7 @@ class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
                 0,
                 buffer,
                 2,
-                usbTimeout
+                timeoutMilliseconds
             )
         }
         if (bytesRead != 2) {
@@ -129,7 +129,7 @@ class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
                 valueOrPadding.toInt(),
                 null,
                 0,
-                usbTimeout
+                timeoutMilliseconds
             )
         }
         if (result != null && result < 0) {

@@ -8,7 +8,7 @@ class UsbSystemMock() : UsbSystemInterface {
     private var libInitialised: Boolean = false
     private var interfaceClaimed: Boolean = false
 
-    private var usbTimeout: UInt = 1000u
+    private var timeoutMilliseconds: UInt = 1000u
     private var handle: CPointer<libusb_device_handle>? = null
     private var device: CPointer<libusb_device>? = null
     private var bulkReadEndpoint: UByte = 0u
@@ -101,7 +101,7 @@ class UsbSystemMock() : UsbSystemInterface {
     ////////////////////////////////////////////////////////////////////////////
 
     override public fun open(vid: UShort, pid: UShort, timeout: Int) {
-        usbTimeout = timeout.toUInt()
+        timeoutMilliseconds = timeout.toUInt()
 
         assertSuccess(libusb_init(null), "libusb_init")
         libInitialised =  true
@@ -149,7 +149,7 @@ class UsbSystemMock() : UsbSystemInterface {
                 buffer!!.refTo(0),
                 packetSize,
                 transferred_c.ptr,
-                usbTimeout
+                timeoutMilliseconds
             )
             transferred_c.value
         }
@@ -170,7 +170,7 @@ class UsbSystemMock() : UsbSystemInterface {
             0u,
             buffer!!.refTo(0),
             packetSize.toUShort(),
-            usbTimeout
+            timeoutMilliseconds
         )
         assertTrue(
             transferred == 2,
@@ -192,7 +192,7 @@ class UsbSystemMock() : UsbSystemInterface {
             valueOrPadding,
             null,
             0u,
-            usbTimeout
+            timeoutMilliseconds
         )
         assertSuccess(statusCode, "Control transfer write failed ${statusCode}")
     }

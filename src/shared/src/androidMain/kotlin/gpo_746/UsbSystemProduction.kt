@@ -53,7 +53,6 @@ class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
     }
 
     override public fun close() {
-        val usbInterface = device.getInterface(0)
         connection?.let {
             val result = it.releaseInterface(device.getInterface(0))
             if (!result) {

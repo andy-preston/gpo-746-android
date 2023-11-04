@@ -16,61 +16,48 @@ import android.widget.CheckBox
 import android.widget.TextView
 import gpo_746.Ch340g
 import gpo_746.PhoneNumberValidator
+import gpo_746.Tones
+import gpo_746.ToneThread
 import gpo_746.UsbSystemProduction
 
 class MainActivity : Activity() {
 
     private lateinit var ch340g: Ch340g
     private val validator = PhoneNumberValidator()
+    private val tones = Tones()
+    private var toneThread: ToneThread? = null
 
-    private lateinit var numberDisplay: TextView
     private lateinit var hookIndicator: CheckBox
     private lateinit var validIndicator: CheckBox
     private lateinit var ringButton: Button
+    private lateinit var toneButton: Button
+    private lateinit var numberDisplay: TextView
+    private lateinit var statusDisplay: TextView
 
-    private var ringing = false
-    private var hookIsUp = false
-    private var number = ""
-    private var noErrors = true
+    private val delayMilliseconds: Long = 1000
+
+    private var ringing: Boolean = false
+    private var hookIsUp: Boolean = false
+    private var noErrors: Boolean = true
+
+    private var number: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        hookIndicator = findViewById<CheckBox>(R.id.hookIndicator)
-        validIndicator = findViewById<CheckBox>(R.id.validIndicator)
-        ringButton = findViewById<Button>(R.id.ringButton)
-        numberDisplay = findViewById<TextView>(R.id.numberDisplay)
-        val device = getIntent().getParcelableExtra<UsbDevice>(
-            UsbManager.EXTRA_DEVICE
-        )
-        if (device == null) {
-            reportError("Failed to get device from intent")
-        } else {
-            ch340g = Ch340g(UsbSystemProduction(
-                getSystemService(UsbManager::class.java),
-                device
-            ))
-        }
+        layoutElements()
+        setupUsb()
         registerReceiver(
             detachReceiver,
             IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED)
         )
-        if (noErrors) {
-            try {
-                ch340g.open()
-            } catch(e: Exception) {
-                reportException(e)
-            }
-        }
-        if (noErrors) {
-            ringButtonListen()
-            pollHandset()
-        }
+        openUsb()
+        startWorking()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(detachReceiver)
+        tones.close()
     }
 
     private val detachReceiver = object: BroadcastReceiver() {
@@ -83,18 +70,76 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun setupUsb() {
+        val device = getIntent().getParcelableExtra<UsbDevice>(
+            UsbManager.EXTRA_DEVICE
+        )
+        if (device == null) {
+            reportError("Failed to get device from intent")
+        } else {
+            ch340g = Ch340g(UsbSystemProduction(
+                getSystemService(UsbManager::class.java),
+                device
+            ))
+        }
+    }
+
+    private fun openUsb() {
+        if (noErrors) {
+            try {
+                ch340g.open()
+            } catch(e: Exception) {
+                reportException(e)
+            }
+        }
+    }
+
+    private fun layoutElements() {
+        setContentView(R.layout.activity_main)
+        hookIndicator = findViewById<CheckBox>(R.id.hookIndicator)
+        validIndicator = findViewById<CheckBox>(R.id.validIndicator)
+        ringButton = findViewById<Button>(R.id.ringButton)
+        toneButton = findViewById<Button>(R.id.toneButton)
+        numberDisplay = findViewById<TextView>(R.id.numberDisplay)
+        statusDisplay = findViewById<TextView>(R.id.statusDisplay)
+    }
+
+    private fun startWorking() {
+        if (noErrors) {
+            ringButtonListen()
+            toneButtonListen()
+            pollHandset()
+        }
+    }
+
     private fun ringButtonListen() {
         ringButton.setOnClickListener {
             if (noErrors) {
                 ringing = !ringing
                 try {
                     ch340g.writeHandshake(ringing)
-                    numberDisplay.apply {
+                    statusDisplay.apply {
                         text = if (ringing) "RINGING" else "WAITING"
                     }
                 } catch(e: Exception) {
                     reportException(e)
                 }
+            }
+        }
+    }
+
+    /* This is only here for testing
+       It should play when you pick up the reciever */
+    private fun toneButtonListen() {
+        toneButton.setOnClickListener {
+            var thread = toneThread
+            if (thread == null) {
+                thread = ToneThread(tones.samples(), tones.audioTrack())
+                thread.run()
+                toneThread = thread
+            } else {
+                thread.stopPlaying()
+                toneThread = null
             }
         }
     }
@@ -110,7 +155,7 @@ class MainActivity : Activity() {
             if (noErrors) {
                 pollHandset()
             }
-        }, 3_000)
+        }, delayMilliseconds)
     }
 
     private fun hookStatus() {
@@ -137,7 +182,7 @@ class MainActivity : Activity() {
 
     private fun reportError(message: String) {
         Log.e("gpo746", message)
-        numberDisplay.apply { text = message }
+        statusDisplay.apply { text = message }
         noErrors = false
     }
 

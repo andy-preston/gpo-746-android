@@ -8,21 +8,13 @@
     tools:context=".MainActivity"
 >
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/topToolbar"
+        android:id="@+id/indicatorBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-    />
-    <Button
-        android:id="@+id/ringButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ring"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
     />
@@ -33,9 +25,9 @@
         android:checked="false"
         android:clickable="false"
         android:text="Off Hook"
-        app:layout_constraintBottom_toBottomOf="@+id/topToolbar"
-        app:layout_constraintStart_toEndOf="@+id/ringButton"
-        app:layout_constraintTop_toTopOf="@+id/topToolbar"
+        app:layout_constraintBottom_toBottomOf="@+id/indicatorBar"
+        app:layout_constraintStart_toStartOf="@+id/indicatorBar"
+        app:layout_constraintTop_toTopOf="@+id/indicatorBar"
     />
     <CheckBox
         android:id="@+id/validIndicator"
@@ -44,9 +36,38 @@
         android:checked="false"
         android:clickable="false"
         android:text="Valid Number"
-        app:layout_constraintBottom_toBottomOf="@+id/topToolbar"
+        app:layout_constraintBottom_toBottomOf="@+id/indicatorBar"
         app:layout_constraintStart_toEndOf="@+id/hookIndicator"
-        app:layout_constraintTop_toTopOf="@+id/topToolbar"
+        app:layout_constraintTop_toTopOf="@+id/indicatorBar"
+    />
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/buttonBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/indicatorBar"
+    />
+    <Button
+        android:id="@+id/ringButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ring"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonBar"
+        app:layout_constraintStart_toStartOf="@+id/buttonBar"
+        app:layout_constraintTop_toTopOf="@+id/buttonBar"
+    />
+    <Button
+        android:id="@+id/toneButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tone"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonBar"
+        app:layout_constraintStart_toEndOf="@+id/ringButton"
+        app:layout_constraintTop_toTopOf="@+id/buttonBar"
     />
     <TextView
         android:id="@+id/numberDisplay"
@@ -57,6 +78,17 @@
         android:textSize="36sp"
         android:typeface="sans"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/topToolbar"
+        app:layout_constraintTop_toBottomOf="@+id/buttonBar"
+    />
+    <TextView
+        android:id="@+id/statusDisplay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:text="GPO 746 Handset"
+        android:textSize="36sp"
+        android:typeface="sans"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/numberDisplay"
     />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -129,13 +129,13 @@ class MainActivity : Activity() {
     }
 
     /* This is only here for testing
-       It should play when you pick up the reciever */
+       It should play when you pick up the receiver */
     private fun toneButtonListen() {
         toneButton.setOnClickListener {
             var thread = toneThread
             if (thread == null) {
                 thread = ToneThread(tones.samples(), tones.audioTrack())
-                thread.run()
+                thread.start()
                 toneThread = thread
             } else {
                 thread.stopPlaying()

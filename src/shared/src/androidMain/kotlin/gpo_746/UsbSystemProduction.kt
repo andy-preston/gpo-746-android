@@ -9,7 +9,7 @@ import android.hardware.usb.UsbManager
 import android.util.Log
 
 @OptIn(kotlin.ExperimentalUnsignedTypes::class)
-class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
+class UsbSystemProduction(m: UsbManager, d: UsbDevice): UsbSystemInterface {
 
     private val usbManager = m
     private val device = d
@@ -39,7 +39,7 @@ class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
         throw Exception(message);
     }
 
-    override public fun open(vid: UShort, pid: UShort, timeout: Int) {
+    override public fun start(vid: UShort, pid: UShort, timeout: Int) {
         timeoutMilliseconds = timeout
         connection = usbManager.openDevice(device)
         val usbInterface = device.getInterface(0)
@@ -52,7 +52,7 @@ class UsbSystemProduction(m: UsbManager, d: UsbDevice) : UsbSystemInterface {
         packetSize = if (size != null) size else 0
     }
 
-    override public fun close() {
+    override public fun finish() {
         connection?.let {
             val result = it.releaseInterface(device.getInterface(0))
             if (!result) {

@@ -109,14 +109,14 @@ class Ch340g(usbSystem: UsbSystemInterface) {
 
     ////////////////////////////////////////////////////////////////////////////
 
-    public fun open() {
+    public fun start() {
         val timeoutMilliseconds = 10
-        usb.open(0x1A86u, 0x7523u, timeoutMilliseconds)
+        usb.start(0x1A86u, 0x7523u, timeoutMilliseconds)
         initialise()
     }
 
-    public fun close() {
-        usb.close()
+    public fun finish() {
+        usb.finish()
     }
 
     public fun readSerial(): String {

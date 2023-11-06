@@ -13,14 +13,14 @@ fun main(args: Array<String>) {
 
     testMap.forEach { (testName, testMethod) ->
         if (requiredTest == testName) {
-            ch340g.open()
+            ch340g.start()
             for (repeat in 1..repeats) {
                 if (repeat > 1) {
                     sleep(pause)
                 }
                 testMethod()
             }
-            ch340g.close()
+            ch340g.finish()
             return
         }
     }

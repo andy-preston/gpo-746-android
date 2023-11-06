@@ -100,7 +100,7 @@ class UsbSystemMock() : UsbSystemInterface {
 
     ////////////////////////////////////////////////////////////////////////////
 
-    override public fun open(vid: UShort, pid: UShort, timeout: Int) {
+    override public fun start(vid: UShort, pid: UShort, timeout: Int) {
         timeoutMilliseconds = timeout.toUInt()
 
         assertSuccess(libusb_init(null), "libusb_init")
@@ -124,7 +124,7 @@ class UsbSystemMock() : UsbSystemInterface {
         buffer = UByteArray(maxOf(packetSize + 1, 2))
     }
 
-    override public fun close() {
+    override public fun finish() {
         if (interfaceClaimed) {
             libusb_release_interface(handle, 0)
             interfaceClaimed = false

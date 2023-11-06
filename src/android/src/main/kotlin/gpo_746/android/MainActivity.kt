@@ -16,16 +16,14 @@ import android.widget.CheckBox
 import android.widget.TextView
 import gpo_746.Ch340g
 import gpo_746.PhoneNumberValidator
-import gpo_746.Tones
-import gpo_746.ToneThread
+import gpo_746.ToneDial
 import gpo_746.UsbSystemProduction
 
 class MainActivity : Activity() {
 
     private lateinit var ch340g: Ch340g
     private val validator = PhoneNumberValidator()
-    private val tones = Tones()
-    private var toneThread: ToneThread? = null
+    private val toneDial = ToneDial()
 
     private lateinit var hookIndicator: CheckBox
     private lateinit var validIndicator: CheckBox
@@ -50,21 +48,23 @@ class MainActivity : Activity() {
             detachReceiver,
             IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED)
         )
-        openUsb()
+        startUsb()
+        setupTones()
         startWorking()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(detachReceiver)
-        tones.close()
+        toneDial.finish()
     }
 
     private val detachReceiver = object: BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (UsbManager.ACTION_USB_DEVICE_DETACHED == intent.action) {
-                ch340g.close()
-                reportError("detachReceiver - should close now.")
+                ch340g.finish()
+                toneDial.finish()
+                reportError("detachReceiver - should finish now.")
                 finish()
             }
         }
@@ -84,10 +84,18 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun openUsb() {
+    private fun setupTones() {
+        try {
+            toneDial.start()
+        } catch (e: Exception) {
+            reportException(e)
+        }
+    }
+
+    private fun startUsb() {
         if (noErrors) {
             try {
-                ch340g.open()
+                ch340g.start()
             } catch(e: Exception) {
                 reportException(e)
             }
@@ -132,14 +140,10 @@ class MainActivity : Activity() {
        It should play when you pick up the receiver */
     private fun toneButtonListen() {
         toneButton.setOnClickListener {
-            var thread = toneThread
-            if (thread == null) {
-                thread = ToneThread(tones.samples(), tones.audioTrack())
-                thread.start()
-                toneThread = thread
+            if (toneDial.isPlaying()) {
+                toneDial.stop()
             } else {
-                thread.stopPlaying()
-                toneThread = null
+                toneDial.play()
             }
         }
     }

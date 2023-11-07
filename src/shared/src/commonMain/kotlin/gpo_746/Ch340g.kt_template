@@ -61,16 +61,18 @@ enum class GclInputBit(val mask: UByte)  {
     DCD(0x08u)
 }
 
-@OptIn(kotlin.ExperimentalUnsignedTypes::class)
-fun shortFromBuffer(buffer: ByteArray): UShort {
-    return (
-        ((buffer[1].toUInt() and 0xFFu) shl 8) or
-        (buffer[0].toUInt() and 0xFFu)
-    ).toUShort()
+abstract class UsbResultBuffer {
+    @OptIn(kotlin.ExperimentalUnsignedTypes::class)
+    protected fun shortFromBuffer(buffer: ByteArray): UShort {
+        return (
+            ((buffer[1].toUInt() and 0xFFu) shl 8) or
+            (buffer[0].toUInt() and 0xFFu)
+        ).toUShort()
+    }
 }
 
 @OptIn(kotlin.ExperimentalUnsignedTypes::class)
-class Ch340g(usbSystem: UsbSystemInterface) {
+class Ch340g(usbSystem: UsbSystemInterface): UsbResultBuffer() {
 
     private val usb = usbSystem
 

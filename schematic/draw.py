@@ -13,9 +13,9 @@ with open("schematic.html", "r", encoding="UTF-8") as file:
 header = old_contents.split("<svg")[0]
 footer = old_contents.split("</svg>")[-1]
 
-with Popen(["./prettier.ts"], stdin=PIPE, stdout=PIPE) as prettier:
-    prettier.stdin.write((header + drawing_xml + footer).encode())
-    pretty: str = prettier.communicate()
+with Popen(["./prettier.ts"], encoding="UTF-8", stdin=PIPE, stdout=PIPE) as prettier:
+    prettier.stdin.write((header + drawing_xml + footer))
+    pretty: str = prettier.communicate()[0].replace("!doctype", "!DOCTYPE")
 
 with open("schematic.html", "w", encoding="UTF-8") as file:
-    file.write(pretty[0].decode("UTF-8").replace("!doctype", "!DOCTYPE"))
+    file.write(pretty)

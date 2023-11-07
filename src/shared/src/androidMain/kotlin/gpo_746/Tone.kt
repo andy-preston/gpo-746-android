@@ -9,14 +9,9 @@ import java.io.ByteArrayOutputStream
 import java.lang.Thread
 
 abstract class ToneBufferBuilder {
-    abstract val waveform: ByteArray
-    
-    protected fun setupSamples() {
-        val minimumSize = AudioTrack.getMinBufferSize(
-            8000,
-            AudioFormat.CHANNEL_OUT_MONO,
-            AudioFormat.ENCODING_PCM_8BIT
-        )
+    abstract protected val waveform: ByteArray
+
+    protected fun setupSamples(minimumSize: Int): ByteArray {
         var bufferBytes = 0
         val waveBytes = waveform.size
         val stream = ByteArrayOutputStream()
@@ -28,12 +23,12 @@ abstract class ToneBufferBuilder {
     }
 }
 
-abstract class Tone: ToneBufferBuilder {
+abstract class Tone: ToneBufferBuilder() {
     private lateinit var samples: ByteArray
     private lateinit var track: AudioTrack
     private var playing: Boolean = false
 
-    private fun setupAudioTrack() {
+    private fun setupAudioTrack(): AudioTrack {
         val attributes = AudioAttributes.Builder().setUsage(
             AudioAttributes.USAGE_MEDIA
         ).setContentType(
@@ -85,7 +80,11 @@ abstract class Tone: ToneBufferBuilder {
     }
 
     public fun start() {
-        samples = setupSamples()
+        samples = setupSamples(AudioTrack.getMinBufferSize(
+            8000,
+            AudioFormat.CHANNEL_OUT_MONO,
+            AudioFormat.ENCODING_PCM_8BIT
+        ))
         track = setupAudioTrack()
     }
 

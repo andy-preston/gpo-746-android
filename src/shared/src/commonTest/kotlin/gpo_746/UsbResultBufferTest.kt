@@ -5,7 +5,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @OptIn(kotlin.ExperimentalUnsignedTypes::class)
-class ShortFromBufferTest() {
+class UsbResultBufferTest(): UsbResultBuffer() {
 
     private fun assertEqualsHex(expected: String, value: UShort) {
         assertEquals(expected, value.toString(16).uppercase())

@@ -8,13 +8,10 @@ import android.util.Log
 import java.io.ByteArrayOutputStream
 import java.lang.Thread
 
-abstract class Tone {
+abstract class ToneBufferBuilder {
     abstract val waveform: ByteArray
-    private lateinit var samples: ByteArray
-    private lateinit var track: AudioTrack
-    private var playing: Boolean = false
-
-    private fun setupSamples() {
+    
+    protected fun setupSamples() {
         val minimumSize = AudioTrack.getMinBufferSize(
             8000,
             AudioFormat.CHANNEL_OUT_MONO,
@@ -27,8 +24,14 @@ abstract class Tone {
             bufferBytes = bufferBytes + waveBytes
             stream.write(waveform)
         }
-        samples = stream.toByteArray()
+        return stream.toByteArray()
     }
+}
+
+abstract class Tone: ToneBufferBuilder {
+    private lateinit var samples: ByteArray
+    private lateinit var track: AudioTrack
+    private var playing: Boolean = false
 
     private fun setupAudioTrack() {
         val attributes = AudioAttributes.Builder().setUsage(
@@ -43,7 +46,7 @@ abstract class Tone {
         ).setSampleRate(
             8000
         ).build()
-        track = AudioTrack(
+        return AudioTrack(
             attributes,
             format,
             samples.size,
@@ -82,8 +85,8 @@ abstract class Tone {
     }
 
     public fun start() {
-        setupSamples()
-        setupAudioTrack()
+        samples = setupSamples()
+        track = setupAudioTrack()
     }
 
     public fun finish() {

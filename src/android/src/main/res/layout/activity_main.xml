@@ -61,12 +61,21 @@
         app:layout_constraintTop_toTopOf="@+id/buttonBar"
     />
     <Button
-        android:id="@+id/toneButton"
+        android:id="@+id/toneDialButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tone"
+        android:text="Dial Tone"
         app:layout_constraintBottom_toBottomOf="@+id/buttonBar"
         app:layout_constraintStart_toEndOf="@+id/ringButton"
+        app:layout_constraintTop_toTopOf="@+id/buttonBar"
+    />
+    <Button
+        android:id="@+id/toneMisdialButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Misdial Tone"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonBar"
+        app:layout_constraintStart_toEndOf="@+id/toneDialButton"
         app:layout_constraintTop_toTopOf="@+id/buttonBar"
     />
     <TextView

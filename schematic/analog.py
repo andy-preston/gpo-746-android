@@ -1,6 +1,7 @@
 """"Only named 'analog' to draw an arbitrary distinction between the two halves"""
 
-import schemdraw
+from schemdraw import Drawing
+from schemdraw.util import Point
 import schemdraw.elements as elm
 from custom_elements import OldSchoolNC, ElectrolyticCapacitor
 
@@ -8,12 +9,12 @@ from custom_elements import OldSchoolNC, ElectrolyticCapacitor
 class AnalogPart:
     """The so-called 'analog' part of the drawing"""
 
-    def __init__(self, dwg: schemdraw.Drawing):
+    def __init__(self, dwg: Drawing):
         self.dwg = dwg
-        self._0v = schemdraw.util.Point([0, 0])
-        self._5v = schemdraw.util.Point([0, 0])
-        self._20v = schemdraw.util.Point([0, 0])
-        self.hook_pin = schemdraw.util.Point([0, 0])
+        self._0v = Point([0, 0])
+        self._5v = Point([0, 0])
+        self._20v = Point([0, 0])
+        self.hook_pin = Point([0, 0])
 
     def psu(self):
         """The 5V power supply"""
@@ -41,7 +42,7 @@ class AnalogPart:
         self.dwg += elm.Line().right().label("8v").hold()
         self.dwg += elm.Resistor().toy(self._5v.y).label("1K8 1W", loc="bottom")
         self.dwg += elm.Vdd().label("(Supply)\n20V")
-        self._20v = self.dwg.here
+        self._20v = Point(self.dwg.here)
         self.dwg.pop()
         self.dwg += elm.Wire("-|").to(_7805.ground)
         self.dwg += elm.Capacitor().at(_7805.output).toy(self._0v.y).label("100n")
@@ -68,7 +69,7 @@ class AnalogPart:
             self.dwg += elm.Vss().label("0V").at(transistor.emitter)
         else:
             self.dwg += elm.Wire("|-").at(transistor.emitter).to(self._0v)
-        self.dwg += elm.Line().at(transistor.collector).right(2)
+        self.dwg += elm.Line().right(2).at(transistor.collector)
         if pin == "B1":
             self.dwg += diode.down()
             self.dwg.move(1, 0.2)
@@ -77,7 +78,7 @@ class AnalogPart:
             self.dwg += diode.up()
             self.dwg.move(1, -0.3)
             self.dwg += solenoid.flip()
-        self.dwg += elm.Line().at(solenoid.p1).left(1)
+        self.dwg += elm.Line().left(1).at(solenoid.p1)
         self.dwg += elm.Line().at(self._20v).tox(solenoid.p2)
         self.dwg += elm.Line().left(1).hold()
         self.dwg += elm.Line().to(solenoid.p2)
@@ -85,22 +86,22 @@ class AnalogPart:
     def debounce(
         self,
         location: str,
-        input_pin: schemdraw.util.Point,
-        base_pin: schemdraw.util.Point,
-        switch_pin: schemdraw.util.Point,
+        input_pin: Point,
+        base_pin: Point,
+        switch_pin: Point,
     ):
         """Half of the dial debounce circuit"""
 
-        self.dwg += elm.Line().at(input_pin).right(1.5)
+        self.dwg += elm.Line().right(1.5).at(input_pin)
         self.dwg.push()
         if location == "top":
             self.dwg += elm.Line().up(1.5)
             self.dwg += elm.Capacitor().up(1.5).label("100n")
-            self._5v = self.dwg.here
+            self._5v = Point(self.dwg.here)
         else:
             self.dwg += elm.Line().down(1.5)
             self.dwg += elm.Capacitor().down(1.5).label("100n")
-            self._0v = self.dwg.here
+            self._0v = Point(self.dwg.here)
         self.dwg += elm.Wire("-|").to(base_pin)
         self.dwg.pop()
         self.dwg += elm.Resistor().right().label("18K", loc=location)
@@ -184,7 +185,7 @@ class AnalogPart:
         self.dwg += elm.Line().down(1)
         self.dwg += elm.Switch().toy(self._0v).label("Telephone\nHook", loc="bottom")
 
-    def draw(self) -> schemdraw.util.Point:
+    def draw(self) -> Point:
         """Draw the 'Analog' part - return anchor for positioning digital"""
         self.dial()
         self.dwg.move(-14, -0.5)
@@ -195,6 +196,6 @@ class AnalogPart:
         self.dwg.move(-22, 2)
         self.solenoid_transistor("B1")
         self.dwg.move(-7.05, -4.3)
-        end_position = self.dwg.here
+        end_position = Point(self.dwg.here)
         self.solenoid_transistor("B2")
         return end_position

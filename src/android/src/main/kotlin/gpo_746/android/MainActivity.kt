@@ -17,6 +17,7 @@ import android.widget.TextView
 import gpo_746.Ch340g
 import gpo_746.PhoneNumberValidator
 import gpo_746.ToneDial
+import gpo_746.ToneMisdial
 import gpo_746.UsbSystemProduction
 
 class MainActivity : Activity() {
@@ -24,11 +25,13 @@ class MainActivity : Activity() {
     private lateinit var ch340g: Ch340g
     private val validator = PhoneNumberValidator()
     private val toneDial = ToneDial()
+    private val toneMisdial = ToneMisdial()
 
     private lateinit var hookIndicator: CheckBox
     private lateinit var validIndicator: CheckBox
     private lateinit var ringButton: Button
-    private lateinit var toneButton: Button
+    private lateinit var toneDialButton: Button
+    private lateinit var toneMisdialButton: Button
     private lateinit var numberDisplay: TextView
     private lateinit var statusDisplay: TextView
 
@@ -56,14 +59,14 @@ class MainActivity : Activity() {
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(detachReceiver)
+        toneMisdial.finish()
         toneDial.finish()
+        ch340g.finish()
     }
 
     private val detachReceiver = object: BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (UsbManager.ACTION_USB_DEVICE_DETACHED == intent.action) {
-                ch340g.finish()
-                toneDial.finish()
                 reportError("detachReceiver - should finish now.")
                 finish()
             }
@@ -87,6 +90,7 @@ class MainActivity : Activity() {
     private fun setupTones() {
         try {
             toneDial.start()
+            toneMisdial.start()
         } catch (e: Exception) {
             reportException(e)
         }
@@ -107,7 +111,8 @@ class MainActivity : Activity() {
         hookIndicator = findViewById<CheckBox>(R.id.hookIndicator)
         validIndicator = findViewById<CheckBox>(R.id.validIndicator)
         ringButton = findViewById<Button>(R.id.ringButton)
-        toneButton = findViewById<Button>(R.id.toneButton)
+        toneDialButton = findViewById<Button>(R.id.toneDialButton)
+        toneMisdialButton = findViewById<Button>(R.id.toneMisdialButton)
         numberDisplay = findViewById<TextView>(R.id.numberDisplay)
         statusDisplay = findViewById<TextView>(R.id.statusDisplay)
     }
@@ -115,7 +120,8 @@ class MainActivity : Activity() {
     private fun startWorking() {
         if (noErrors) {
             ringButtonListen()
-            toneButtonListen()
+            toneDialButtonListen()
+            toneMisdialButtonListen()
             pollHandset()
         }
     }
@@ -138,12 +144,30 @@ class MainActivity : Activity() {
 
     /* This is only here for testing
        It should play when you pick up the receiver */
-    private fun toneButtonListen() {
-        toneButton.setOnClickListener {
+    private fun toneDialButtonListen() {
+        toneDialButton.setOnClickListener {
             if (toneDial.isPlaying()) {
                 toneDial.stop()
             } else {
+                if (toneMisdial.isPlaying()) {
+                    toneMisdial.stop()
+                }
                 toneDial.play()
+            }
+        }
+    }
+
+    /* This is only here for testing
+       It should play when you mess-up dialing */
+    private fun toneMisdialButtonListen() {
+        toneMisdialButton.setOnClickListener {
+            if (toneMisdial.isPlaying()) {
+                toneMisdial.stop()
+            } else {
+                if (toneDial.isPlaying()) {
+                    toneDial.stop()
+                }
+                toneMisdial.play()
             }
         }
     }

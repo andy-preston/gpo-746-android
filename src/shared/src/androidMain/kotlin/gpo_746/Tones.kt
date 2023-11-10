@@ -35,7 +35,7 @@ final class Tones {
         ))
     }
 
-    public fun finish() { 
+    public fun finish() {
         misdialTone.finish()
         dialTone.finish()
     }
@@ -58,12 +58,12 @@ final class Tones {
 
     public fun playDialTone() {
         stopPlaying()
-        dialTonePlay()
+        dialTone.play()
     }
 
     public fun playMisdialTone() {
         stopPlaying()
-        misdialTonePlay()
+        misdialTone.play()
     }
 
     public fun stopPlaying() {

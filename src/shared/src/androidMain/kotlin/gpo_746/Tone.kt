@@ -21,7 +21,7 @@ abstract class ToneBufferBuilder {
     }
 }
 
-abstract class Tone: ToneBufferBuilder() {
+class Tone: ToneBufferBuilder() {
     private lateinit var samples: ByteArray
     private lateinit var track: AudioTrack
     private var playing: Boolean = false

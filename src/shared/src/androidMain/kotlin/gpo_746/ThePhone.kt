@@ -11,11 +11,8 @@ class ThePhone {
     private var number: String = ""
     private var ringing: Boolean = false
 
-    public fun setupUsb(device: UsbDevice) {
-        ch340g = Ch340g(UsbSystemProduction(
-            getSystemService(UsbManager::class.java),
-            device
-        ))
+    public fun setupUsb(device: UsbDevice, usbManager: UsbManager) {
+        ch340g = Ch340g(UsbSystemProduction(device, usbManager))
     }
 
     public fun start() {
@@ -28,14 +25,14 @@ class ThePhone {
         ch340g.finish()
     }
 
-    public function dialedNumber() {
+    public fun dialledNumber(): String {
         number = number + ch340g.readSerial()
         return number
     }
 
-    public function numberValid: Boolean() {
+    public fun numberValid(): Boolean {
         val result = validator.result(number)
-        if (result == VadatorResult.good) {
+        if (result == ValidatorResult.good) {
             tones.stopPlaying()
             return true
         }
@@ -45,7 +42,7 @@ class ThePhone {
         return false
     }
 
-    public fun hookStatus() {
+    public fun hookStatus(): Boolean {
         val hookIsUp = ch340g.readHandshake()
         if (hookIsUp) {
             tones.playDialTone()
@@ -56,7 +53,7 @@ class ThePhone {
         return hookIsUp
     }
 
-    public fun isRinging() {
+    public fun isRinging(): Boolean {
         return ringing
     }
 

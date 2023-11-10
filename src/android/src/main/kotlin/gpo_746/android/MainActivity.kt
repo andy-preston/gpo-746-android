@@ -41,7 +41,7 @@ class MainActivity : Activity() {
         if (device == null) {
             reportError("Failed to get device from intent")
         } else {
-            thePhone.setupUsb(device)
+            thePhone.setupUsb(device, getSystemService(UsbManager::class.java))
         }
         registerReceiver(
             detachReceiver,

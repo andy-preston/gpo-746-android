@@ -9,7 +9,7 @@ import android.hardware.usb.UsbManager
 import android.util.Log
 
 @OptIn(kotlin.ExperimentalUnsignedTypes::class)
-class UsbSystemProduction(m: UsbManager, d: UsbDevice): UsbSystemInterface {
+class UsbSystemProduction(d: UsbDevice, m: UsbManager): UsbSystemInterface {
 
     private val usbManager = m
     private val device = d

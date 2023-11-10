@@ -14,16 +14,13 @@ import android.util.Log
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
-import gpo_746.Ch340g
-import gpo_746.PhoneNumberValidator
+import gpo_746.ThePhone
 import gpo_746.Tones
-import gpo_746.UsbSystemProduction
 
 class MainActivity : Activity() {
 
-    private lateinit var ch340g: Ch340g
-    private val validator = PhoneNumberValidator()
     private val tones = Tones()
+    private val thePhone = ThePhone()
 
     private lateinit var hookIndicator: CheckBox
     private lateinit var validIndicator: CheckBox
@@ -34,24 +31,26 @@ class MainActivity : Activity() {
     private lateinit var statusDisplay: TextView
 
     private val delayMilliseconds: Long = 1000
-
-    private var ringing: Boolean = false
-    private var hookIsUp: Boolean = false
     private var noErrors: Boolean = true
-
-    private var number: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         layoutElements()
-        setupUsb()
+        val device = getIntent().getParcelableExtra<UsbDevice>(
+            UsbManager.EXTRA_DEVICE
+        )
+        if (device == null) {
+            reportError("Failed to get device from intent")
+        } else {
+            thePhone.setupUsb(device)
+        }
         registerReceiver(
             detachReceiver,
             IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED)
         )
         try {
             if (noErrors) {
-               ch340g.start()
+               thePhone.start()
             }
             tones.start()
         } catch (e: Exception) {
@@ -64,7 +63,7 @@ class MainActivity : Activity() {
         super.onDestroy()
         unregisterReceiver(detachReceiver)
         tones.finish()
-        ch340g.finish()
+        thePhone.finish()
     }
 
     private val detachReceiver = object: BroadcastReceiver() {
@@ -73,20 +72,6 @@ class MainActivity : Activity() {
                 reportError("detachReceiver - should finish now.")
                 finish()
             }
-        }
-    }
-
-    private fun setupUsb() {
-        val device = getIntent().getParcelableExtra<UsbDevice>(
-            UsbManager.EXTRA_DEVICE
-        )
-        if (device == null) {
-            reportError("Failed to get device from intent")
-        } else {
-            ch340g = Ch340g(UsbSystemProduction(
-                getSystemService(UsbManager::class.java),
-                device
-            ))
         }
     }
 
@@ -102,68 +87,36 @@ class MainActivity : Activity() {
     }
 
     private fun startWorking() {
-        if (noErrors) {
-            ringButtonListen()
-            toneDialButton.setOnClickListener {
-                tones.testDialTone()
-            }
-            toneMisdialButton.setOnClickListener {
-                tones.testMisdialTone()
-            }
-            pollHandset()
-        }
-    }
-
-    private fun ringButtonListen() {
         ringButton.setOnClickListener {
             if (noErrors) {
-                ringing = !ringing
-                try {
-                    ch340g.writeHandshake(ringing)
-                    statusDisplay.apply {
-                        text = if (ringing) "RINGING" else "WAITING"
-                    }
-                } catch(e: Exception) {
-                    reportException(e)
+                thePhone.testRinger()
+                statusDisplay.apply {
+                    text = if (thePhone.isRinging()) "RINGING" else "WAITING"
                 }
             }
         }
+        toneDialButton.setOnClickListener {
+            tones.testDialTone()
+        }
+        toneMisdialButton.setOnClickListener {
+            tones.testMisdialTone()
+        }
+        pollHandset()
     }
 
     private fun pollHandset() {
         Handler(Looper.getMainLooper()).postDelayed({
-            if (noErrors) {
-                hookStatus()
-            }
-            if (noErrors) {
-                dialledNumber()
-            }
-            if (noErrors) {
-                pollHandset()
+            try {
+                if (noErrors) {
+                    hookIndicator.setChecked(thePhone.hookStatus)
+                    numberDisplay.apply { text = thePhone.dialledNumber() }
+                    validIndicator.setChecked(thePhone.numberValid())
+                    pollHandset()
+                }
+            } catch (e: Exception) {
+                reportException(e)
             }
         }, delayMilliseconds)
-    }
-
-    private fun hookStatus() {
-        try {
-            hookIsUp = ch340g.readHandshake()
-            hookIndicator.setChecked(hookIsUp)
-            if ((!hookIsUp) && (number != "")) {
-                number = ""
-            }
-        } catch (e: Exception) {
-            reportException(e)
-        }
-    }
-
-    private fun dialledNumber() {
-        try {
-            number = number + ch340g.readSerial()
-            numberDisplay.apply { text = number }
-            validIndicator.setChecked(validator.good(number))
-        } catch (e: Exception) {
-            reportException(e)
-        }
     }
 
     private fun reportError(message: String) {

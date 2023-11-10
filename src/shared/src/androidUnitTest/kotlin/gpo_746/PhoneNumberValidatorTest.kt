@@ -1,8 +1,7 @@
 package gpo_746
 
 import kotlin.test.Test
-import kotlin.test.assertFalse
-import kotlin.test.assertSame
+import kotlin.test.assertEquals
 
 // https://www.area-codes.org.uk/formatting.php
 // https://en.wikipedia.org/wiki/Telephone_numbers_in_the_United_Kingdom
@@ -13,62 +12,96 @@ class PhoneNumberValidatorTest {
 
     private val validator = PhoneNumberValidator()
 
-    @Test
-    fun fails_zero_length_numbers() {
-        assertFalse(validator.good(""))
+    private fun assertIncomplete(result: ValidatorResult) {
+        assertEquals(ValidatorResult.incomplete, result)
+    }
+
+    private fun assertInvalid(result: ValidatorResult) {
+        assertEquals(ValidatorResult.invalid, result)
+    }
+
+    private fun assertGood(result: ValidatorResult) {
+        assertEquals(ValidatorResult.good, result)
     }
 
     @Test
-    fun fails_all_numbers_that_do_not_begin_with_0() {
+    fun zero_length_numbers_are_considered_incomplete() {
+        assertIncomplete(validator.result(""))
+    }
+
+    @Test
+    fun all_numbers_that_do_not_begin_with_0_are_invalid() {
         /* this will no longer be correct when we add 3 digit numbers
          * like 100, 999, etc.
          */
         (1..9).iterator().forEach {
-            assertFalse(validator.good("${it}7654321"))
+            assertInvalid(validator.result("${it}7654321"))
         }
     }
 
     @Test
-    fun fails_all_numbers_that_start_with_04() {
+    fun all_numbers_that_start_with_04_are_invalid() {
         var number = "04"
         while (number.length < 30) {
-            assertFalse(validator.good(number))
+            assertInvalid(validator.result(number))
             number = "${number}7"
         }
     }
 
     @Test
-    fun fails_all_numbers_that_start_with_06() {
+    fun all_numbers_that_start_with_06_are_invalid() {
         var number = "06"
         while (number.length < 30) {
-            assertFalse(validator.good(number))
+            assertInvalid(validator.result(number))
             number = "${number}7"
         }
     }
 
     @Test
-    fun passes_09_numbers_with_11_digits_only() {
+    fun numbers_that_start_with_09_must_have_11_digits() {
         var number = "09"
         while (number.length < 30) {
-            assertSame(number.length == 11, validator.good(number))
+            result = validator.result(number)
+            if (number.length < 11) {
+                assertIncomplete(result)
+            } else if (number.length > 11) {
+                assertInvalid(result)
+            } else {
+                assertGood(result)
+            }
             number = "${number}7"
         }
     }
 
     @Test
-    fun passes_0800_numbers_with_10_digits_only() {
+    fun numbers_that_start_with_0800_must_have_10_digits() {
         var number = "0800"
         while (number.length < 30) {
-            assertSame(number.length == 10, validator.good(number))
+            result = validator.result(number)
+            if (number.length < 10) {
+                assertIncomplete(result)
+            } else if (number.length > 10) {
+                assertInvalid(result)
+            } else {
+                assertGood(result)
+            }
             number = "${number}7"
+        }
         }
     }
 
     @Test
-    fun passes_remaining_08_numbers_with_11_digits_only() {
+    fun numbers_that_start_with_08_but_not_0800_must_have_11_digits() {
         var number = "08"
         while (number.length < 30) {
-            assertSame(number.length == 11, validator.good(number))
+            result = validator.result(number)
+            if (number.length < 11) {
+                assertIncomplete(result)
+            } else if (number.length > 11) {
+                assertInvalid(result)
+            } else {
+                assertGood(result)
+            }
             // concatenate any number but 0 for first 2 digits for '08' test
             number = "${number}7"
         }

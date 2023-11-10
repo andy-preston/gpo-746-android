@@ -16,16 +16,14 @@ import android.widget.CheckBox
 import android.widget.TextView
 import gpo_746.Ch340g
 import gpo_746.PhoneNumberValidator
-import gpo_746.ToneDial
-import gpo_746.ToneMisdial
+import gpo_746.Tones
 import gpo_746.UsbSystemProduction
 
 class MainActivity : Activity() {
 
     private lateinit var ch340g: Ch340g
     private val validator = PhoneNumberValidator()
-    private val toneDial = ToneDial()
-    private val toneMisdial = ToneMisdial()
+    private val tones = Tones()
 
     private lateinit var hookIndicator: CheckBox
     private lateinit var validIndicator: CheckBox
@@ -51,16 +49,21 @@ class MainActivity : Activity() {
             detachReceiver,
             IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED)
         )
-        startUsb()
-        setupTones()
+        try {
+            if (noErrors) {
+               ch340g.start()
+            }
+            tones.start()
+        } catch (e: Exception) {
+            reportException(e)
+        }
         startWorking()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(detachReceiver)
-        toneMisdial.finish()
-        toneDial.finish()
+        tones.finish()
         ch340g.finish()
     }
 
@@ -87,25 +90,6 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun setupTones() {
-        try {
-            toneDial.start()
-            toneMisdial.start()
-        } catch (e: Exception) {
-            reportException(e)
-        }
-    }
-
-    private fun startUsb() {
-        if (noErrors) {
-            try {
-                ch340g.start()
-            } catch(e: Exception) {
-                reportException(e)
-            }
-        }
-    }
-
     private fun layoutElements() {
         setContentView(R.layout.activity_main)
         hookIndicator = findViewById<CheckBox>(R.id.hookIndicator)
@@ -120,8 +104,12 @@ class MainActivity : Activity() {
     private fun startWorking() {
         if (noErrors) {
             ringButtonListen()
-            toneDialButtonListen()
-            toneMisdialButtonListen()
+            toneDialButton.setOnClickListener {
+                tones.testDialTone()
+            }
+            toneMisdialButton.setOnClickListener {
+                tones.testMisdialTone()
+            }
             pollHandset()
         }
     }
@@ -138,36 +126,6 @@ class MainActivity : Activity() {
                 } catch(e: Exception) {
                     reportException(e)
                 }
-            }
-        }
-    }
-
-    /* This is only here for testing
-       It should play when you pick up the receiver */
-    private fun toneDialButtonListen() {
-        toneDialButton.setOnClickListener {
-            if (toneDial.isPlaying()) {
-                toneDial.stop()
-            } else {
-                if (toneMisdial.isPlaying()) {
-                    toneMisdial.stop()
-                }
-                toneDial.play()
-            }
-        }
-    }
-
-    /* This is only here for testing
-       It should play when you mess-up dialing */
-    private fun toneMisdialButtonListen() {
-        toneMisdialButton.setOnClickListener {
-            if (toneMisdial.isPlaying()) {
-                toneMisdial.stop()
-            } else {
-                if (toneDial.isPlaying()) {
-                    toneDial.stop()
-                }
-                toneMisdial.play()
             }
         }
     }

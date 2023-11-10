@@ -19,7 +19,6 @@ import gpo_746.Tones
 
 class MainActivity : Activity() {
 
-    private val tones = Tones()
     private val thePhone = ThePhone()
 
     private lateinit var hookIndicator: CheckBox
@@ -52,7 +51,6 @@ class MainActivity : Activity() {
             if (noErrors) {
                thePhone.start()
             }
-            tones.start()
         } catch (e: Exception) {
             reportException(e)
         }
@@ -62,7 +60,6 @@ class MainActivity : Activity() {
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(detachReceiver)
-        tones.finish()
         thePhone.finish()
     }
 
@@ -96,10 +93,10 @@ class MainActivity : Activity() {
             }
         }
         toneDialButton.setOnClickListener {
-            tones.testDialTone()
+            thePhone.testDialTone()
         }
         toneMisdialButton.setOnClickListener {
-            tones.testMisdialTone()
+            thePhone.testMisdialTone()
         }
         pollHandset()
     }

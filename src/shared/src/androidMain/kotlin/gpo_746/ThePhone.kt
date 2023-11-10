@@ -5,6 +5,7 @@ import android.hardware.usb.UsbManager
 
 class ThePhone {
     private lateinit var ch340g: Ch340g
+    private val tones = Tones()
 
     private val validator = PhoneNumberValidator()
     private var number: String = ""
@@ -19,9 +20,11 @@ class ThePhone {
 
     public fun start() {
         ch340g.start()
+        tones.start()
     }
 
     public fun finish() {
+        tones.finish()
         ch340g.finish()
     }
 
@@ -31,19 +34,21 @@ class ThePhone {
     }
 
     public function numberValid() {
+        if (validator.tooManyDigits(number)) {
+            tones.playMisdialTone()
+        }
         return validator.good(number)
     }
 
     public fun hookStatus() {
         val hookIsUp = ch340g.readHandshake()
-        if (!hookIsUp) {
+        if (hookIsUp) {
+            tones.playDialTone()
+        } else {
             number = ""
+            tones.stopPlaying()
         }
         return hookIsUp
-    }
-
-    public fun testRinger() {
-        ring(!ringing)
     }
 
     public fun isRinging() {
@@ -53,5 +58,17 @@ class ThePhone {
     public fun ring(status: Boolean) {
         ringing = status
         ch340g.writeHandshake(ringing)
+    }
+
+    public fun testRinger() {
+        ring(!ringing)
+    }
+
+    public fun testDialTone() {
+        tones.testDialTone()
+    }
+
+    public fun testMisdialTone() {
+        tones.testMisdialTone()
     }
 }

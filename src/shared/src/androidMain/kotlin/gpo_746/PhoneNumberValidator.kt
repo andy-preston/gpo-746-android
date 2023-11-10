@@ -1,5 +1,11 @@
 package gpo_746
 
+enum class ValidatorResult(val code: Int) {
+    invalid(-2),
+    incomplete(-1),
+    good(0)
+}
+
 class PhoneNumberValidator {
     private val codeLengthMap = mapOf(
         "0800" to 10,
@@ -47,14 +53,31 @@ class PhoneNumberValidator {
         "01697798" to 11
     )
 
-    public fun good(number: String): Boolean {
-        if ((number.length > 0) && number.startsWith("0")) {
-            codeLengthMap.forEach { (code, digits) ->
-                if (number.startsWith(code)) {
-                    return number.length == digits
+    public fun result(number: String): ValidatorResult {
+        if (number.length == 0) {
+            return ValidatorResult.incomplete
+        }
+        if (!number.startsWith("0")) {
+            return ValidatorResult.invalid
+        }
+        var maximumCodeLength = 0
+        codeLengthMap.forEach { (code, digits) ->
+            if (code.length > maximumCodeLength) {
+                maximumCodeLength = code.length
+            }
+            if (number.startsWith(code)) {
+                if (number.length > digits) {
+                    return ValidatorResult.invalid
                 }
+                if (number.length < digits) {
+                    return ValidatorResult.incomplete
+                }
+                return ValidatorResult.good
             }
         }
-        return false
+        if (number.length > maximumCodeLength) {
+            return ValidatorResult.invalid
+        }
+        return ValidatorResult.incomplete
     }
 }

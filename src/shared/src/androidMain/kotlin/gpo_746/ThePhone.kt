@@ -33,11 +33,16 @@ class ThePhone {
         return number
     }
 
-    public function numberValid() {
-        if (validator.tooManyDigits(number)) {
+    public function numberValid: Boolean() {
+        val result = validator.result(number)
+        if (result == VadatorResult.good) {
+            tones.stopPlaying()
+            return true
+        }
+        if (result == ValidatorResult.invalid) {
             tones.playMisdialTone()
         }
-        return validator.good(number)
+        return false
     }
 
     public fun hookStatus() {

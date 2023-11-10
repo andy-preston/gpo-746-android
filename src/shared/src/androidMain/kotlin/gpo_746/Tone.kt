@@ -9,9 +9,7 @@ import java.io.ByteArrayOutputStream
 import java.lang.Thread
 
 abstract class ToneBufferBuilder {
-    abstract protected val waveform: ByteArray
-
-    protected fun setupSamples(minimumSize: Int): ByteArray {
+    protected fun setupSamples(waveform: ByteArray, minimumSize: Int): ByteArray {
         var bufferBytes = 0
         val waveBytes = waveform.size
         val stream = ByteArrayOutputStream()
@@ -79,8 +77,8 @@ abstract class Tone: ToneBufferBuilder() {
         return playing == true
     }
 
-    public fun start() {
-        samples = setupSamples(AudioTrack.getMinBufferSize(
+    public fun start(waveform: ByteArray) {
+        samples = setupSamples(waveform, AudioTrack.getMinBufferSize(
             8000,
             AudioFormat.CHANNEL_OUT_MONO,
             AudioFormat.ENCODING_PCM_8BIT

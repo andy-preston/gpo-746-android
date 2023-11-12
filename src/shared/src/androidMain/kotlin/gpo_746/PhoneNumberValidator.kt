@@ -60,6 +60,12 @@ class PhoneNumberValidator {
         if (!number.startsWith("0")) {
             return ValidatorResult.invalid
         }
+        if (number.startsWith("04")) {
+            return ValidatorResult.invalid
+        }
+        if (number.startsWith("06")) {
+            return ValidatorResult.invalid
+        }
         var maximumCodeLength = 0
         codeLengthMap.forEach { (code, digits) ->
             if (code.length > maximumCodeLength) {

@@ -105,7 +105,7 @@ class MainActivity : Activity() {
         Handler(Looper.getMainLooper()).postDelayed({
             try {
                 if (noErrors) {
-                    hookIndicator.setChecked(thePhone.hookStatus)
+                    hookIndicator.setChecked(thePhone.hookStatus())
                     numberDisplay.apply { text = thePhone.dialledNumber() }
                     validIndicator.setChecked(thePhone.numberValid())
                     pollHandset()

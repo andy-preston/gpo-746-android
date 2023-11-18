@@ -1,10 +1,10 @@
-package gpo_746
+package andyp.gpo746
 
 import kotlin.test.Test
-import kotlin.test.assertTrue
 import kotlin.test.assertSame
+import kotlin.test.assertTrue
 
-class ToneBufferBuilderTest(): ToneBufferBuilder() {
+class ToneBufferBuilderTest : ToneBufferBuilder() {
 
     private val waveform = byteArrayOf(-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5)
 

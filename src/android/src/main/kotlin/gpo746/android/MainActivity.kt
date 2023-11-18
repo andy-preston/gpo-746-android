@@ -1,4 +1,4 @@
-package gpo_746.android
+package andyp.gpo746.android
 
 import android.app.Activity
 import android.content.BroadcastReceiver
@@ -14,8 +14,9 @@ import android.util.Log
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
-import gpo_746.ThePhone
-import gpo_746.Tones
+import andyp.gpo746.ThePhone
+
+private const val DELAY_MILLISECONDS: Long = 1000
 
 class MainActivity : Activity() {
 
@@ -29,7 +30,6 @@ class MainActivity : Activity() {
     private lateinit var numberDisplay: TextView
     private lateinit var statusDisplay: TextView
 
-    private val delayMilliseconds: Long = 1000
     private var noErrors: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +49,7 @@ class MainActivity : Activity() {
         )
         try {
             if (noErrors) {
-               thePhone.start()
+                thePhone.start()
             }
         } catch (e: Exception) {
             reportException(e)
@@ -63,7 +63,7 @@ class MainActivity : Activity() {
         thePhone.finish()
     }
 
-    private val detachReceiver = object: BroadcastReceiver() {
+    private val detachReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (UsbManager.ACTION_USB_DEVICE_DETACHED == intent.action) {
                 reportError("detachReceiver - should finish now.")
@@ -113,7 +113,7 @@ class MainActivity : Activity() {
             } catch (e: Exception) {
                 reportException(e)
             }
-        }, delayMilliseconds)
+        }, DELAY_MILLISECONDS)
     }
 
     private fun reportError(message: String) {

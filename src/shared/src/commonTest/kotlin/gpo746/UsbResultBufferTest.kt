@@ -1,5 +1,5 @@
 
-package gpo_746
+package andyp.gpo746
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

@@ -1,4 +1,4 @@
-package gpo_746
+package andyp.gpo746
 
 import android.media.AudioAttributes
 import android.media.AudioFormat
@@ -7,6 +7,8 @@ import android.media.AudioTrack
 import android.util.Log
 import java.io.ByteArrayOutputStream
 import java.lang.Thread
+
+const val SAMPLE_RATE = 8000 // Hz
 
 abstract class ToneBufferBuilder {
     protected fun setupSamples(waveform: ByteArray, minimumSize: Int): ByteArray {
@@ -21,7 +23,7 @@ abstract class ToneBufferBuilder {
     }
 }
 
-class Tone: ToneBufferBuilder() {
+class Tone : ToneBufferBuilder() {
     private lateinit var samples: ByteArray
     private lateinit var track: AudioTrack
     private var playing: Boolean = false
@@ -37,7 +39,7 @@ class Tone: ToneBufferBuilder() {
         ).setChannelMask(
             AudioFormat.CHANNEL_OUT_MONO
         ).setSampleRate(
-            8000
+            SAMPLE_RATE
         ).build()
         return AudioTrack(
             attributes,
@@ -70,7 +72,7 @@ class Tone: ToneBufferBuilder() {
     }
 
     public fun stop() {
-        playing = false;
+        playing = false
     }
 
     public fun isPlaying(): Boolean {
@@ -78,11 +80,14 @@ class Tone: ToneBufferBuilder() {
     }
 
     public fun start(waveform: ByteArray) {
-        samples = setupSamples(waveform, AudioTrack.getMinBufferSize(
-            8000,
-            AudioFormat.CHANNEL_OUT_MONO,
-            AudioFormat.ENCODING_PCM_8BIT
-        ))
+        samples = setupSamples(
+            waveform,
+            AudioTrack.getMinBufferSize(
+                SAMPLE_RATE,
+                AudioFormat.CHANNEL_OUT_MONO,
+                AudioFormat.ENCODING_PCM_8BIT
+            )
+        )
         track = setupAudioTrack()
     }
 

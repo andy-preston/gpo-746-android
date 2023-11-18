@@ -45,6 +45,7 @@ else
     do
         mkdir -p ${LOCAL_BUILD}/build-${BUILD_DIR}
     done
+    mkdir -p ${LOCAL_BUILD}/reports
     for CACHE_DIR in buildSrc project
     do
         mkdir -p ${LOCAL_BUILD}/cache-${CACHE_DIR}
@@ -58,10 +59,10 @@ else
     mkdir -p ${LOCAL_SHARE}/gradle
     mkdir -p ${LOCAL_SHARE}/konan
     mkdir -p ${LOCAL_SHARE}/android
-    docker build --progress=plain --tag android_gpo ./docker/builder
+    docker build --tag android_gpo ./docker/gradle
     docker run \
         --rm --interactive --tty \
-        --volume "${LOCAL_BIN}/builder:${CONTAINER_BIN}/builder" \
+        --volume "${LOCAL_BIN}/gradle:${CONTAINER_BIN}/gradle" \
         --volume "${LOCAL_SHARE}/android:${ANDROID_SDK_ROOT}" \
         --env "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}" \
         --volume "${LOCAL_SHARE}/gradle:${CONTAINER_SHARE}/gradle" \
@@ -69,6 +70,7 @@ else
         --volume "${LOCAL_SHARE}/konan:${CONTAINER_SHARE}/konan" \
         --env "KONAN_DATA_DIR=${CONTAINER_SHARE}/konan" \
         --volume "${LOCAL_SRC}:${CONTAINER_SRC}" \
+        --volume "${LOCAL_BUILD}/reports:${CONTAINER_SRC}/build" \
         --volume "${LOCAL_BUILD}/build-android:${CONTAINER_SRC}/android/build" \
         --volume "${LOCAL_BUILD}/build-avr:${CONTAINER_SRC}/avr/build" \
         --volume "${LOCAL_BUILD}/build-buildSrc:${CONTAINER_SRC}/buildSrc/build" \

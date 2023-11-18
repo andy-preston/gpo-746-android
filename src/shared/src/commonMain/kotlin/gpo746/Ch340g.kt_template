@@ -1,8 +1,12 @@
-package gpo_746
+package andyp.gpo746
+
+private const val CH340G_VENDOR: UShort = 0x1A86u
+private const val CH340G_DEVICE: UShort = 0x7523u
+private const val TIMEOUT_MILLISECONDS = 10
 
 /*
  * For the compile time calculations see:
- * ./src/buildSrc/src/main/kotlin/gpo_746/Ch340gConstants.kt
+ * ./src/buildSrc/src/main/kotlin/gpo746/Ch340gConstants.kt
  *
  * For want of ANY official documentation at all, this has been cargo-culted
  * from various sources.
@@ -24,55 +28,51 @@ package gpo_746
  */
 
 enum class ReadRequest(val code: UByte) {
-    vendorGetVersion(0x5Fu),
-    vendorReadRegisters(0x95u)
+    VendorGetVersion(0x5Fu),
+    VendorReadRegisters(0x95u)
 }
 
 enum class WriteRequest(val code: UByte) {
-    vendorWriteRegisters(0x9Au),
-    vendorSerialInit(0xA1u),
-    vendorModemControl(0xA4u)
+    VendorWriteRegisters(0x9Au),
+    VendorSerialInit(0xA1u),
+    VendorModemControl(0xA4u)
 }
 
 enum class ReadRegister(val address: UShort) {
-    // When NetBSD reads GCL, it only uses gcl1Low - the first byte
-    // When mik3y reads GCL, it only returns the first byte from the buffer
-    // When felHR85 reads GCL, it only uses the first byte
-    gcl(0x0706u)
+    GCL(0x0706u)
 }
 
 enum class WriteRegister(val address: UShort) {
-    baudDivisorPrescale(0x1312u),
-    baudMod(0x0F14u),
-    lcr(0x2518u),
-    // Only NetBSD writes GCL at all - it writes the same value to gcl1Low twice
-    gcl(0x0606u)
+    BaudDivisorPreScale(0x1312u),
+    BaudMod(0x0F14u),
+    LCR(0x2518u),
+    GCL(0x0606u)
 }
 
 enum class GclOutputBit(val mask: UByte) {
     DTR(0x20u), // 1 << 5
-    RTS(0x40u)  // 1 << 6
+    RTS(0x40u) //  1 << 6
 }
 
-enum class GclInputBit(val mask: UByte)  {
+enum class GclInputBit(val mask: UByte) {
     CTS(0x01u),
     DSR(0x02u),
     RI(0x04u),
     DCD(0x08u)
 }
 
+@Suppress("MagicNumber")
 abstract class UsbResultBuffer {
     @OptIn(kotlin.ExperimentalUnsignedTypes::class)
     protected fun shortFromBuffer(buffer: ByteArray): UShort {
-        return (
-            ((buffer[1].toUInt() and 0xFFu) shl 8) or
-            (buffer[0].toUInt() and 0xFFu)
-        ).toUShort()
+        val lowByte = buffer[1].toUInt() and 0xFFu
+        val highByte = buffer[0].toUInt() and 0xFFu
+        return ((lowByte shl 8) or highByte).toUShort()
     }
 }
 
 @OptIn(kotlin.ExperimentalUnsignedTypes::class)
-class Ch340g(usbSystem: UsbSystemInterface): UsbResultBuffer() {
+class Ch340g(usbSystem: UsbSystemInterface) : UsbResultBuffer() {
 
     private val usb = usbSystem
 
@@ -81,39 +81,42 @@ class Ch340g(usbSystem: UsbSystemInterface): UsbResultBuffer() {
     }
 
     private fun writeRegisters(register: WriteRegister, value: UShort) {
-        usb.write(WriteRequest.vendorWriteRegisters.code, register.address, value)
+        usb.write(WriteRequest.VendorWriteRegisters.code, register.address, value)
     }
 
     private fun read(request: ReadRequest): UShort {
-        return shortFromBuffer(usb.read(
-            request.code,
-            0u
-        ))
+        return shortFromBuffer(
+            usb.read(
+                request.code,
+                0u
+            )
+        )
     }
 
     private fun readRegisters(register: ReadRegister): UShort {
-        return shortFromBuffer(usb.read(
-            ReadRequest.vendorReadRegisters.code,
-            register.address
-        ))
+        return shortFromBuffer(
+            usb.read(
+                ReadRequest.VendorReadRegisters.code,
+                register.address
+            )
+        )
     }
 
     private fun initialise() {
-        val version: UShort = read(ReadRequest.vendorGetVersion)
+        val version: UShort = read(ReadRequest.VendorGetVersion)
         if (version != @usedChipVersion@.toUShort()) {
-            throw Exception("version should be @usedChipVersion@, but it's ${version}")
+            throw Exception("version should be @usedChipVersion@, but it's $version")
         }
-        write(WriteRequest.vendorSerialInit, 0u)
-        writeRegisters(WriteRegister.baudDivisorPrescale, @divisorPrescale@)
-        writeRegisters(WriteRegister.baudMod, @mod@)
-        writeRegisters(WriteRegister.lcr, @defaultLcr@)
+        write(WriteRequest.VendorSerialInit, 0u)
+        writeRegisters(WriteRegister.BaudDivisorPreScale, @divisorPrescale@)
+        writeRegisters(WriteRegister.BaudMod, @mod@)
+        writeRegisters(WriteRegister.LCR, @defaultLcr@)
     }
 
-    ////////////////////////////////////////////////////////////////////////////
+    // // // // // // // // // // // // // // // // // // // // // // // // //
 
     public fun start() {
-        val timeoutMilliseconds = 10
-        usb.start(0x1A86u, 0x7523u, timeoutMilliseconds)
+        usb.start(CH340G_VENDOR, CH340G_DEVICE, TIMEOUT_MILLISECONDS)
         initialise()
     }
 
@@ -126,12 +129,13 @@ class Ch340g(usbSystem: UsbSystemInterface): UsbResultBuffer() {
     }
 
     public fun writeHandshake(handshakeOutputRTS: Boolean) {
+        // DTR isn't in use so it's bit is always set "off"
         var modemControl: UByte = if (handshakeOutputRTS) GclOutputBit.RTS.mask else 0u
-        write(WriteRequest.vendorModemControl, modemControl.toUShort())
+        write(WriteRequest.VendorModemControl, modemControl.toUShort())
     }
 
     public fun readHandshake(): Boolean {
-        val modemControl = readRegisters(ReadRegister.gcl)
+        val modemControl = readRegisters(ReadRegister.GCL)
         val mask = GclInputBit.RI.mask.toUShort()
         return (modemControl and mask) == mask
     }

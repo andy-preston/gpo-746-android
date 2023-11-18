@@ -1,4 +1,4 @@
-package gpo_746
+package andyp.gpo746
 
 import android.hardware.usb.UsbConstants
 import android.hardware.usb.UsbDevice
@@ -8,19 +8,21 @@ import android.hardware.usb.UsbInterface
 import android.hardware.usb.UsbManager
 import android.util.Log
 
+private const val DEFAULT_TIMEOUT = 1000
+
 @OptIn(kotlin.ExperimentalUnsignedTypes::class)
-class UsbSystemProduction(d: UsbDevice, m: UsbManager): UsbSystemInterface {
+class UsbSystemProduction(d: UsbDevice, m: UsbManager) : UsbSystemInterface {
 
     private val usbManager = m
     private val device = d
 
-    private var timeoutMilliseconds: Int = 1000
+    private var timeoutMilliseconds: Int = DEFAULT_TIMEOUT
     private var connection: UsbDeviceConnection? = null
     private var bulkReadEndpoint: UsbEndpoint? = null
     private var packetSize: Int = 0
 
     private fun findBulkReadEndpoint(usbInterface: UsbInterface): UsbEndpoint? {
-        for (endpointNumber in 0..usbInterface.getEndpointCount() - 1 ) {
+        for (endpointNumber in 0..usbInterface.getEndpointCount() - 1) {
             val endpoint = usbInterface.getEndpoint(endpointNumber)
             if (
                 endpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK &&
@@ -32,18 +34,20 @@ class UsbSystemProduction(d: UsbDevice, m: UsbManager): UsbSystemInterface {
         return null
     }
 
-    ////////////////////////////////////////////////////////////////////////////
+    // // // // // // // // // // // // // // // // // // // // // // // // //
 
     private fun exception(message: String) {
-        Log.e("gpo746", message);
-        throw Exception(message);
+        Log.e("gpo746", message)
+        throw Exception(message)
     }
 
-    override public fun start(vid: UShort, pid: UShort, timeout: Int) {
+    public override fun start(vid: UShort, pid: UShort, timeout: Int) {
         timeoutMilliseconds = timeout
         connection = usbManager.openDevice(device)
         val usbInterface = device.getInterface(0)
-        val connected = connection?.let { it.claimInterface(usbInterface, true)}
+        val connected = connection?.let {
+            it.claimInterface(usbInterface, true)
+        }
         if (connected == null || !connected) {
             exception("Could not claim interface")
         }
@@ -52,7 +56,7 @@ class UsbSystemProduction(d: UsbDevice, m: UsbManager): UsbSystemInterface {
         packetSize = if (size != null) size else 0
     }
 
-    override public fun finish() {
+    public override fun finish() {
         connection?.let {
             val result = it.releaseInterface(device.getInterface(0))
             if (!result) {
@@ -63,7 +67,7 @@ class UsbSystemProduction(d: UsbDevice, m: UsbManager): UsbSystemInterface {
         connection = null
     }
 
-    override public fun bulkRead(): ByteArray {
+    public override fun bulkRead(): ByteArray {
         val buffer = ByteArray(packetSize + 1)
         val bytesRead: Int? = connection?.let {
             it.bulkTransfer(
@@ -74,19 +78,19 @@ class UsbSystemProduction(d: UsbDevice, m: UsbManager): UsbSystemInterface {
             )
         }
         if (bytesRead == null) {
-            exception("Attempted bulk transfer with null connection");
+            exception("Attempted bulk transfer with null connection")
         } else if (bytesRead < 0) {
             /* Regarding the return value of bulk transfer, the docs say:
-            "length of data transferred (or zero) for success,
-                    or negative value for failure"
-            Yeah, thanks for that - "a negative value" is very helpful!
-            I'm certainly getting -1 returned for timeouts, whether I get -1
-            for other errors or specific codes, I still don't know.
-            (Just for reference, in libusb TIMEOUT is -7 - but there's no
-            reason for parity in error codes.)
-            */
+             * "length of data transferred (or zero) for success,
+             *      or negative value for failure"
+             * Yeah, thanks for that - "a negative value" is very helpful!
+             * I'm certainly getting -1 returned for timeouts, whether I get -1
+             * for other errors or specific codes, I still don't know.
+             * (Just for reference, in libusb TIMEOUT is -7 - but there's no
+             * reason for parity in error codes.)
+             */
             if (bytesRead != -1) {
-                exception("Bulk read returned error code ${bytesRead}")
+                exception("Bulk read returned error code $bytesRead")
             }
             buffer[0] = 0
         } else {
@@ -95,7 +99,7 @@ class UsbSystemProduction(d: UsbDevice, m: UsbManager): UsbSystemInterface {
         return buffer
     }
 
-    override public fun read(
+    public override fun read(
         requestCode: UByte,
         addressOrPadding: UShort
     ): ByteArray {
@@ -112,12 +116,12 @@ class UsbSystemProduction(d: UsbDevice, m: UsbManager): UsbSystemInterface {
             )
         }
         if (bytesRead != 2) {
-            exception("Read Registers did not return 2 bytes ${bytesRead}")
+            exception("Read Registers did not return 2 bytes $bytesRead")
         }
         return buffer
     }
 
-    override public fun write(
+    public override fun write(
         requestCode: UByte,
         addressOrValue: UShort,
         valueOrPadding: UShort
@@ -134,7 +138,7 @@ class UsbSystemProduction(d: UsbDevice, m: UsbManager): UsbSystemInterface {
             )
         }
         if (result != null && result < 0) {
-            exception("Write Registers failed ${result}");
+            exception("Write Registers failed $result")
         }
     }
 }

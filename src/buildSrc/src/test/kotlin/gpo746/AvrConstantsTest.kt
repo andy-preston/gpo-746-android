@@ -12,5 +12,4 @@ class AvrConstantsTest {
         assertEquals("1152", map["timer1_20ms_ticks"])
         assertEquals("(1 << CS12)", map["timer1_clock_select"])
     }
-
 }

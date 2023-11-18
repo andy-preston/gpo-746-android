@@ -1,4 +1,4 @@
-package gpo_746
+package andyp.gpo746
 
 @OptIn(kotlin.ExperimentalUnsignedTypes::class)
 interface UsbSystemInterface {

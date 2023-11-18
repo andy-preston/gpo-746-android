@@ -13,7 +13,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "gpo-746"
+rootProject.name = "andyp.gpo746"
 include(":android")
 include(":shared")
 include(":avr")

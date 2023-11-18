@@ -45,14 +45,14 @@ kotlin {
 }
 
 android {
-    namespace = "andy_preston.gpo_746"
+    namespace = "andy_preston.gpo746"
     compileSdk = 31
     defaultConfig {
         minSdk = 31
     }
 }
 
-val commonDirectory = layout.projectDirectory.dir("src/commonMain/kotlin/gpo_746")
+val commonDirectory = layout.projectDirectory.dir("src/commonMain/kotlin/gpo746")
 tasks.register<Copy>("ch340gConstants") {
     from(commonDirectory)
     into(commonDirectory)

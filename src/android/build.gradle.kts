@@ -4,10 +4,10 @@ plugins {
 }
 
 android {
-    namespace = "gpo_746.android"
+    namespace = "andyp.gpo746.android"
     compileSdk = 31
     defaultConfig {
-        applicationId = "andy_preston.gpo_746"
+        applicationId = "andyp.gpo746"
         minSdk = 31
         targetSdk = 31
         versionCode = 1

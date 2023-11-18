@@ -1,10 +1,12 @@
-package gpo_746
+@file:Suppress("WildcardImport", "NoWildcardImports")
+
+package andyp.gpo746
 
 import kotlinx.cinterop.*
 import libusb.*
 
 @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
-class UsbSystemMock() : UsbSystemInterface {
+class UsbSystemMock : UsbSystemInterface {
     private var libInitialised: Boolean = false
     private var interfaceClaimed: Boolean = false
 
@@ -15,13 +17,7 @@ class UsbSystemMock() : UsbSystemInterface {
     private var packetSize: Int = 0
     private var buffer: UByteArray? = null
 
-    private fun assertTrue(condition: Boolean, operationHint: String) {
-        if (!condition) {
-            throw Exception("**Failed** ${operationHint}")
-        }
-    }
-
-    private fun assertSuccess(
+    private fun checkSuccess(
         statusCode: Int,
         operationHint: String,
         timeoutIsError: Boolean = true
@@ -40,76 +36,67 @@ class UsbSystemMock() : UsbSystemInterface {
             LIBUSB_ERROR_INTERRUPTED to "Interrupted",
             LIBUSB_ERROR_NO_MEM to "No memory",
             LIBUSB_ERROR_NOT_SUPPORTED to "Not supported",
-            LIBUSB_ERROR_OTHER to "Unknown error (${statusCode})",
+            LIBUSB_ERROR_OTHER to "Unknown error ($statusCode)",
         )
+        val knowStatus = statusMessages.keys.contains(statusCode)
         val statusMessage = statusMessages[
-            if (statusMessages.keys.contains(statusCode))
-                statusCode else LIBUSB_ERROR_OTHER
+            if (knowStatus) statusCode else LIBUSB_ERROR_OTHER
         ]
-        assertTrue(
-            statusMessage == "",
-            "${statusMessage} during ${operationHint}"
-        )
+        check(statusMessage == "") { "$statusMessage during $operationHint" }
     }
 
     private fun openDevice(vid: UShort, pid: UShort) {
         handle = libusb_open_device_with_vid_pid(null, vid, pid)
-        assertTrue(handle != null, "libusb_open_device_with_vid_pid")
+        check(handle != null) {  "libusb_open_device_with_vid_pid" }
         device = libusb_get_device(handle)
-        assertTrue(device != null, "libusb_get_device")
+        check(device != null) { "libusb_get_device" }
     }
 
     private fun claimInterface() {
         if (libusb_kernel_driver_active(handle, 0) == 1) {
-            assertSuccess(
+            checkSuccess(
                 libusb_detach_kernel_driver(handle, 0),
                 "libusb_detach_kernel_driver"
             )
         }
-        assertSuccess(
+        checkSuccess(
             libusb_claim_interface(handle, 0),
             "libusb_claim_interface"
         )
         interfaceClaimed = true
     }
 
-    private inline fun isInput(endpoint: libusb_endpoint_descriptor): Boolean {
-        return endpoint.bEndpointAddress.and(
-            LIBUSB_ENDPOINT_DIR_MASK.toUByte()
-        ) == LIBUSB_ENDPOINT_IN.toUByte()
-    }
-
-    private inline fun isBulk(endpoint: libusb_endpoint_descriptor): Boolean {
-        return endpoint.bmAttributes.and(
-            LIBUSB_TRANSFER_TYPE_MASK.toUByte()
-        ) == LIBUSB_TRANSFER_TYPE_BULK.toUByte()
-    }
-
     private inline fun findReadEndpoint(
         endpoints: CPointer<libusb_endpoint_descriptor>,
         numEndpoints: Int
-    ) : UByte {
+    ): UByte {
         for (index in 0..numEndpoints - 1) {
             val endpoint = endpoints[index]
-            if (isInput(endpoint) and isBulk(endpoint)) {
+            val isInput = endpoint.bEndpointAddress.and(
+                LIBUSB_ENDPOINT_DIR_MASK.toUByte()
+            ) == LIBUSB_ENDPOINT_IN.toUByte()
+            val isBulk = endpoint.bmAttributes.and(
+                LIBUSB_TRANSFER_TYPE_MASK.toUByte()
+            ) == LIBUSB_TRANSFER_TYPE_BULK.toUByte()
+            if (isInput and isBulk) {
                 return endpoint.bEndpointAddress
             }
         }
         return 0u
     }
 
-    ////////////////////////////////////////////////////////////////////////////
+    // // // // // // // // // // // // // // // // // // // // // // // // //
 
-    override public fun start(vid: UShort, pid: UShort, timeout: Int) {
+    public override fun start(vid: UShort, pid: UShort, timeout: Int) {
         timeoutMilliseconds = timeout.toUInt()
 
-        assertSuccess(libusb_init(null), "libusb_init")
-        libInitialised =  true
+        checkSuccess(libusb_init(null), "libusb_init")
+        libInitialised = true
         openDevice(vid, pid)
         claimInterface()
         memScoped {
             val config = alloc<CPointerVar<libusb_config_descriptor>>()
-            assertSuccess(
+            checkSuccess(
                 libusb_get_active_config_descriptor(device, config.ptr),
                 "libusb_get_active_config_descriptor"
             )
@@ -119,12 +106,12 @@ class UsbSystemMock() : UsbSystemInterface {
                 iFace.bNumEndpoints.toInt()
             )
         }
-        assertTrue(bulkReadEndpoint.toUInt() != 0u, "Find bulk read endpoint")
+        check(bulkReadEndpoint.toUInt() != 0u) { "Find bulk read endpoint" }
         packetSize = libusb_get_max_packet_size(device, bulkReadEndpoint)
         buffer = UByteArray(maxOf(packetSize + 1, 2))
     }
 
-    override public fun finish() {
+    public override fun finish() {
         if (interfaceClaimed) {
             libusb_release_interface(handle, 0)
             interfaceClaimed = false
@@ -139,7 +126,7 @@ class UsbSystemMock() : UsbSystemInterface {
         }
     }
 
-    override public fun bulkRead(): ByteArray {
+    public override fun bulkRead(): ByteArray {
         var statusCode: Int = 0
         val transferred: Int = memScoped {
             val transferred_c = alloc<IntVar>()
@@ -153,12 +140,12 @@ class UsbSystemMock() : UsbSystemInterface {
             )
             transferred_c.value
         }
-        assertSuccess(statusCode, "Bulk read", false)
+        checkSuccess(statusCode, "Bulk read", false)
         buffer!![transferred] = 0u
         return buffer!!.toByteArray()
     }
 
-    override public fun read(
+    public override fun read(
         requestCode: UByte,
         addressOrPadding: UShort
     ): ByteArray {
@@ -172,14 +159,13 @@ class UsbSystemMock() : UsbSystemInterface {
             packetSize.toUShort(),
             timeoutMilliseconds
         )
-        assertTrue(
-            transferred == 2,
-            "Control transfer read ${transferred} bytes, 2 expected"
-        )
+        check(transferred == 2) {
+            "Control transfer read $transferred bytes, 2 expected"
+        }
         return buffer!!.toByteArray()
     }
 
-    override public fun write(
+    public override fun write(
         requestCode: UByte,
         addressOrValue: UShort,
         valueOrPadding: UShort
@@ -194,6 +180,6 @@ class UsbSystemMock() : UsbSystemInterface {
             0u,
             timeoutMilliseconds
         )
-        assertSuccess(statusCode, "Control transfer write failed ${statusCode}")
+        checkSuccess(statusCode, "Control transfer write failed $statusCode")
     }
 }

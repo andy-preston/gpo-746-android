@@ -1,4 +1,4 @@
-package gpo_746
+package andyp.gpo746
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -17,10 +17,10 @@ class PhoneNumberValidatorTest {
     private fun assertHasLength(number: String, correctLength: Int) {
         var testNumber = number
         while (testNumber.length < testLengthLimit) {
-            when(validator.result(testNumber)) {
-                ValidatorResult.incomplete -> assertTrue(testNumber.length < correctLength)
-                ValidatorResult.invalid -> assertTrue(testNumber.length > correctLength)
-                ValidatorResult.good -> assertTrue(testNumber.length == correctLength)
+            when (validator.result(testNumber)) {
+                ValidatorResult.Incomplete -> assertTrue(testNumber.length < correctLength)
+                ValidatorResult.Invalid -> assertTrue(testNumber.length > correctLength)
+                ValidatorResult.Good -> assertTrue(testNumber.length == correctLength)
             }
             testNumber = "${testNumber}7"
         }
@@ -29,19 +29,19 @@ class PhoneNumberValidatorTest {
     private fun assertAnyLengthInvalid(number: String) {
         var testNumber = number
         while (testNumber.length < testLengthLimit) {
-            assertEquals(ValidatorResult.invalid, validator.result(testNumber))
+            assertEquals(ValidatorResult.Invalid, validator.result(testNumber))
             testNumber = "${testNumber}7"
         }
     }
 
-    ////////////////////////////////////////////////////////////////////////////
+    // // // // // // // // // // // // // // // // // // // // // // // // //
 
     @Test
     fun zero_length_numbers_are_considered_incomplete() {
-        assertEquals(ValidatorResult.incomplete, validator.result(""))
+        assertEquals(ValidatorResult.Incomplete, validator.result(""))
     }
 
-    ////////////////////////////////////////////////////////////////////////////
+    // // // // // // // // // // // // // // // // // // // // // // // // //
 
     @Test
     fun all_numbers_that_do_not_begin_with_0_are_invalid() {
@@ -49,7 +49,7 @@ class PhoneNumberValidatorTest {
          * like 100, 999, etc.
          */
         (1..9).iterator().forEach {
-            assertAnyLengthInvalid("${it}")
+            assertAnyLengthInvalid("$it")
         }
     }
 
@@ -59,7 +59,7 @@ class PhoneNumberValidatorTest {
         assertAnyLengthInvalid("06")
     }
 
-    ////////////////////////////////////////////////////////////////////////////
+    // // // // // // // // // // // // // // // // // // // // // // // // //
 
     @Test
     fun numbers_that_start_with_09_must_have_11_digits() {
@@ -171,7 +171,7 @@ class PhoneNumberValidatorTest {
         assertHasLength("02", 12)
     }
 
-    ////////////////////////////////////////////////////////////////////////////
+    // // // // // // // // // // // // // // // // // // // // // // // // //
 
     @Test
     fun passes_brampton_cumbria_01697_72_numbers_with_10_digits_only() {
@@ -183,7 +183,7 @@ class PhoneNumberValidatorTest {
         assertHasLength("0169773", 10)
     }
 
-    ////////////////////////////////////////////////////////////////////////////
+    // // // // // // // // // // // // // // // // // // // // // // // // //
 
     @Test
     fun passes_brampton_cumbria_01697_2_numbers_with_11_digits_only() {
@@ -280,7 +280,7 @@ class PhoneNumberValidatorTest {
         assertHasLength("01697798", 11)
     }
 
-    ////////////////////////////////////////////////////////////////////////////
+    // // // // // // // // // // // // // // // // // // // // // // // // //
 
     // 01#1 ### ####   11
     // 011# ### ####   11

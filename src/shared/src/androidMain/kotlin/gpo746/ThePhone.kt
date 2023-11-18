@@ -1,8 +1,9 @@
-package gpo_746
+package andyp.gpo746
 
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 
+@Suppress("TooManyFunctions")
 class ThePhone {
     private lateinit var ch340g: Ch340g
     private val tones = Tones()
@@ -32,11 +33,11 @@ class ThePhone {
 
     public fun numberValid(): Boolean {
         val result = validator.result(number)
-        if (result == ValidatorResult.good) {
+        if (result == ValidatorResult.Good) {
             tones.stopPlaying()
             return true
         }
-        if (result == ValidatorResult.invalid) {
+        if (result == ValidatorResult.Invalid) {
             tones.playMisdialTone()
         }
         return false

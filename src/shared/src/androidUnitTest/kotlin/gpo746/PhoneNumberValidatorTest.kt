@@ -4,10 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-// https://www.area-codes.org.uk/formatting.php
 // https://en.wikipedia.org/wiki/Telephone_numbers_in_the_United_Kingdom
-// https://www.fakexy.com/uk-fake-phonenumber-generator-cumbria
-// https://www.randomphonenumbers.com/random_uk_phone_numbers
 
 class PhoneNumberValidatorTest {
 

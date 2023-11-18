@@ -1,12 +1,14 @@
-package gpo_746
+package andyp.gpo746
 
-enum class ValidatorResult(val code: Int) {
-    invalid(-2),
-    incomplete(-1),
-    good(0)
+enum class ValidatorResult {
+    Invalid,
+    Incomplete,
+    Good
 }
 
 class PhoneNumberValidator {
+
+    @Suppress("MagicNumber")
     private val codeLengthMap = mapOf(
         "0800" to 10,
         "07" to 12,
@@ -53,18 +55,19 @@ class PhoneNumberValidator {
         "01697798" to 11
     )
 
+    @Suppress("ReturnCount")
     public fun result(number: String): ValidatorResult {
         if (number.length == 0) {
-            return ValidatorResult.incomplete
+            return ValidatorResult.Incomplete
         }
         if (!number.startsWith("0")) {
-            return ValidatorResult.invalid
+            return ValidatorResult.Invalid
         }
         if (number.startsWith("04")) {
-            return ValidatorResult.invalid
+            return ValidatorResult.Invalid
         }
         if (number.startsWith("06")) {
-            return ValidatorResult.invalid
+            return ValidatorResult.Invalid
         }
         var maximumCodeLength = 0
         codeLengthMap.forEach { (code, digits) ->
@@ -73,17 +76,17 @@ class PhoneNumberValidator {
             }
             if (number.startsWith(code)) {
                 if (number.length > digits) {
-                    return ValidatorResult.invalid
+                    return ValidatorResult.Invalid
                 }
                 if (number.length < digits) {
-                    return ValidatorResult.incomplete
+                    return ValidatorResult.Incomplete
                 }
-                return ValidatorResult.good
+                return ValidatorResult.Good
             }
         }
         if (number.length > maximumCodeLength) {
-            return ValidatorResult.invalid
+            return ValidatorResult.Invalid
         }
-        return ValidatorResult.incomplete
+        return ValidatorResult.Incomplete
     }
 }

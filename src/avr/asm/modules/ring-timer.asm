@@ -5,10 +5,10 @@
 ; but it's setup and operation code isn't here, see `dial-counter.asm`
 
 ; For timer1_clock_select and timer1_20ms_ticks calculations, see:
-;     src/buildSrc/src/main/kotlin/gpo_746/AvrConstants.kt
+;     src/buildSrc/src/main/kotlin/gpo746/AvrConstants.kt
 
 ; For details of @timer1_clock_select@ and @timer1_20ms_ticks@,
-; see `src/buildSrc/src/main/kotlin/gpo_746/AvrConstants.kt`
+; see `src/buildSrc/src/main/kotlin/gpo746/AvrConstants.kt`
 
 .macro setup_20ms_timer
     ; Set the timer in normal mode rather than an of the

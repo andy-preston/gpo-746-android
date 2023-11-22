@@ -1,28 +1,29 @@
 #!/bin/bash
 
 case $1 in
-'black')
-    COMMAND="black *.py"
-    ;;
-'lint')
-    COMMAND="pylint *.py"
-    ;;
-'draw')
-    COMMAND="python draw.py"
+'pylint')
+    docker exec schematic $@
+    exit
     ;;
 'run')
     COMMAND="/usr/local/bin/run"
     ;;
 *)
+    docker build --tag schematic ./docker/schematic
     COMMAND="bash"
     ;;
 esac
 
-docker build --progress plain --tag schematic ./docker/schematic
-docker run --rm --interactive --tty \
-    --workdir /usr/local/src \
-    --user $(id -u):$(id -g) \
-    --volume $(pwd)/schematic:/usr/local/src \
-    --name schematic \
-    schematic \
-    ${COMMAND}
+RUNNING=$(docker ps --quiet --filter "name=schematic")
+if [ -n "${RUNNING}" ]
+then
+    docker exec --interactive --tty schematic ${COMMAND}
+else
+    WORKING_DIR="$(pwd)/schematic"
+    docker run --rm --interactive --tty \
+        --workdir "${WORKING_DIR}" \
+        --user $(id -u):$(id -g) \
+        --volume "${WORKING_DIR}:${WORKING_DIR}" \
+        --name schematic \
+        schematic ${COMMAND}
+fi

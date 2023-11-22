@@ -38,6 +38,7 @@ def style_clean(svg_xml: str) -> str:
     return nicer_xml
 
 
+print("\n\nRedrawing the drawing!\n========= === ========\n")
 with Drawing() as drawing:
     schematic(drawing)
     drawing_xml: str = drawing.get_imagedata().decode("UTF-8")

@@ -67,5 +67,8 @@
         "workdir",
         "xmlformatter",
         "XTAL"
+    ],
+    "pylint.path": [
+        "./bin/schematic", "pylint"
     ]
 }

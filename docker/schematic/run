@@ -1,6 +1,10 @@
 #!/bin/bash
 
+echo Black!
 black *.py
+echo PYLint
 pylint *.py
+echo MyPy
 mypy --cache-dir /var/tmp/mypy *.py
+echo Drawing...
 python draw.py

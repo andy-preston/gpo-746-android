@@ -4,43 +4,51 @@ from re import sub
 from subprocess import Popen, PIPE
 from io import TextIOWrapper
 from schemdraw import Drawing
-from schematic import schematic
+from schemdraw.util import Point
+import schemdraw.elements as elm
+from analog import AnalogPart
+from digital import digital
 
 
 def style_clean(svg_xml: str) -> str:
-    """strip out the inline styles that Schemdraw uses and replace them with CSS classes"""
-    nicer_xml = (
+    """Clean up Schemdraw's default formatting markup"""
+    inline_svg = (
         sub(r' font-size="\d+"', "", svg_xml)
         .replace(' font-family="sans"', "")
         .replace(' fill="black"', "")
+        .replace(' xmlns="http://www.w3.org/2000/svg" xml:lang="en"', "")
     )
     classes = {
-        "black_white": "stroke:black;fill:white;stroke-width:2.0;",
-        "just_black": "stroke:black;fill:none;stroke-width:2.0;",
+        "hollow": "stroke:black;fill:white;stroke-width:2.0;",
+        "lines": "stroke:black;fill:none;stroke-width:2.0;",
         "dashed": "stroke-dasharray:2,3.3;",
         "rounded": "stroke-linecap:round;stroke-linejoin:round;",
         "arrow": "stroke:black;fill:black;stroke-linecap:butt;stroke-linejoin:miter;",
     }
     combinations = [
-        ["black_white"],
-        ["just_black"],
-        ["just_black", "rounded"],
-        ["just_black", "dashed", "rounded"],
+        ["hollow"],
+        ["lines"],
+        ["lines", "rounded"],
+        ["lines", "dashed", "rounded"],
         ["arrow"],
     ]
     for combination in combinations:
-        nicer_xml = nicer_xml.replace(
+        inline_svg = inline_svg.replace(
             'style="'
             + "".join(map(lambda css_class: classes[css_class], combination))
             + '"',
             'class="' + " ".join(combination) + '"',
         )
-    return nicer_xml
+    return inline_svg
 
 
 print("\n\nRedrawing the drawing!\n========= === ========\n")
 with Drawing() as drawing:
-    schematic(drawing)
+    drawing.config(fontsize=12)
+    elm.style(elm.STYLE_IEC)
+    anchor_point: Point = AnalogPart(drawing).draw()
+    drawing.move_from(anchor_point, 4.8, -22)
+    digital(drawing)
     drawing_xml: str = drawing.get_imagedata().decode("UTF-8")
 
 with open("schematic.html", "r", encoding="UTF-8") as file:

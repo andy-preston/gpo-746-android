@@ -18,7 +18,6 @@ class ThePhone {
 
     public fun start() {
         ch340g.start()
-        tones.start()
     }
 
     public fun finish() {
@@ -34,7 +33,7 @@ class ThePhone {
     public fun numberValid(): Boolean {
         val result = validator.result(number)
         if (result == ValidatorResult.Good) {
-            tones.stopPlaying()
+            tones.stop()
             return true
         }
         if (result == ValidatorResult.Invalid) {
@@ -49,7 +48,7 @@ class ThePhone {
             tones.playDialTone()
         } else {
             number = ""
-            tones.stopPlaying()
+            tones.stop()
         }
         return hookIsUp
     }
@@ -68,10 +67,18 @@ class ThePhone {
     }
 
     public fun testDialTone() {
-        tones.testDialTone()
+        if (tones.playing()) {
+            tones.stop()
+        } else {
+            tones.playDialTone()
+        }
     }
 
     public fun testMisdialTone() {
-        tones.testMisdialTone()
+        if (tones.playing()) {
+            tones.stop()
+        } else {
+            tones.playMisdialTone()
+        }
     }
 }

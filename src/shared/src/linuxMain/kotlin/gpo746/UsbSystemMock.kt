@@ -47,7 +47,7 @@ class UsbSystemMock : UsbSystemInterface {
 
     private fun openDevice(vid: UShort, pid: UShort) {
         handle = libusb_open_device_with_vid_pid(null, vid, pid)
-        check(handle != null) {  "libusb_open_device_with_vid_pid" }
+        check(handle != null) { "libusb_open_device_with_vid_pid" }
         device = libusb_get_device(handle)
         check(device != null) { "libusb_get_device" }
     }

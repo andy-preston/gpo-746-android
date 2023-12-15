@@ -33,7 +33,7 @@ class AnalogPart:
             ElectrolyticCapacitor()
             .at(_7805.input)
             .toy(self._0v.y)
-            .label("0μ47", loc="bottom")
+            .label("47μ", loc="bottom")
         )
         self.dwg.push()
         self.dwg += elm.Line().left()

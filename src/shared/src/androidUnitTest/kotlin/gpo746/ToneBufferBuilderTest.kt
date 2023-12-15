@@ -10,13 +10,13 @@ class ToneBufferBuilderTest : ToneBufferBuilder() {
 
     @Test
     public fun buffer_will_exceed_minimum_requirement() {
-        assertTrue(setupSamples(waveform, 128).size >= 128)
+        assertTrue(setupSamples(128, waveform).size >= 128)
     }
 
     @Test
     public fun buffer_contains_repeated_input_data() {
         var pos = 0
-        setupSamples(waveform, 64).forEach {
+        setupSamples(64, waveform).forEach {
             assertSame(waveform[pos], it)
             pos = if (pos < waveform.size - 1) pos + 1 else 0
         }

@@ -130,13 +130,9 @@ final class Tones : ToneBufferBuilder() {
         }).start()
     }
 
-    public fun playing(): Boolean = !stopped && playing
+    public fun playing(): Boolean = playing || !stopped
 
-    public fun playDialTone() {
-        play(dialTrack, dialSamples)
-    }
+    public fun playDialTone() = play(dialTrack, dialSamples)
 
-    public fun playMisdialTone() {
-        play(misdialTrack, misdialSamples)
-    }
+    public fun playMisdialTone() = play(misdialTrack, misdialSamples)
 }

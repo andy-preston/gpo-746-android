@@ -13,25 +13,23 @@ fun main(args: Array<String>) {
     val requiredTest: String = if (args.size > 0) args[0] else ""
     val repeats: Int = if (args.size > 1) args[1].toInt() else DEFAULT_COUNT
     val pause: UInt = if (args.size > 2) args[2].toUInt() else DEFAULT_PAUSE
-
-    testMap.forEach { (testName, testMethod) ->
-        if (requiredTest == testName) {
-            ch340g.start()
-            for (repeat in 1..repeats) {
-                if (repeat > 1) {
-                    sleep(pause)
-                }
-                testMethod()
+    if (testMap.contains(requiredTest)) {
+        ch340g.start()
+        val testMethod = testMap[requiredTest]
+        for (repeat in 1..repeats) {
+            if (repeat > 1) {
+                sleep(pause)
             }
-            ch340g.finish()
-            return
+            testMethod!!.invoke()
         }
+        ch340g.finish()
+    } else {
+        println("./bin/usb-test test-case [number to repeat] [pause between tests]")
+        println("Available test cases:")
+        testMap.keys.forEach { testName ->
+            println(testName)
+        }
+        println("default number of repeats is 1")
+        println("default pause is 10")
     }
-    println("./bin/usb-test test-case [number of repeats] [pause between tests]")
-    println("Available test cases:")
-    testMap.keys.forEach { testName ->
-        println(testName)
-    }
-    println("default number of repeats is 1")
-    println("default pause is 10")
 }

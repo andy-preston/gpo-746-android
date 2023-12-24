@@ -2,6 +2,7 @@ package andyp.gpo746
 
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
+import android.net.Uri
 
 @Suppress("TooManyFunctions")
 class ThePhone {
@@ -28,6 +29,10 @@ class ThePhone {
     public fun dialledNumber(): String {
         number = number + ch340g.readSerial()
         return number
+    }
+
+    public fun uri(): Uri {
+        return Uri.parse("tel:$number")
     }
 
     public fun numberValid(): Boolean {

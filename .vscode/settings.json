@@ -66,6 +66,7 @@
         "UCSZ2",
         "UDRE",
         "UMSEL",
+        "Unhold",
         "workdir",
         "xmlformatter",
         "XTAL"

@@ -30,31 +30,19 @@ class MainActivity : Activity() {
     private lateinit var numberDisplay: TextView
     private lateinit var statusDisplay: TextView
 
-    private var noErrors: Boolean = true
+    private var somethingWrong: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         layoutElements()
-        val device = getIntent().getParcelableExtra<UsbDevice>(
-            UsbManager.EXTRA_DEVICE
-        )
-        if (device == null) {
-            reportError("Failed to get device from intent")
-        } else {
-            thePhone.setupUsb(device, getSystemService(UsbManager::class.java))
-        }
-        registerReceiver(
-            detachReceiver,
-            IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED)
-        )
+        setupUsb()
         try {
-            if (noErrors) {
-                thePhone.start()
-            }
+            if (!somethingWrong) thePhone.start()
         } catch (e: Exception) {
             reportException(e)
         }
-        startWorking()
+        listenToUI()
+        pollHandset()
     }
 
     override fun onDestroy() {
@@ -83,13 +71,26 @@ class MainActivity : Activity() {
         statusDisplay = findViewById<TextView>(R.id.statusDisplay)
     }
 
-    private fun startWorking() {
+    private fun setupUsb() {
+        val device = getIntent().getParcelableExtra<UsbDevice>(
+            UsbManager.EXTRA_DEVICE
+        )
+        if (device == null) {
+            reportError("Failed to get device from intent")
+        } else {
+            thePhone.setupUsb(device, getSystemService(UsbManager::class.java))
+        }
+        registerReceiver(
+            detachReceiver,
+            IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED)
+        )
+    }
+
+    private fun listenToUI() {
         ringButton.setOnClickListener {
-            if (noErrors) {
+            if (!somethingWrong) {
                 thePhone.testRinger()
-                statusDisplay.apply {
-                    text = if (thePhone.isRinging()) "RINGING" else "WAITING"
-                }
+                displayStatus(if (thePhone.isRinging()) "RINGING" else "WAITING")
             }
         }
         toneDialButton.setOnClickListener {
@@ -98,28 +99,53 @@ class MainActivity : Activity() {
         toneMisdialButton.setOnClickListener {
             thePhone.testMisdialTone()
         }
-        pollHandset()
     }
 
     private fun pollHandset() {
+        if (somethingWrong) {
+            return
+        }
         Handler(Looper.getMainLooper()).postDelayed({
             try {
-                if (noErrors) {
-                    hookIndicator.setChecked(thePhone.hookStatus())
-                    numberDisplay.apply { text = thePhone.dialledNumber() }
-                    validIndicator.setChecked(thePhone.numberValid())
-                    pollHandset()
+                if (thePhone.hookStatus()) {
+                    hookIndicator.setChecked(true)
+                } else {
+                    hookIndicator.setChecked(false)
+                    displayNumber("")
                 }
+                if (thePhone.numberValid()) {
+                    validIndicator.setChecked(true)
+                    val intent = Intent(Intent.ACTION_CALL)
+                    intent.data = thePhone.uri()
+                    startActivity(intent)
+                } else {
+                    validIndicator.setChecked(false)
+                    displayNumber(thePhone.dialledNumber())
+                }
+                pollHandset()
             } catch (e: Exception) {
                 reportException(e)
             }
         }, DELAY_MILLISECONDS)
     }
 
+    private fun displayNumber(number: String) {
+        numberDisplay.apply { text = number }
+    }
+
+    public fun displayStatus(message: String) {
+        statusDisplay.apply { text = message }
+    }
+
+    public fun logStatus(message: String) {
+        Log.i("gpo746", message)
+        displayStatus(message)
+    }
+
     private fun reportError(message: String) {
         Log.e("gpo746", message)
-        statusDisplay.apply { text = message }
-        noErrors = false
+        displayStatus(message)
+        somethingWrong = true
     }
 
     private fun reportException(exception: Exception) {

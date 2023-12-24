@@ -4,6 +4,12 @@ import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import android.net.Uri
 
+/**
+ * Façade for all the functions relating to the actual, physical GPO 746.
+ *
+ * A façade over the validator, USB system and tone player.
+ * Allows the UI elements to just treat the whole caboodle as "the phone".
+ */
 @Suppress("TooManyFunctions")
 class ThePhone {
     private lateinit var ch340g: Ch340g

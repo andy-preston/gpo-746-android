@@ -10,6 +10,7 @@ import android.hardware.usb.UsbManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.telephony.TelephonyManager
 import android.util.Log
 import android.widget.Button
 import android.widget.CheckBox
@@ -21,6 +22,7 @@ private const val DELAY_MILLISECONDS: Long = 1000
 class MainActivity : Activity() {
 
     private val thePhone = ThePhone()
+    private var somethingWrong: Boolean = false
 
     private lateinit var hookIndicator: CheckBox
     private lateinit var validIndicator: CheckBox
@@ -29,8 +31,6 @@ class MainActivity : Activity() {
     private lateinit var toneMisdialButton: Button
     private lateinit var numberDisplay: TextView
     private lateinit var statusDisplay: TextView
-
-    private var somethingWrong: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,23 +41,9 @@ class MainActivity : Activity() {
         } catch (e: Exception) {
             reportException(e)
         }
+		setupReceivers()
         listenToUI()
         pollHandset()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(detachReceiver)
-        thePhone.finish()
-    }
-
-    private val detachReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            if (UsbManager.ACTION_USB_DEVICE_DETACHED == intent.action) {
-                reportError("detachReceiver - should finish now.")
-                finish()
-            }
-        }
     }
 
     private fun layoutElements() {
@@ -69,21 +55,6 @@ class MainActivity : Activity() {
         toneMisdialButton = findViewById<Button>(R.id.toneMisdialButton)
         numberDisplay = findViewById<TextView>(R.id.numberDisplay)
         statusDisplay = findViewById<TextView>(R.id.statusDisplay)
-    }
-
-    private fun setupUsb() {
-        val device = getIntent().getParcelableExtra<UsbDevice>(
-            UsbManager.EXTRA_DEVICE
-        )
-        if (device == null) {
-            reportError("Failed to get device from intent")
-        } else {
-            thePhone.setupUsb(device, getSystemService(UsbManager::class.java))
-        }
-        registerReceiver(
-            detachReceiver,
-            IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED)
-        )
     }
 
     private fun listenToUI() {
@@ -98,6 +69,55 @@ class MainActivity : Activity() {
         }
         toneMisdialButton.setOnClickListener {
             thePhone.testMisdialTone()
+        }
+    }
+
+	private fun setupReceivers() {
+		registerReceiver(
+			incomingReceiver,
+			IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
+		)
+		registerReceiver(
+			detachReceiver,
+			IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED)
+		)
+	}
+
+    private val incomingReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+			val state: String? = intent.getStringExtra(TelephonyManager.EXTRA_STATE)
+			if (state == null) {
+				return
+			}
+			if (state == TelephonyManager.EXTRA_STATE_RINGING) {
+				// start ringing
+				// sound off
+			}
+			if (state == TelephonyManager.EXTRA_STATE_OFFHOOK) {
+				// stop ringing
+				// sound on
+			}
+			if (state == TelephonyManager.EXTRA_STATE_IDLE) {
+				// stop ringing
+				// sound off
+			}
+        }
+    }
+
+    private val detachReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            finish()
+        }
+    }
+
+    private fun setupUsb() {
+        val device = getIntent().getParcelableExtra<UsbDevice>(
+            UsbManager.EXTRA_DEVICE
+        )
+        if (device == null) {
+            reportError("Failed to get device from intent")
+        } else {
+            thePhone.setupUsb(device, getSystemService(UsbManager::class.java))
         }
     }
 
@@ -127,6 +147,13 @@ class MainActivity : Activity() {
                 reportException(e)
             }
         }, DELAY_MILLISECONDS)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(detachReceiver)
+		unregisterReceiver(incomingReceiver)
+        thePhone.finish()
     }
 
     private fun displayNumber(number: String) {

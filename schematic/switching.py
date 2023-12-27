@@ -1,59 +1,32 @@
-""""Only named 'analog' to draw an arbitrary distinction between the two halves"""
+""""The switching components and the 5V power supply"""
 
+from typing import Optional
 from schemdraw import Drawing
 from schemdraw.util import Point
 import schemdraw.elements as elm
-from custom_elements import OldSchoolNC, ElectrolyticCapacitor
+from custom_elements import OldSchoolNC
+from regulator import RegulatorCircuit
 
 
-class AnalogPart:
-    """The so-called 'analog' part of the drawing"""
+class SwitchingBoard:
+    """The switching components and the 5V power supply"""
 
     def __init__(self, dwg: Drawing):
         self.dwg = dwg
-        self._0v = Point([0, 0])
-        self._5v = Point([0, 0])
+        self.vss_0v = Optional[Point]
+        self.vdd_5v = Optional[Point]
         self._20v = Point([0, 0])
-        self.hook_pin = Point([0, 0])
+        self.hook_pin = Optional[Point]
 
     def psu(self):
         """The 5V power supply"""
+        regulator_circuit = RegulatorCircuit(self.dwg, "7805", self.vdd_5v, self.vss_0v)
+        regulator_circuit.draw("8V", "1K8", "1K2", "5V")
+        self.dwg += elm.Line().right(5.5)
+        self._20v = regulator_circuit.input_20v
 
-        _7805 = elm.Ic(
-            pins=[
-                elm.IcPin(side="left", pin="1", anchorname="input"),
-                elm.IcPin(side="bottom", pin="2", anchorname="ground"),
-                elm.IcPin(side="right", pin="3", anchorname="output"),
-            ],
-            leadlen=1,
-            label="7805",
-        )
-        self.dwg += _7805.right()
-        self.dwg += (
-            ElectrolyticCapacitor()
-            .at(_7805.input)
-            .toy(self._0v.y)
-            .label("47μ", loc="bottom")
-        )
-        self.dwg.push()
-        self.dwg += elm.Line().left()
-        self.dwg += elm.Vss().label("0V")
-        self.dwg += elm.Resistor().up(3.5).label("1K2 1W", loc="bottom")
-        self.dwg += elm.Line().right().label("8v").hold()
-        self.dwg += elm.Resistor().toy(self._5v.y).label("1K8 1W", loc="bottom")
-        self.dwg += elm.Vdd().label("(Supply)\n20V")
-        self._20v = Point(self.dwg.here)
-        self.dwg.pop()
-        self.dwg += elm.Wire("-|").to(_7805.ground)
-        self.dwg += elm.Capacitor().at(_7805.output).toy(self._0v.y).label("100n")
-        self.dwg += elm.Line().to(self._0v).hold()
-        self.dwg += elm.Line().left()
-        self.dwg += elm.Line().at(_7805.output).toy(self._5v.y)
-        self.dwg += elm.Vdd().label("5V")
-        self.dwg += elm.Line().to(self._5v)
-
-    def solenoid_transistor(self, pin: str):
-        """Transistor circuit for bell solenoid"""
+    def solenoid_transistor(self, pin: str) -> float:
+        """Transistor circuit for bell solenoid - return x position of header"""
 
         header = elm.Header(rows=1, pinsleft=[pin], pinalignleft="center")
         solenoid = elm.Transformer(t1=7, t2=0).right()
@@ -63,12 +36,18 @@ class AnalogPart:
         diode = elm.Diode().label("1N4001").toy(self._20v)
         self.dwg += header
         self.dwg.move_from(header.pin1, 3, 0)
+        left_edge = Point(self.dwg.here).x
         self.dwg += transistor
-        self.dwg += elm.Resistor().at(transistor.base).to(header.pin1).label("4K7")
+        self.dwg += (
+            elm.Resistor()
+            .at(transistor.base)
+            .to(header.pin1)
+            .label("4K7", ofst=(0, 0.4))
+        )
         if pin == "B1":
             self.dwg += elm.Vss().label("0V").at(transistor.emitter)
         else:
-            self.dwg += elm.Wire("|-").at(transistor.emitter).to(self._0v)
+            self.dwg += elm.Wire("|-").at(transistor.emitter).to(self.vss_0v)
         self.dwg += elm.Line().right(2).at(transistor.collector)
         if pin == "B1":
             self.dwg += diode.down()
@@ -82,6 +61,7 @@ class AnalogPart:
         self.dwg += elm.Line().at(self._20v).tox(solenoid.p2)
         self.dwg += elm.Line().left(1).hold()
         self.dwg += elm.Line().to(solenoid.p2)
+        return left_edge
 
     def debounce(
         self,
@@ -97,14 +77,14 @@ class AnalogPart:
         if location == "top":
             self.dwg += elm.Line().up(1.5)
             self.dwg += elm.Capacitor().up(1.5).label("100n")
-            self._5v = Point(self.dwg.here)
+            self.vdd_5v = Point(self.dwg.here)
         else:
             self.dwg += elm.Line().down(1.5)
             self.dwg += elm.Capacitor().down(1.5).label("100n")
-            self._0v = Point(self.dwg.here)
+            self.vss_0v = Point(self.dwg.here)
         self.dwg += elm.Wire("-|").to(base_pin)
         self.dwg.pop()
-        self.dwg += elm.Resistor().right().label("18K", loc=location)
+        self.dwg += elm.Resistor().right().label("18K", ofst=(0, -0.4))
         self.dwg.push()
         if location == "top":
             self.dwg += elm.Line().up(1.2)
@@ -128,9 +108,9 @@ class AnalogPart:
         """The whole dial debounce circuit"""
         io_header = elm.Header(
             rows=3,
-            pinsleft=["", "D4", "D5"],
+            pinsleft=["", "D3", "D4"],
             pinalignleft="center",
-            pinsright=["D3", "", ""],
+            pinsright=["D2", "", ""],
             pinalignright="center",
         )
         self.dwg += io_header
@@ -181,21 +161,27 @@ class AnalogPart:
     def hook(self):
         """connections to the cradle/hook switch"""
         self.dwg += elm.Line().at(self.hook_pin).left(2)
-        self.dwg += elm.Resistor().toy(self._5v).label("10K").hold()
+        self.dwg += elm.Resistor().toy(self.vdd_5v).label("10K").hold()
         self.dwg += elm.Line().down(1)
-        self.dwg += elm.Switch().toy(self._0v).label("Telephone\nHook", loc="bottom")
+        self.dwg += elm.Switch().toy(self.vss_0v).label("Telephone\nHook", loc="bottom")
 
-    def draw(self) -> Point:
-        """Draw the 'Analog' part - return anchor for positioning digital"""
+    def draw(self):
+        """
+        Draw switching board
+
+        All These relative moves are a bit horrible and make trying to modify
+                the circuit kinda hard.
+        It would be better if the various parts were properly arranged
+        in relation to each other.
+        """
         self.dial()
         self.dwg.move(-14, -0.5)
         self.dial_circuit()
         self.hook()
         self.dwg.move(-5, 2.5)
         self.psu()
-        self.dwg.move(-22, 2)
+        self.dwg.move_from(self._20v, -9, 2)
         self.solenoid_transistor("B1")
         self.dwg.move(-7.05, -4.3)
-        end_position = Point(self.dwg.here)
-        self.solenoid_transistor("B2")
-        return end_position
+        left_edge = self.solenoid_transistor("B2")
+        self.dwg.move_from(Point([left_edge, Point(self.vss_0v).y]), 0, 0)

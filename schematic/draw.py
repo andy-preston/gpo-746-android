@@ -4,10 +4,10 @@ from re import sub
 from subprocess import Popen, PIPE
 from io import TextIOWrapper
 from schemdraw import Drawing
-from schemdraw.util import Point
 import schemdraw.elements as elm
-from analog import AnalogPart
-from digital import digital
+from amplifier import AmplifierBoard
+from controller import MicrocontrollerBoard
+from switching import SwitchingBoard
 
 
 def style_clean(svg_xml: str) -> str:
@@ -46,9 +46,9 @@ print("\n\nRedrawing the drawing!\n========= === ========\n")
 with Drawing() as drawing:
     drawing.config(fontsize=12)
     elm.style(elm.STYLE_IEC)
-    anchor_point: Point = AnalogPart(drawing).draw()
-    drawing.move_from(anchor_point, 4.8, -22)
-    digital(drawing)
+    SwitchingBoard(drawing).draw()
+    AmplifierBoard(drawing).draw()
+    MicrocontrollerBoard(drawing).draw()
     drawing_xml: str = drawing.get_imagedata().decode("UTF-8")
 
 with open("schematic.html", "r", encoding="UTF-8") as file:

@@ -5,8 +5,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
+import android.Manifest
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -15,9 +17,12 @@ import android.util.Log
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import andyp.gpo746.ThePhone
 
 private const val DELAY_MILLISECONDS: Long = 1000
+private const val ARBITRARY_REQUEST_CODE_READ_PHONE_STATE = 100
 
 class MainActivity : Activity() {
 
@@ -34,20 +39,48 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
         layoutElements()
+        getPermissions()
         setupUsb()
         try {
             if (!somethingWrong) thePhone.start()
         } catch (e: Exception) {
             reportException(e)
         }
-        setupReceivers()
         listenToUI()
         pollHandset()
     }
 
+    private fun getPermissions() {
+        val activity = this@MainActivity
+        val permission = Manifest.permission.READ_PHONE_STATE
+        val grantState = ContextCompat.checkSelfPermission(activity, permission)
+        if (grantState != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                activity,
+                arrayOf(permission),
+                ARBITRARY_REQUEST_CODE_READ_PHONE_STATE
+            )
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == ARBITRARY_REQUEST_CODE_READ_PHONE_STATE) {
+            val granted = grantResults.isNotEmpty() &&
+                grantResults[0] == PackageManager.PERMISSION_GRANTED
+            if (!granted) {
+                reportError("No permissions")
+            }
+        }
+    }
+
     private fun layoutElements() {
-        setContentView(R.layout.activity_main)
         hookIndicator = findViewById<CheckBox>(R.id.hookIndicator)
         validIndicator = findViewById<CheckBox>(R.id.validIndicator)
         ringButton = findViewById<Button>(R.id.ringButton)
@@ -69,34 +102,6 @@ class MainActivity : Activity() {
         }
         toneMisdialButton.setOnClickListener {
             thePhone.testMisdialTone()
-        }
-    }
-
-    private fun setupReceivers() {
-        registerReceiver(
-            incomingReceiver,
-            IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
-        )
-    }
-
-    private val incomingReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val state: String? = intent.getStringExtra(TelephonyManager.EXTRA_STATE)
-            if (state == null) {
-                return
-            }
-            if (state == TelephonyManager.EXTRA_STATE_RINGING) {
-                // start ringing
-                // sound off
-            }
-            if (state == TelephonyManager.EXTRA_STATE_OFFHOOK) {
-                // stop ringing
-                // sound on
-            }
-            if (state == TelephonyManager.EXTRA_STATE_IDLE) {
-                // stop ringing
-                // sound off
-            }
         }
     }
 
@@ -141,7 +146,6 @@ class MainActivity : Activity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(incomingReceiver)
         thePhone.finish()
     }
 

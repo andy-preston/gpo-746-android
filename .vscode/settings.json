@@ -3,6 +3,7 @@
         "*.kt_template": "kotlin"
     },
     "cSpell.words": [
+        "ActivityCompat",
         "anchorname",
         "androidx",
         "andyp",
@@ -13,6 +14,7 @@
         "brne",
         "cflags",
         "cinterop",
+        "ContextCompat",
         "DDRB",
         "DDRD",
         "Dialing",

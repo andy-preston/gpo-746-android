@@ -77,10 +77,6 @@ class MainActivity : Activity() {
             incomingReceiver,
             IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
         )
-        registerReceiver(
-            detachReceiver,
-            IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED)
-        )
     }
 
     private val incomingReceiver = object : BroadcastReceiver() {
@@ -101,12 +97,6 @@ class MainActivity : Activity() {
                 // stop ringing
                 // sound off
             }
-        }
-    }
-
-    private val detachReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            finish()
         }
     }
 
@@ -151,7 +141,6 @@ class MainActivity : Activity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(detachReceiver)
         unregisterReceiver(incomingReceiver)
         thePhone.finish()
     }

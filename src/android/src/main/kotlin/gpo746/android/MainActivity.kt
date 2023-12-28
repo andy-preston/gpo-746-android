@@ -41,7 +41,7 @@ class MainActivity : Activity() {
         } catch (e: Exception) {
             reportException(e)
         }
-		setupReceivers()
+        setupReceivers()
         listenToUI()
         pollHandset()
     }
@@ -72,35 +72,35 @@ class MainActivity : Activity() {
         }
     }
 
-	private fun setupReceivers() {
-		registerReceiver(
-			incomingReceiver,
-			IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
-		)
-		registerReceiver(
-			detachReceiver,
-			IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED)
-		)
-	}
+    private fun setupReceivers() {
+        registerReceiver(
+            incomingReceiver,
+            IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
+        )
+        registerReceiver(
+            detachReceiver,
+            IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED)
+        )
+    }
 
     private val incomingReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-			val state: String? = intent.getStringExtra(TelephonyManager.EXTRA_STATE)
-			if (state == null) {
-				return
-			}
-			if (state == TelephonyManager.EXTRA_STATE_RINGING) {
-				// start ringing
-				// sound off
-			}
-			if (state == TelephonyManager.EXTRA_STATE_OFFHOOK) {
-				// stop ringing
-				// sound on
-			}
-			if (state == TelephonyManager.EXTRA_STATE_IDLE) {
-				// stop ringing
-				// sound off
-			}
+            val state: String? = intent.getStringExtra(TelephonyManager.EXTRA_STATE)
+            if (state == null) {
+                return
+            }
+            if (state == TelephonyManager.EXTRA_STATE_RINGING) {
+                // start ringing
+                // sound off
+            }
+            if (state == TelephonyManager.EXTRA_STATE_OFFHOOK) {
+                // stop ringing
+                // sound on
+            }
+            if (state == TelephonyManager.EXTRA_STATE_IDLE) {
+                // stop ringing
+                // sound off
+            }
         }
     }
 
@@ -152,7 +152,7 @@ class MainActivity : Activity() {
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(detachReceiver)
-		unregisterReceiver(incomingReceiver)
+        unregisterReceiver(incomingReceiver)
         thePhone.finish()
     }
 
@@ -160,11 +160,11 @@ class MainActivity : Activity() {
         numberDisplay.apply { text = number }
     }
 
-    public fun displayStatus(message: String) {
+    private fun displayStatus(message: String) {
         statusDisplay.apply { text = message }
     }
 
-    public fun logStatus(message: String) {
+    private fun logStatus(message: String) {
         Log.i("gpo746", message)
         displayStatus(message)
     }

@@ -6,8 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.ServiceConnection
-import android.hardware.usb.UsbDevice
-import android.hardware.usb.UsbManager
 import android.Manifest
 import android.net.Uri
 import android.os.Bundle
@@ -18,14 +16,15 @@ import android.widget.CheckBox
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import andyp.gpo746.ThePhone
+import andyp.gpo746.Tones
 
 private const val ARBITRARY_REQUEST_CODE_READ_PHONE_STATE = 100
 
 class MainActivity : Activity() {
 
-    private val thePhone = ThePhone()
     private var somethingWrong: Boolean = false
+
+    private val tones = Tones()
 
     private lateinit var hookIndicator: CheckBox
     private lateinit var toneDialButton: Button
@@ -102,9 +101,18 @@ class MainActivity : Activity() {
         }
     }
 
-    public fun callback(hookIsUp: Boolean, number: String, uri: Uri?) {
+    public fun callback(hookIsUp: Boolean, badNumber: Boolean, number: String, uri: Uri?) {
         hookIndicator.setChecked(hookIsUp)
         numberDisplay.apply { text = number }
+        if (hookIsUp) {
+            if (badNumber) {
+                tones.playMisdialTone()
+            } else {
+                tones.playDialTone()
+            }
+        } else if (tones.playing()) {
+            tones.stop()
+        }
         if (uri != null) {
             val intent = Intent(Intent.ACTION_CALL)
             intent.data = uri
@@ -115,7 +123,7 @@ class MainActivity : Activity() {
     override fun onDestroy() {
         super.onDestroy()
         unbindService(connection)
-        thePhone.finish()
+        tones.finish()
     }
 
     private fun displayStatus(message: String) {

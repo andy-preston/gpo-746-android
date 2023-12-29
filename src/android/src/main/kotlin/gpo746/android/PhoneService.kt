@@ -24,7 +24,7 @@ class PhoneService : Service() {
     private var number: String = ""
 
     private lateinit var ch340g: Ch340g
-    private lateinit var callbackFun: ((Boolean, String, Uri?)->Unit)
+    private lateinit var callbackFun: ((Boolean, Boolean, String, Uri?)->Unit)
 
     inner class PhoneBinder : Binder() {
         fun getService(): PhoneService = this@PhoneService
@@ -60,7 +60,7 @@ class PhoneService : Service() {
         ch340g.finish()
     }
 
-    public fun callback(callback: ((Boolean, String, Uri?)->Unit)) {
+    public fun callback(callback: ((Boolean, Boolean, String, Uri?)->Unit)) {
         callbackFun = callback
     }
 
@@ -72,7 +72,12 @@ class PhoneService : Service() {
         val uri: Uri? = if (validity == ValidatorResult.Good) Uri.parse("tel:$number") else null
         if (uri != null) number = ""
         Handler(Looper.getMainLooper()).postDelayed({
-            callbackFun.invoke(hookIsUp, if (uri == null) number else "", uri)
+            callbackFun.invoke(
+                hookIsUp,
+                validity == ValidatorResult.Invalid,
+                if (uri == null) number else "",
+                uri
+            )
             poll()
         }, DELAY_MILLISECONDS)
     }

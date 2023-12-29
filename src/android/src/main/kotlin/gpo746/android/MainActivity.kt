@@ -21,14 +21,9 @@ import andyp.gpo746.Tones
 private const val ARBITRARY_REQUEST_CODE_READ_PHONE_STATE = 100
 
 class MainActivity : Activity() {
-
-    private var somethingWrong: Boolean = false
-
     private val tones = Tones()
 
     private lateinit var hookIndicator: CheckBox
-    private lateinit var toneDialButton: Button
-    private lateinit var toneMisdialButton: Button
     private lateinit var numberDisplay: TextView
     private lateinit var statusDisplay: TextView
 
@@ -134,7 +129,6 @@ class MainActivity : Activity() {
     private fun reportError(message: String) {
         Log.e("gpo746", message)
         displayStatus(message)
-        somethingWrong = true
     }
 
     private fun reportException(exception: Exception) {

@@ -9,8 +9,8 @@ import android.hardware.usb.UsbManager
 import android.telephony.TelephonyManager
 import android.util.Log
 
-class IncomingCall: BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
+class IncomingCall : BroadcastReceiver() {
+    public override fun onReceive(context: Context, intent: Intent) {
         val state: String? = intent.getStringExtra(TelephonyManager.EXTRA_STATE)
         state?.let {
             if (state == TelephonyManager.EXTRA_STATE_RINGING) {

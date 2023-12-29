@@ -148,7 +148,7 @@ class UsbSystemMock : UsbSystemInterface {
     public override fun read(
         requestCode: UByte,
         addressOrPadding: UShort
-    ): ByteArray {
+    ): ByteArray? {
         val transferred: Int = libusb_control_transfer(
             handle,
             (LIBUSB_REQUEST_TYPE_VENDOR or LIBUSB_ENDPOINT_IN).toUByte(),

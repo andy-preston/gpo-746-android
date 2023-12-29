@@ -24,7 +24,7 @@ abstract class ToneBufferBuilder {
 const val SAMPLE_RATE = 8000 // Hz
 
 final class Tones : ToneBufferBuilder() {
-    private var playing: Boolean = false
+    private var playing: AudioTrack? = null
     private var stopped: Boolean = true
     private val dialSamples: ByteArray
     private val misdialSamples: ByteArray
@@ -62,24 +62,29 @@ final class Tones : ToneBufferBuilder() {
         AudioManager.AUDIO_SESSION_ID_GENERATE
     )
 
-    public fun stop() {
-        while (!stopped) { playing = false }
-    }
-
     public fun finish() {
         stop()
         misdialTrack.release()
         dialTrack.release()
     }
 
-    private fun play(track: AudioTrack, samples: ByteArray) {
+    public fun stop() {
+        while (!stopped) { playing = null }
+    }
+
+    public fun play(misdial: Boolean) {
+        val track = if (misdial) misdialTrack else dialTrack
+        if (playing == track) {
+            return
+        }
+        val samples = if (misdial) misdialSamples else dialSamples
         stop()
         Thread({
             var starting: Boolean = true
-            playing = true
+            playing = track
             stopped = false
             try {
-                while (playing) {
+                while (playing != null) {
                     track.write(samples, 0, samples.size)
                     if (starting) {
                         track.play()
@@ -95,10 +100,4 @@ final class Tones : ToneBufferBuilder() {
             stopped = true
         }).start()
     }
-
-    public fun playing(): Boolean = playing || !stopped
-
-    public fun playDialTone() = play(dialTrack, dialSamples)
-
-    public fun playMisdialTone() = play(misdialTrack, misdialSamples)
 }

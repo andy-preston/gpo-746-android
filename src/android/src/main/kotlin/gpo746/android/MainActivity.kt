@@ -104,13 +104,9 @@ class MainActivity : Activity() {
     public fun callback(hookIsUp: Boolean, badNumber: Boolean, number: String, uri: Uri?) {
         hookIndicator.setChecked(hookIsUp)
         numberDisplay.apply { text = number }
-        if (hookIsUp) {
-            if (badNumber) {
-                tones.playMisdialTone()
-            } else {
-                tones.playDialTone()
-            }
-        } else if (tones.playing()) {
+        if (hookIsUp && uri == null) {
+            tones.play(badNumber)
+        } else {
             tones.stop()
         }
         if (uri != null) {

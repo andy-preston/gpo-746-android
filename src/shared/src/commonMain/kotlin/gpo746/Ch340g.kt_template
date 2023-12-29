@@ -64,10 +64,14 @@ enum class GclInputBit(val mask: UByte) {
 @Suppress("MagicNumber")
 abstract class UsbResultBuffer {
     @OptIn(kotlin.ExperimentalUnsignedTypes::class)
-    protected fun shortFromBuffer(buffer: ByteArray): UShort {
-        val lowByte = buffer[1].toUInt() and 0xFFu
-        val highByte = buffer[0].toUInt() and 0xFFu
-        return ((lowByte shl 8) or highByte).toUShort()
+    protected fun shortFromBuffer(buffer: ByteArray?): UShort {
+        if (buffer == null) {
+            return 0u
+        } else {
+            val lowByte = buffer[1].toUInt() and 0xFFu
+            val highByte = buffer[0].toUInt() and 0xFFu
+            return ((lowByte shl 8) or highByte).toUShort()
+        }
     }
 }
 
@@ -89,15 +93,6 @@ class Ch340g(usbSystem: UsbSystemInterface) : UsbResultBuffer() {
             usb.read(
                 request.code,
                 0u
-            )
-        )
-    }
-
-    private fun readRegisters(register: ReadRegister): UShort {
-        return shortFromBuffer(
-            usb.read(
-                ReadRequest.VendorReadRegisters.code,
-                register.address
             )
         )
     }
@@ -135,7 +130,12 @@ class Ch340g(usbSystem: UsbSystemInterface) : UsbResultBuffer() {
     }
 
     public fun readHandshake(): Boolean {
-        val modemControl = readRegisters(ReadRegister.GCL)
+        val modemControl: UShort = shortFromBuffer(
+            usb.read(
+                ReadRequest.VendorReadRegisters.code,
+                ReadRegister.GCL.address
+            )
+        )
         val mask = GclInputBit.RI.mask.toUShort()
         return (modemControl and mask) == mask
     }

@@ -28,55 +28,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
         />
-        <CheckBox
-            android:id="@+id/validIndicator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="false"
-            android:clickable="false"
-            android:text="Valid Number"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/hookIndicator"
-            app:layout_constraintTop_toTopOf="parent"
-        />
-    </androidx.appcompat.widget.Toolbar>
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/buttonBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="?attr/actionBarSize"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/indicatorBar"
-    >
-        <Button
-            android:id="@+id/ringButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Ring"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-        />
-        <Button
-            android:id="@+id/toneDialButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Dial Tone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/ringButton"
-            app:layout_constraintTop_toTopOf="parent"
-        />
-        <Button
-            android:id="@+id/toneMisdialButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Misdial Tone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/toneDialButton"
-            app:layout_constraintTop_toTopOf="parent"
-        />
     </androidx.appcompat.widget.Toolbar>
     <TextView
         android:id="@+id/numberDisplay"
@@ -87,7 +38,7 @@
         android:textSize="36sp"
         android:typeface="sans"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonBar"
+        app:layout_constraintTop_toBottomOf="@+id/indicatorBar"
     />
     <View
         android:id="@+id/paddingView"

@@ -27,4 +27,9 @@ class UsbResultBufferTest(): UsbResultBuffer() {
             byteArrayOf(aByte(0x0D), aByte(0xF0))
         ))
     }
+
+    @Test
+    public fun shortFromBuffer_gives_zero_with_a_null_buffer() {
+        assertEquals(0u, shortFromBuffer(null))
+    }
 }

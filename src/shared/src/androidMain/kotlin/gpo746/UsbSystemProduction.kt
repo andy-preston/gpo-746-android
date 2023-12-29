@@ -102,7 +102,7 @@ class UsbSystemProduction(d: UsbDevice, m: UsbManager) : UsbSystemInterface {
     public override fun read(
         requestCode: UByte,
         addressOrPadding: UShort
-    ): ByteArray {
+    ): ByteArray? {
         val buffer = ByteArray(2)
         val bytesRead: Int? = connection?.let {
             it.controlTransfer(
@@ -115,10 +115,12 @@ class UsbSystemProduction(d: UsbDevice, m: UsbManager) : UsbSystemInterface {
                 timeoutMilliseconds
             )
         }
-        if (bytesRead != 2) {
-            exception("Read Registers did not return 2 bytes $bytesRead")
+        if (bytesRead == 2) {
+            return buffer
+        } else {
+            Log.e("gpo746", "Read Registers did not return 2 bytes $bytesRead")
+            return null
         }
-        return buffer
     }
 
     public override fun write(

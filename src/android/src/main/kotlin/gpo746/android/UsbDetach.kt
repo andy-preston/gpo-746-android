@@ -7,8 +7,8 @@ import android.content.Intent
 import android.os.Process
 import android.util.Log
 
-class UsbDetach: BroadcastReceiver() {
-    override public fun onReceive(context: Context, intent: Intent) {
+class UsbDetach : BroadcastReceiver() {
+    public override fun onReceive(context: Context, intent: Intent) {
         val pid = Process.myPid()
         val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         activityManager.getRunningAppProcesses().filter {

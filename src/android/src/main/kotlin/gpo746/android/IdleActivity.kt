@@ -14,23 +14,23 @@ open class IdleActivity : PermissionActivity() {
     protected val ch340g = Ch340g(usbHelper)
 
     val disconnectedReceiver = object : BroadcastReceiver() {
-        override public fun onReceive(context: Context, intent: Intent) {
+        public override fun onReceive(context: Context, intent: Intent) {
             deviceDetached()
         }
     }
 
-    override public fun onStart() {
+    public override fun onStart() {
         super.onStart()
         onNewIntent(getIntent())
     }
 
-    override protected fun onNewIntent(intent: Intent) {
+    protected override fun onNewIntent(intent: Intent) {
         val action = intent.getAction()
         logInfo(
             "IdleActivity",
             if (action == null) "No action" else "Action: $action"
         )
-        when(action) {
+        when (action) {
             UsbManager.ACTION_USB_DEVICE_ATTACHED -> deviceAttached(intent)
         }
     }
@@ -51,7 +51,7 @@ open class IdleActivity : PermissionActivity() {
         logInfo("IdleActivity", "Register receiver")
         val filter = IntentFilter()
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
-        registerReceiver(disconnectedReceiver, filter);
+        registerReceiver(disconnectedReceiver, filter)
         connectedIndicator.setChecked(true)
     }
 

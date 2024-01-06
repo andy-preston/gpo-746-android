@@ -7,13 +7,15 @@ private const val DEFAULT_PAUSE = 10u
 private const val DEFAULT_COUNT = 1
 
 fun main(args: Array<String>) {
-    val ch340g = Ch340g(UsbSystemMock())
+    val usb = UsbSystemMock()
+    val ch340g = Ch340g(usb)
     val testCases = TestCases(ch340g)
     val testMap = testCases.list()
     val requiredTest: String = if (args.size > 0) args[0] else ""
     val repeats: Int = if (args.size > 1) args[1].toInt() else DEFAULT_COUNT
     val pause: UInt = if (args.size > 2) args[2].toUInt() else DEFAULT_PAUSE
     if (testMap.contains(requiredTest)) {
+        usb.start()
         ch340g.start()
         val testMethod = testMap[requiredTest]
         for (repeat in 1..repeats) {
@@ -22,7 +24,7 @@ fun main(args: Array<String>) {
             }
             testMethod!!.invoke()
         }
-        ch340g.finish()
+        usb.finish()
     } else {
         println("./bin/usb-test test-case [number to repeat] [pause between tests]")
         println("Available test cases:")

@@ -14,18 +14,14 @@
         android:theme="@style/Theme.AppCompat"
     >
         <activity
-            android:name=".UselessActivity"
+            android:name=".UsefulActivity"
             android:exported="true"
+            android:launchMode="singleInstance"
         >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-        >
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"/>
             </intent-filter>
@@ -34,30 +30,5 @@
                 android:resource="@xml/device_filter"
             />
         </activity>
-        <service
-            android:name=".PhoneService"
-            android:exported="true"
-        >
-        </service>
-        <receiver
-            android:name=".UsbDetach"
-            android:exported="true"
-        >
-            <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_DEVICE_DETACHED"/>
-            </intent-filter>
-            <meta-data
-                android:name="android.hardware.usb.action.USB_DEVICE_DETACHED"
-                android:resource="@xml/device_filter"
-            />
-        </receiver>
-        <receiver
-            android:name=".IncomingCall"
-            android:exported="true"
-        >
-            <intent-filter>
-                <action android:name="android.intent.action.PHONE_STATE"/>
-            </intent-filter>
-        </receiver>
     </application>
 </manifest>

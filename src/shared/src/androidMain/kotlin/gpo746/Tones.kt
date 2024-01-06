@@ -68,6 +68,10 @@ final class Tones : ToneBufferBuilder() {
         dialTrack.release()
     }
 
+    public fun isPlaying(): Boolean {
+        return playing == null || !stopped
+    }
+
     public fun stop() {
         while (!stopped) { playing = null }
     }

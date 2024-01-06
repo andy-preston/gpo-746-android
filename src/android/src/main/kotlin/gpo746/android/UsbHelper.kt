@@ -1,80 +1,85 @@
-package andyp.gpo746
+package andyp.gpo746.android
 
 import android.hardware.usb.UsbConstants
-import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbEndpoint
 import android.hardware.usb.UsbInterface
+import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import android.util.Log
+import andyp.gpo746.UsbSystemInterface
 
-private const val DEFAULT_TIMEOUT = 1000
+private const val TIMEOUT_MILLISECONDS = 1000
 
-@OptIn(kotlin.ExperimentalUnsignedTypes::class)
-class UsbSystemProduction(d: UsbDevice, m: UsbManager) : UsbSystemInterface {
-
-    private val usbManager = m
-    private val device = d
-
-    private var timeoutMilliseconds: Int = DEFAULT_TIMEOUT
-    private var connection: UsbDeviceConnection? = null
+class UsbHelper : UsbSystemInterface {
+    private var usbDevice: UsbDevice? = null
+    private var usbDeviceConnection: UsbDeviceConnection? = null
+    private var usbInterface: UsbInterface? = null
     private var bulkReadEndpoint: UsbEndpoint? = null
+
     private var packetSize: Int = 0
 
-    private fun findBulkReadEndpoint(usbInterface: UsbInterface): UsbEndpoint? {
-        for (endpointNumber in 0..usbInterface.getEndpointCount() - 1) {
-            val endpoint = usbInterface.getEndpoint(endpointNumber)
-            if (
-                endpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK &&
-                endpoint.getDirection() == UsbConstants.USB_DIR_IN
-            ) {
-                return endpoint
+    public fun openDevice(device: UsbDevice?, usbManager: UsbManager) {
+        Log.i("gpo746", "UsbHelper - OpenDevice")
+        if (device == null) {
+            exception("Device is null")
+        }
+        usbDevice = device
+        usbDeviceConnection = usbManager.openDevice(usbDevice)
+        usbInterface = usbDevice?.getInterface(0)
+        val claimed = usbDeviceConnection?.let {
+            it.claimInterface(usbInterface, true)
+        }
+        if (claimed == null || !claimed) {
+            Log.e("gpo746", "Could not claim interface ($claimed)")
+        }
+        findBulkReadEndpoint()
+    }
+
+    private fun findBulkReadEndpoint(): UsbEndpoint? {
+        bulkReadEndpoint = null
+        usbInterface?.let {
+            for (endpointNumber in 0..it.getEndpointCount() - 1) {
+                val endpoint = it.getEndpoint(endpointNumber)
+                if (
+                    endpoint.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK &&
+                    endpoint.getDirection() == UsbConstants.USB_DIR_IN
+                ) {
+                    bulkReadEndpoint = endpoint
+                }
             }
         }
         return null
     }
 
-    // // // // // // // // // // // // // // // // // // // // // // // // //
-
     private fun exception(message: String) {
-        Log.e("gpo746", message)
+        Log.e("gpo746", "UsbHelper - $message")
         throw Exception(message)
     }
 
-    public override fun start(vid: UShort, pid: UShort, timeout: Int) {
-        timeoutMilliseconds = timeout
-        connection = usbManager.openDevice(device)
-        val usbInterface = device.getInterface(0)
-        val connected = connection?.let {
-            it.claimInterface(usbInterface, true)
-        }
-        if (connected == null || !connected) {
-            exception("Could not claim interface")
-        }
-        bulkReadEndpoint = findBulkReadEndpoint(usbInterface)
-        val size = bulkReadEndpoint?.let { it.getMaxPacketSize() }
-        packetSize = if (size != null) size else 0
-    }
-
-    public override fun finish() {
-        connection?.let {
-            val result = it.releaseInterface(device.getInterface(0))
+    public fun closeDevice() {
+        usbDeviceConnection?.let {
+            Log.i("gpo746", "UsbSystem - Release interface")
+            val result = it.releaseInterface(usbInterface)
             if (!result) {
-                Log.e("gpo746", "Could not release interface")
+                Log.e("gpo746", "UsbSystem - Could not release interface ($result)")
             }
+            Log.i("gpo746", "UsbSystem - Close connection")
             it.close()
         }
-        connection = null
+        usbDeviceConnection = null
     }
+
+    /**************************************************************************/
 
     public override fun bulkRead(): ByteArray {
         val buffer = ByteArray(packetSize + 1)
-        val bytesRead: Int? = connection?.let {
+        val bytesRead: Int? = usbDeviceConnection?.let {
             it.bulkTransfer(
                 bulkReadEndpoint,
                 buffer,
                 packetSize,
-                timeoutMilliseconds
+                TIMEOUT_MILLISECONDS
             )
         }
         if (bytesRead == null) {
@@ -104,7 +109,7 @@ class UsbSystemProduction(d: UsbDevice, m: UsbManager) : UsbSystemInterface {
         addressOrPadding: UShort
     ): ByteArray? {
         val buffer = ByteArray(2)
-        val bytesRead: Int? = connection?.let {
+        val bytesRead: Int? = usbDeviceConnection?.let {
             it.controlTransfer(
                 UsbConstants.USB_TYPE_VENDOR or UsbConstants.USB_DIR_IN,
                 requestCode.toInt(),
@@ -112,7 +117,7 @@ class UsbSystemProduction(d: UsbDevice, m: UsbManager) : UsbSystemInterface {
                 0,
                 buffer,
                 2,
-                timeoutMilliseconds
+                TIMEOUT_MILLISECONDS
             )
         }
         if (bytesRead == 2) {
@@ -128,7 +133,7 @@ class UsbSystemProduction(d: UsbDevice, m: UsbManager) : UsbSystemInterface {
         addressOrValue: UShort,
         valueOrPadding: UShort
     ) {
-        val result: Int? = connection?.let {
+        val result: Int? = usbDeviceConnection?.let {
             it.controlTransfer(
                 UsbConstants.USB_TYPE_VENDOR or UsbConstants.USB_DIR_OUT,
                 requestCode.toInt(),
@@ -136,7 +141,7 @@ class UsbSystemProduction(d: UsbDevice, m: UsbManager) : UsbSystemInterface {
                 valueOrPadding.toInt(),
                 null,
                 0,
-                timeoutMilliseconds
+                TIMEOUT_MILLISECONDS
             )
         }
         if (result != null && result < 0) {

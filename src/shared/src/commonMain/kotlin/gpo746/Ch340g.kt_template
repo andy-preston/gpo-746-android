@@ -1,9 +1,5 @@
 package andyp.gpo746
 
-private const val CH340G_VENDOR: UShort = 0x1A86u
-private const val CH340G_DEVICE: UShort = 0x7523u
-private const val TIMEOUT_MILLISECONDS = 10
-
 /*
  * For the compile time calculations see:
  * ./src/buildSrc/src/main/kotlin/gpo746/Ch340gConstants.kt
@@ -97,7 +93,9 @@ class Ch340g(usbSystem: UsbSystemInterface) : UsbResultBuffer() {
         )
     }
 
-    private fun initialise() {
+    // // // // // // // // // // // // // // // // // // // // // // // // //
+
+    public fun start() {
         val version: UShort = read(ReadRequest.VendorGetVersion)
         if (version != @usedChipVersion@.toUShort()) {
             throw Exception("version should be @usedChipVersion@, but it's $version")
@@ -106,17 +104,6 @@ class Ch340g(usbSystem: UsbSystemInterface) : UsbResultBuffer() {
         writeRegisters(WriteRegister.BaudDivisorPreScale, @divisorPrescale@)
         writeRegisters(WriteRegister.BaudMod, @mod@)
         writeRegisters(WriteRegister.LCR, @defaultLcr@)
-    }
-
-    // // // // // // // // // // // // // // // // // // // // // // // // //
-
-    public fun start() {
-        usb.start(CH340G_VENDOR, CH340G_DEVICE, TIMEOUT_MILLISECONDS)
-        initialise()
-    }
-
-    public fun finish() {
-        usb.finish()
     }
 
     public fun readSerial(): String {

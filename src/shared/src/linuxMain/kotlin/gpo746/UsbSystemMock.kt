@@ -5,12 +5,15 @@ package andyp.gpo746
 import kotlinx.cinterop.*
 import libusb.*
 
+private const val CH340G_VENDOR: UShort = 0x1A86u
+private const val CH340G_DEVICE: UShort = 0x7523u
+
 @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 class UsbSystemMock : UsbSystemInterface {
     private var libInitialised: Boolean = false
     private var interfaceClaimed: Boolean = false
 
-    private var timeoutMilliseconds: UInt = 1000u
+    private var timeoutMilliseconds: UInt = 10u
     private var handle: CPointer<libusb_device_handle>? = null
     private var device: CPointer<libusb_device>? = null
     private var bulkReadEndpoint: UByte = 0u
@@ -87,12 +90,10 @@ class UsbSystemMock : UsbSystemInterface {
 
     // // // // // // // // // // // // // // // // // // // // // // // // //
 
-    public override fun start(vid: UShort, pid: UShort, timeout: Int) {
-        timeoutMilliseconds = timeout.toUInt()
-
+    public fun start() {
         checkSuccess(libusb_init(null), "libusb_init")
         libInitialised = true
-        openDevice(vid, pid)
+        openDevice(CH340G_VENDOR, CH340G_DEVICE)
         claimInterface()
         memScoped {
             val config = alloc<CPointerVar<libusb_config_descriptor>>()
@@ -111,7 +112,7 @@ class UsbSystemMock : UsbSystemInterface {
         buffer = UByteArray(maxOf(packetSize + 1, 2))
     }
 
-    public override fun finish() {
+    public fun finish() {
         if (interfaceClaimed) {
             libusb_release_interface(handle, 0)
             interfaceClaimed = false

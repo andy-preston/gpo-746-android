@@ -12,7 +12,7 @@ open class IncomingActivity : IdleActivity() {
     private var ringing: Boolean = false
 
     val phoneStateReceiver = object : BroadcastReceiver() {
-        override public fun onReceive(context: Context, intent: Intent) {
+        public override fun onReceive(context: Context, intent: Intent) {
             val state: String? = intent.getStringExtra(TelephonyManager.EXTRA_STATE)
             state?.let {
                 if (state == TelephonyManager.EXTRA_STATE_RINGING) {
@@ -29,7 +29,7 @@ open class IncomingActivity : IdleActivity() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val filter = IntentFilter()
         filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
@@ -46,4 +46,3 @@ open class IncomingActivity : IdleActivity() {
         ch340g.writeHandshake(ringing)
     }
 }
-

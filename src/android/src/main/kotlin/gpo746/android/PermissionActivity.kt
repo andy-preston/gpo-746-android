@@ -1,9 +1,7 @@
 package andyp.gpo746.android
 
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.Manifest
-import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
@@ -11,7 +9,7 @@ private const val ARBITRARY_REQUEST_CODE_READ_PHONE_STATE = 418
 
 open class PermissionActivity : UselessActivity() {
 
-    override public fun onStart() {
+    public override fun onStart() {
         super.onStart()
         checkPermission()
     }
@@ -33,7 +31,7 @@ open class PermissionActivity : UselessActivity() {
         }
     }
 
-    override public fun onRequestPermissionsResult(
+    public override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
         grantResults: IntArray

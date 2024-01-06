@@ -33,7 +33,6 @@ open class OutgoingActivity : IncomingActivity() {
                 tones.play(true)
             }
         }
-
     }
 
     override fun onDestroy() {

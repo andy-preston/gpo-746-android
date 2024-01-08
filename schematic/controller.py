@@ -39,9 +39,9 @@ class MicrocontrollerBoard:
                 elm.IcPin(name="PB2", side="left", pin="14"),
                 elm.IcPin(name="PB1", side="left", pin="13"),
                 elm.IcPin(name="PB4", side="right", pin="15"),
-                elm.IcPin(name="PB0", side="right", pin="12"),
                 elm.IcPin(name="PD6", side="right", pin="11"),
                 elm.IcPin(name="PD5", side="right", pin="9"),
+                elm.IcPin(name="PB0", side="right", pin="12"),
                 elm.IcPin(name="TXD", side="right", pin="3"),
                 elm.IcPin(name="RXD", side="right", pin="2"),
             ],
@@ -55,9 +55,6 @@ class MicrocontrollerBoard:
         return elm.Ic(
             pins=[
                 elm.IcPin(
-                    name=r"$\overline{RI}$", side="left", pin="11", anchorname="RI"
-                ),
-                elm.IcPin(
                     name=r"$\overline{DTR}$",
                     side="left",
                     pin="13",
@@ -68,6 +65,9 @@ class MicrocontrollerBoard:
                     side="left",
                     pin="14",
                     anchorname="RTS",
+                ),
+                elm.IcPin(
+                    name=r"$\overline{RI}$", side="left", pin="11", anchorname="RI"
                 ),
                 elm.IcPin(name="RXD", side="left", pin="3"),
                 elm.IcPin(name="TXD", side="left", pin="2"),
@@ -139,10 +139,26 @@ class MicrocontrollerBoard:
 
     def interconnect_and_ground(self) -> float:
         """simple interconnects from one IC to the other and grounding"""
-        self.dwg += elm.Line().endpoints(self._340.RI, self._2313.PB0)
-        self.dwg += elm.Line().endpoints(self._340.DTR, self._2313.PD6)
-        self.dwg += elm.Line().endpoints(self._340.RTS, self._2313.PD5)
-        self.dwg += elm.Line().endpoints(self._340.RXD, self._2313.TXD)
+        self.dwg += (
+            elm.Line()
+            .endpoints(self._340.RI, self._2313.PB0)
+            .label("Hook up →", loc="bottom")
+        )
+        self.dwg += (
+            elm.Line()
+            .endpoints(self._340.DTR, self._2313.PD6)
+            .label("← Amp. on", loc="bottom")
+        )
+        self.dwg += (
+            elm.Line()
+            .endpoints(self._340.RTS, self._2313.PD5)
+            .label("← Ring", loc="bottom")
+        )
+        self.dwg += (
+            elm.Line()
+            .endpoints(self._340.RXD, self._2313.TXD)
+            .label("Dialled digit →", loc="bottom")
+        )
         self.dwg += elm.Line().at(self._2313.GND).tox(self.the_right)
         vss_0v: float = Point(self.dwg.here).y
         self.dwg += elm.Line().toy(self._340.XI)

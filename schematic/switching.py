@@ -143,7 +143,7 @@ class SwitchingBoard:
         self.dwg += elm.Line().at(grey).right(1.2)
         self.dwg += elm.Wire("|-").to(dpst.p1)
         self.dwg += elm.Line().at(blue).up(1)
-        self.dwg += elm.Line().right(3.6).label("Telephone\nDial\n\n")
+        self.dwg += elm.Line().right(3.6).label("Telephone\nDial", ofst=(0, 0.2))
         self.dwg += elm.Wire("|-").to(dpst.t1)
         self.dwg += elm.Line().at(pink).right(1.2)
         self.dwg.push()

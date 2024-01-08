@@ -25,13 +25,14 @@ open class IdleActivity : PermissionActivity() {
     }
 
     protected override fun onNewIntent(intent: Intent) {
+        super.onNewIntent()
         val action = intent.getAction()
         logInfo(
             "IdleActivity",
-            if (action == null) "No action" else "Action: $action"
+            if (action == null) "Intent without action" else "Action: $action"
         )
-        when (action) {
-            UsbManager.ACTION_USB_DEVICE_ATTACHED -> deviceAttached(intent)
+        if (action == UsbManager.ACTION_USB_DEVICE_ATTACHED) {
+            deviceAttached(intent)
         }
     }
 

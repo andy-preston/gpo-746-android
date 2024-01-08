@@ -59,8 +59,15 @@ enum class GclInputBit(val mask: UByte) {
 
 @Suppress("MagicNumber")
 abstract class UsbResultBuffer {
+
     @OptIn(kotlin.ExperimentalUnsignedTypes::class)
     protected fun shortFromBuffer(buffer: ByteArray?): UShort {
+        // As this buffer may possibly have come from C code,
+        // There is very little we can do about the possibility
+        // of a null pointer. So, here, I'm trying to return a
+        // "sensible" answer in the case of a null. It might be
+        // better to raise an exception but I think this course
+        // is "best".
         if (buffer == null) {
             return 0u
         } else {

@@ -180,14 +180,16 @@ class MicrocontrollerBoard:
     def usb(self):
         """The USB header and USB/main power selection switch"""
         header = elm.Header(
-            rows=4,
-            pinsleft=["USB 5V", "USB D-", "USB D+", "USB GND"],
+            rows=5,
+            pinsleft=["5V", "D-", "D+", "CC", "GND"],
             pinalignleft="center",
         )
-        self.dwg.move_from(self._340.UDP, -5, 0)
+        self.dwg.move_from(self._340.UDP, -5, -1)
         self.dwg += header
-        self.dwg += elm.Line().down(0.3).at(header.pin4)
+        self.dwg += elm.Line().down(0.3).at(header.pin5)
         self.dwg += elm.Vss().label("0V")
+        self.dwg += elm.Resistor().right(2).at(header.pin4).label("1K5", ofst=(0, -0.4))
+        self.dwg += elm.Wire("|-").to(header.pin5)
         self.dwg += elm.Wire("|-").at(self._340.UDP).to(header.pin3)
         self.dwg += elm.Wire("|-").at(self._340.UDM).to(header.pin2)
         self.dwg += elm.Switch().at(header.pin1).tox(self._340.UDM)
@@ -195,8 +197,10 @@ class MicrocontrollerBoard:
 
     def leds(self):
         """LED and CL Resistor for PB4 and Serial Data"""
-        self.dwg += elm.Resistor().right(2.66).at(self._2313.PB4).label("220Ω")
-        self.dwg += elm.LED().down().toy(self._2313.GND).label("diagnostic", loc="top")
+        self.dwg += (
+            elm.Resistor().right(2.66).at(self._2313.PB4).label("220Ω", ofst=(0, -0.4))
+        )
+        self.dwg += elm.LED().down().toy(self._2313.GND).label("Diagnostic", loc="top")
         pos = [Point(self.dwg.here).x, self.vcc_5v]
         self.dwg += elm.Resistor().at(pos).down().label("1K")
         self.dwg += elm.LED().toy(self._340.RXD).label("Data", loc="top")

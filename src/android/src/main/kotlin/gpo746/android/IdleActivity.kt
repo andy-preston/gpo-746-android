@@ -21,29 +21,29 @@ open class IdleActivity : PermissionActivity() {
 
     public override fun onStart() {
         super.onStart()
+        logInfo("IdleActivity", "onStart check it works for USB-connect and launch")
         onNewIntent(getIntent())
     }
 
     protected override fun onNewIntent(intent: Intent) {
         super.onNewIntent()
         val action = intent.getAction()
-        logInfo(
-            "IdleActivity",
-            if (action == null) "Intent without action" else "Action: $action"
-        )
+        val logAction = if (action == null) "No action" else "Action: $action"
+        logInfo("IdleActivity", "OnNewIntent - $logAction")
         if (action == UsbManager.ACTION_USB_DEVICE_ATTACHED) {
             deviceAttached(intent)
         }
     }
 
     private fun deviceDetached() {
-        logInfo("IdleActivity", "Trying to disconnect")
+        logInfo("IdleActivity", "deviceDetached")
         connectedIndicator.setChecked(false)
         usbHelper.closeDevice()
         unregisterReceiver(disconnectedReceiver)
     }
 
     private fun deviceAttached(intent: Intent) {
+        logInfo("IdleActivity", "deviceAttached")
         usbHelper.openDevice(
             intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE),
             getSystemService(UsbManager::class.java)

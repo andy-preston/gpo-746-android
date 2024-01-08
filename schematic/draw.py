@@ -3,6 +3,7 @@
 from re import sub
 from subprocess import Popen, PIPE
 from io import TextIOWrapper
+from xml.etree import ElementTree
 from schemdraw import Drawing
 import schemdraw.elements as elm
 from amplifier import AmplifierBoard
@@ -10,43 +11,55 @@ from controller import MicrocontrollerBoard
 from switching import SwitchingBoard
 
 
+def find_attribute(root, attribute: str, value: str):
+    search_value = "" if value == "" else f"='{value}'"
+    search_string = f".//*[@{attribute}{search_value}]"
+    return root.findall(search_string)
+
+
 def style_clean(svg_xml: str) -> str:
     """Clean up Schemdraw's default formatting markup"""
-    inline_svg = (
-        svg_xml.replace(' font-family="sans"', "")
-        .replace(' fill="black"', "")
-        .replace(' xmlns="http://www.w3.org/2000/svg" xml:lang="en"', "")
+    root = ElementTree.fromstring(
+        svg_xml.replace(' xmlns="http://www.w3.org/2000/svg" xml:lang="en"', "")
     )
-    patterns = [r' font-size="\d+"', r' transform="[^"]+"']
-    for pattern in patterns:
-        inline_svg = sub(pattern, "", inline_svg)
-    classes = {
+    attributes_to_remove = [
+        ["fill", "black"],
+        ["font-family", "sans"],
+        ["font-size", ""],
+        ["transform", ""],
+    ]
+    for remove in attributes_to_remove:
+        for child in find_attribute(root, remove[0], remove[1]):
+            del child.attrib[remove[0]]
+    class_substitutes = {
         "hollow": "stroke:black;fill:white;stroke-width:2.0;",
         "lines": "stroke:black;fill:none;stroke-width:2.0;",
         "dashed": "stroke-dasharray:2,3.3;",
         "rounded": "stroke-linecap:round;stroke-linejoin:round;",
         "arrow": "stroke:black;fill:black;stroke-linecap:butt;stroke-linejoin:miter;",
     }
-    combinations = [
+    class_combinations = [
         ["hollow"],
         ["lines"],
         ["lines", "rounded"],
         ["lines", "dashed", "rounded"],
         ["arrow"],
     ]
-    for combination in combinations:
-        inline_svg = inline_svg.replace(
-            'style="'
-            + "".join(map(lambda css_class: classes[css_class], combination))
-            + '"',
-            'class="' + " ".join(combination) + '"',
+    for combination in class_combinations:
+        bad_style = "".join(
+            map(lambda css_class: class_substitutes[css_class], combination)
         )
-    return inline_svg
+        for child in find_attribute(root, "style", bad_style):
+            del child.attrib["style"]
+            child.attrib["class"] = " ".join(combination)
+    for child in root.iter():
+        for attribute, value in child.attrib.items():
+            child.attrib[attribute] = sub(r"\.\d+", "", value)
+    return ElementTree.tostring(root, encoding="unicode")
 
 
 print("\n\nRedrawing the drawing!\n========= === ========\n")
 with Drawing() as drawing:
-    drawing.config(fontsize=12)
     elm.style(elm.STYLE_IEC)
     SwitchingBoard(drawing).draw()
     AmplifierBoard(drawing).draw()

@@ -13,11 +13,13 @@ from switching import SwitchingBoard
 def style_clean(svg_xml: str) -> str:
     """Clean up Schemdraw's default formatting markup"""
     inline_svg = (
-        sub(r' font-size="\d+"', "", svg_xml)
-        .replace(' font-family="sans"', "")
+        svg_xml.replace(' font-family="sans"', "")
         .replace(' fill="black"', "")
         .replace(' xmlns="http://www.w3.org/2000/svg" xml:lang="en"', "")
     )
+    patterns = [r' font-size="\d+"', r' transform="[^"]+"']
+    for pattern in patterns:
+        inline_svg = sub(pattern, "", inline_svg)
     classes = {
         "hollow": "stroke:black;fill:white;stroke-width:2.0;",
         "lines": "stroke:black;fill:none;stroke-width:2.0;",

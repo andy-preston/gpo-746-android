@@ -30,6 +30,7 @@ class UsbResultBufferTest(): UsbResultBuffer() {
 
     @Test
     public fun shortFromBuffer_gives_zero_with_a_null_buffer() {
+        // See the functioon definition for a "null rationalisation"
         assertEquals(0u, shortFromBuffer(null))
     }
 }

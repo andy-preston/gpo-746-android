@@ -38,6 +38,8 @@ final class AvrConstants {
             1024 to "(1 << CS12) | (1 << CS10)"
         )
         val shifted = shiftMap[TIMER1_PRE_SCALE]
+        // I don't see how this value can ever be null?
+        // But a quick require at compile-time doesn't hurt.
         require(shifted != null)
         return shifted
     }

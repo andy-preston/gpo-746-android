@@ -13,7 +13,14 @@ class TestCases(driver: Ch340g) {
         flipBit = !flipBit
         val state = if (flipBit) "5V" else "Gnd"
         println("RTS $state")
-        ch340g.writeHandshake(flipBit)
+        ch340g.writeHandshake(flipBit, false)
+    }
+
+    private fun dtrOutput() {
+        flipBit = !flipBit
+        val state = if (flipBit) "5V" else "Gnd"
+        println("DTR $state")
+        ch340g.writeHandshake(false, flipBit)
     }
 
     private fun riInput() {
@@ -25,6 +32,7 @@ class TestCases(driver: Ch340g) {
         return mapOf(
             "serial" to ::serialInput,
             "rts" to ::rtsOutput,
+            "dtr" to ::dtrOutput,
             "ri" to ::riInput
         )
     }

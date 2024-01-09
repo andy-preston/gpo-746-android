@@ -43,10 +43,11 @@ open class OutgoingActivity : IncomingActivity() {
     public fun poll() {
         logInfo("OutgoingActivity", "Poll")
         if (hookIsUp()) {
-            number + ch340g.readSerial()
+            number + dialledDigits()
         } else {
             number = ""
             tones.stop()
+            outputMode(ring = false, amp = false)
         }
         numberDisplay.apply { text = number }
         when (validator.result(number)) {
@@ -63,10 +64,12 @@ open class OutgoingActivity : IncomingActivity() {
 
     private fun invalidNumber() {
         tones.play(true)
+        outputMode(ring = false, amp = true)
     }
 
     private fun incompleteNumber() {
         tones.play(false)
+        outputMode(ring = false, amp = true)
     }
 
     private fun dialNumber() {

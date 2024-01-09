@@ -9,8 +9,6 @@ import android.telephony.TelephonyManager
 
 open class IncomingActivity : IdleActivity() {
 
-    private var ringing: Boolean = false
-
     val phoneStateReceiver = object : BroadcastReceiver() {
         public override fun onReceive(context: Context, intent: Intent) {
             val state: String? = intent.getStringExtra(TelephonyManager.EXTRA_STATE)
@@ -18,12 +16,12 @@ open class IncomingActivity : IdleActivity() {
                 if (state == TelephonyManager.EXTRA_STATE_RINGING) {
                     logInfo("IncomingActivity", "ringing")
                     ringingIndicator.setChecked(true)
-                    ch340g.writeHandshake(true)
+                    outputMode(ring = true, amp = false)
                 }
                 if (state == TelephonyManager.EXTRA_STATE_IDLE) {
                     logInfo("IncomingActivity", "idle")
                     ringingIndicator.setChecked(false)
-                    ch340g.writeHandshake(false)
+                    outputMode(ring = false, amp = false)
                 }
             }
         }
@@ -43,6 +41,6 @@ open class IncomingActivity : IdleActivity() {
 
     private fun ring(ringing: Boolean) {
         ringingIndicator.setChecked(ringing)
-        ch340g.writeHandshake(ringing)
+        outputMode(ringing, false)
     }
 }

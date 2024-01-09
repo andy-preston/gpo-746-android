@@ -23,14 +23,14 @@ open class OutgoingActivity : IncomingActivity() {
             if (tones.isPlaying()) {
                 tones.stop()
             } else {
-                tones.play(false)
+                tones.play(misdial = false)
             }
         }
         toneMisdialButton.setOnClickListener {
             if (tones.isPlaying()) {
                 tones.stop()
             } else {
-                tones.play(true)
+                tones.play(misdial = true)
             }
         }
     }
@@ -63,12 +63,12 @@ open class OutgoingActivity : IncomingActivity() {
     }
 
     private fun invalidNumber() {
-        tones.play(true)
+        tones.play(misdial = true)
         outputMode(ring = false, amp = true)
     }
 
     private fun incompleteNumber() {
-        tones.play(false)
+        tones.play(misdial = false)
         outputMode(ring = false, amp = true)
     }
 

@@ -57,6 +57,8 @@ enum class GclInputBit(val mask: UByte) {
     DCD(0x08u)
 }
 
+const val zeroByte: UByte = 0u
+
 @Suppress("MagicNumber")
 abstract class UsbResultBuffer {
 
@@ -117,10 +119,13 @@ class Ch340g(usbSystem: UsbSystemInterface) : UsbResultBuffer() {
         return usb.bulkRead().decodeToString().substringBefore('\u0000')
     }
 
-    public fun writeHandshake(handshakeOutputRTS: Boolean) {
-        // DTR isn't in use so it's bit is always set "off"
-        var modemControl: UByte = if (handshakeOutputRTS) GclOutputBit.RTS.mask else 0u
-        write(WriteRequest.VendorModemControl, modemControl.toUShort())
+    public fun writeHandshake(outputRTS: Boolean, outputDTR: Boolean) {
+        val modemControl: UShort = (
+            if (outputRTS) GclOutputBit.RTS.mask else zeroByte
+        ).toUShort().or((
+            if (outputDTR) GclOutputBit.DTR.mask else zeroByte
+        ).toUShort())
+        write(WriteRequest.VendorModemControl, modemControl)
     }
 
     public fun readHandshake(): Boolean {

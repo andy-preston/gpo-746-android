@@ -11,7 +11,7 @@ import andyp.gpo746.Ch340g
 open class IdleActivity : PermissionActivity() {
 
     private val usbHelper = UsbHelper()
-    protected val ch340g = Ch340g(usbHelper)
+    private val ch340g = Ch340g(usbHelper)
 
     val disconnectedReceiver = object : BroadcastReceiver() {
         public override fun onReceive(context: Context, intent: Intent) {
@@ -26,7 +26,7 @@ open class IdleActivity : PermissionActivity() {
     }
 
     protected override fun onNewIntent(intent: Intent) {
-        super.onNewIntent()
+        super.onNewIntent(intent)
         val action = intent.getAction()
         val logAction = if (action == null) "No action" else "Action: $action"
         logInfo("IdleActivity", "OnNewIntent - $logAction")
@@ -60,5 +60,13 @@ open class IdleActivity : PermissionActivity() {
         val hookUp = ch340g.readHandshake()
         hookIndicator.setChecked(hookUp)
         return hookUp
+    }
+
+    protected fun outputMode(ring: Boolean, amp: Boolean) {
+        ch340g.writeHandshake(ring, amp)
+    }
+
+    protected fun dialledDigits() : String {
+        return ch340g.readSerial()
     }
 }

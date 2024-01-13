@@ -42,12 +42,12 @@ enum class WriteRegister(val address: UShort) {
     BaudDivisorPreScale(0x1312u),
     BaudMod(0x0F14u),
     LCR(0x2518u),
-    GCL(0x0606u)
+    GCL(0x0607u)
 }
 
-enum class GclOutputBit(val mask: UByte) {
-    DTR(0x20u), // 1 << 5
-    RTS(0x40u) //  1 << 6
+enum class ModemControlBit(val mask: UByte) {
+    DTR(0x20u), // 1 shl 5
+    RTS(0x40u) //  1 shl 6
 }
 
 enum class GclInputBit(val mask: UByte) {
@@ -60,16 +60,13 @@ enum class GclInputBit(val mask: UByte) {
 const val zeroByte: UByte = 0u
 
 @Suppress("MagicNumber")
+@OptIn(kotlin.ExperimentalUnsignedTypes::class)
 abstract class UsbResultBuffer {
-
-    @OptIn(kotlin.ExperimentalUnsignedTypes::class)
     protected fun shortFromBuffer(buffer: ByteArray?): UShort {
-        // As this buffer may possibly have come from C code,
-        // There is very little we can do about the possibility
-        // of a null pointer. So, here, I'm trying to return a
-        // "sensible" answer in the case of a null. It might be
-        // better to raise an exception but I think this course
-        // is "best".
+        // As this buffer may possibly have come from C code, there is very
+        // little we can do about the possibility of a null pointer. So, here,
+        // I'm trying to return a "sensible" answer in the case of a null.
+        // It might be better to raise an exception but I think this is "best".
         if (buffer == null) {
             return 0u
         } else {
@@ -85,24 +82,40 @@ class Ch340g(usbSystem: UsbSystemInterface) : UsbResultBuffer() {
 
     private val usb = usbSystem
 
+    private fun writeRequest(
+        request: WriteRequest,
+        valueOrRegister: UShort,
+        zeroOrValue: UShort
+    ) {
+        usb.write(request.code, valueOrRegister, zeroOrValue)
+    }
+
     private fun write(request: WriteRequest, value: UShort) {
-        usb.write(request.code, value, 0u)
+        writeRequest(request, value, 0u)
     }
 
     private fun writeRegisters(register: WriteRegister, value: UShort) {
-        usb.write(WriteRequest.VendorWriteRegisters.code, register.address, value)
+        writeRequest(WriteRequest.VendorWriteRegisters, register.address, value)
+    }
+
+    private fun readRequest(
+        request: ReadRequest,
+        zeroOrRegister: UShort
+    ): UShort {
+        return shortFromBuffer(usb.read(request.code, zeroOrRegister))
     }
 
     private fun read(request: ReadRequest): UShort {
-        return shortFromBuffer(
-            usb.read(
-                request.code,
-                0u
-            )
-        )
+        return readRequest(request, 0u)
     }
 
-    // // // // // // // // // // // // // // // // // // // // // // // // //
+    private fun readRegisters(register: ReadRegister): UShort {
+        return readRequest(ReadRequest.VendorReadRegisters, register.address)
+    }
+
+    public fun readSerial(): String {
+        return usb.bulkRead().decodeToString().substringBefore('\u0000')
+    }
 
     public fun start() {
         val version: UShort = read(ReadRequest.VendorGetVersion)
@@ -115,26 +128,21 @@ class Ch340g(usbSystem: UsbSystemInterface) : UsbResultBuffer() {
         writeRegisters(WriteRegister.LCR, @defaultLcr@)
     }
 
-    public fun readSerial(): String {
-        return usb.bulkRead().decodeToString().substringBefore('\u0000')
-    }
-
     public fun writeHandshake(outputRTS: Boolean, outputDTR: Boolean) {
+        // This should be a logical OR but, during debugging, I made it an
+        // add instead and both are more or less the same.
         val modemControl: UShort = (
-            if (outputRTS) GclOutputBit.RTS.mask else zeroByte
-        ).toUShort().or((
-            if (outputDTR) GclOutputBit.DTR.mask else zeroByte
-        ).toUShort())
+            (if (outputRTS) ModemControlBit.RTS.mask else zeroByte) or
+            (if (outputDTR) ModemControlBit.DTR.mask else zeroByte)
+        ).toUShort()
+        // For a chip version > 0x20, Write to Modem Control
+        // For a lower version, Write to GCL
+        // But on my version 0x31 chip, both seem to work
         write(WriteRequest.VendorModemControl, modemControl)
     }
 
     public fun readHandshake(): Boolean {
-        val modemControl: UShort = shortFromBuffer(
-            usb.read(
-                ReadRequest.VendorReadRegisters.code,
-                ReadRegister.GCL.address
-            )
-        )
+        val modemControl: UShort = readRegisters(ReadRegister.GCL)
         val mask = GclInputBit.RI.mask.toUShort()
         return (modemControl and mask) == mask
     }

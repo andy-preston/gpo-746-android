@@ -12,6 +12,7 @@ from switching import SwitchingBoard
 
 
 def find_attribute(root, attribute: str, value: str):
+    """find elements with a given attribute and, optionally, a specific value"""
     search_value = "" if value == "" else f"='{value}'"
     search_string = f".//*[@{attribute}{search_value}]"
     return root.findall(search_string)

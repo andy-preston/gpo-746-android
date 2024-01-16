@@ -22,7 +22,7 @@ class SwitchingBoard:
         """The 5V power supply"""
         regulator_circuit = RegulatorCircuit(self.dwg, "7805", self.vdd_5v, self.vss_0v)
         regulator_circuit.draw("8V", "1K8", "1K2", "5V")
-        self.dwg += elm.Line().right(5.5)
+        elm.Line().right(5.5)
         self._20v = regulator_circuit.input_20v
 
     def solenoid_transistor(self, pin: str) -> float:
@@ -113,13 +113,11 @@ class SwitchingBoard:
             pinsright=["D2", "", ""],
             pinalignright="center",
         )
-        self.dwg += io_header
         self.hook_pin = io_header.pin1
         self.dwg.move(8, -0.6)
         dial_header = elm.Header(
             rows=4, pinsright=["blue", "grey", "pink", "orange"], pinalignright="center"
         )
-        self.dwg += dial_header
         self.debounce("top", io_header.pin2, dial_header.pin1, dial_header.pin2)
         self.debounce("bottom", io_header.pin3, dial_header.pin4, dial_header.pin3)
 
@@ -130,47 +128,44 @@ class SwitchingBoard:
             pinsleft=["blue", "grey", "pink", "orange", "brown"],
             pinalignleft="center",
         )
-        dpst = elm.SwitchDpst()
-
-        self.dwg += dial_header
         self.dwg.move(2, 2.5)
-        self.dwg += dpst
+        dpst = elm.SwitchDpst().label("Trigger", loc="top")
         blue = dial_header.pin1
         grey = dial_header.pin2
         pink = dial_header.pin3
         orange = dial_header.pin4
         brown = dial_header.pin5
-        self.dwg += elm.Line().at(grey).right(1.2)
-        self.dwg += elm.Wire("|-").to(dpst.p1)
-        self.dwg += elm.Line().at(blue).up(1)
-        self.dwg += elm.Line().right(3.6).label("Telephone\nDial", ofst=(0, 0.2))
-        self.dwg += elm.Wire("|-").to(dpst.t1)
-        self.dwg += elm.Line().at(pink).right(1.2)
+        elm.Line().at(grey).right(1.2)
+        elm.Wire("|-").to(dpst.p1)
+        elm.Line().at(blue).up(1)
+        elm.Line().right(3.6).label("Dial", ofst=(0, 0.2))
+        elm.Wire("|-").to(dpst.t1)
+        elm.Line().at(pink).right(1.2)
         self.dwg.push()
-        self.dwg += elm.Line().down(1)
-        self.dwg += elm.Switch().right(2)
-        self.dwg += elm.Line().down(0.75)
-        self.dwg += elm.Line().left(2.5)
-        self.dwg += elm.Wire("|-").to(orange)
+        elm.Line().down(1)
+        elm.Switch().right(2).label("50ms pulse", loc="bottom")
+        elm.Line().down(0.75)
+        elm.Line().left(2.5)
+        elm.Wire("|-").to(orange)
         self.dwg.pop()
-        self.dwg += elm.Line().to(dpst.p2)
-        self.dwg += elm.Line().at(brown).down(1)
-        self.dwg += elm.Line().right(3.6)
-        self.dwg += elm.Wire("|-").to(dpst.t2)
+        elm.Line().to(dpst.p2)
+        elm.Line().at(brown).down(1)
+        elm.Line().right(3.6)
+        elm.Wire("|-").to(dpst.t2)
 
     def hook(self):
-        """connections to the cradle/hook switch"""
-        self.dwg += elm.Line().at(self.hook_pin).left(2)
-        self.dwg += elm.Resistor().toy(self.vdd_5v).label("10K").hold()
-        self.dwg += elm.Line().down(1)
-        self.dwg += elm.Switch().toy(self.vss_0v).label("Telephone\nHook", loc="bottom")
+        """Connections to the cradle/hook switch"""
+        elm.Line().at(self.hook_pin).left(2)
+        elm.Resistor().toy(self.vdd_5v).label("10K").hold()
+        elm.Line().down(1)
+        elm.Switch().toy(self.vss_0v).label("Cradle hook", loc="bottom")
 
     def draw(self):
         """
         Draw switching board
 
         All These relative moves are a bit horrible and make trying to modify
-                the circuit kinda hard.
+        the circuit kinda hard.
         It would be better if the various parts were properly arranged
         in relation to each other.
         """

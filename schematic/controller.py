@@ -11,8 +11,8 @@ class MicrocontrollerBoard:
 
     def __init__(self, dwg: Drawing):
         self.dwg = dwg
-        self._2313 = self.at_tiny_2313()
-        self._340 = self.ch_340_g()
+        self._2313: Optional[elm.Ic] = None
+        self._340: Optional[elm.Ic] = None
         self.vcc_5v: Optional[float] = None
         self.vss_0v: Optional[float] = None
         self.the_right: Optional[float] = None
@@ -96,34 +96,28 @@ class MicrocontrollerBoard:
 
     def _340_clock_and_caps(self) -> float:
         """V3 Clock crystal and caps for CH340G"""
-        self.dwg += (
-            elm.Crystal()
-            .endpoints(self._340.XI, self._340.XO)
-            .label("12 MHz", loc="bottom")
+        assert self._340 is not None
+        elm.Crystal().endpoints(self._340.XI, self._340.XO).label(
+            "12 MHz", loc="bottom"
         )
-        self.dwg += elm.Capacitor().at(self._340.XO).right().label("22p", loc="bottom")
-        self.dwg += elm.Capacitor().at(self._340.XI).right().label("22p")
+        elm.Capacitor().at(self._340.XO).right().label("22p", loc="bottom")
+        elm.Capacitor().at(self._340.XI).right().label("22p")
         the_right: float = Point(self.dwg.here).x
-        self.dwg += elm.Capacitor().at(self._340.V3).right().label("100n")
-        self.dwg += elm.Line().down().toy(self._340.XI).hold()
-        self.dwg += elm.Capacitor().up().toy(self.vcc_5v).label("100n")
-        self.dwg += elm.Wire("|-").to(Point([self._340.VCC.x, self.vcc_5v]))
+        elm.Capacitor().at(self._340.V3).right().label("100n")
+        elm.Line().down().toy(self._340.XI).hold()
+        elm.Capacitor().up().toy(self.vcc_5v).label("100n")
+        elm.Wire("|-").to(Point([self._340.VCC.x, self.vcc_5v]))
         return the_right
 
     def _2313_clock(self) -> float:
         """Clock crystal and caps for ATTiny 2313"""
-        self.dwg += (
-            elm.Crystal()
-            .endpoints(self._2313.XTAL1, self._2313.XTAL2)
-            .label("14.7456 MHz")
-        )
-        self.dwg += (
-            elm.Capacitor().at(self._2313.XTAL2).left().label("22p", loc="bottom")
-        )
-        self.dwg += elm.Capacitor().at(self._2313.XTAL1).left().label("22p")
-        self.dwg += elm.Line().down().toy(self._2313.XTAL2)
+        assert self._2313 is not None
+        elm.Crystal().endpoints(self._2313.XTAL1, self._2313.XTAL2).label("14.7456 MHz")
+        elm.Capacitor().at(self._2313.XTAL2).left().label("22p", loc="bottom")
+        elm.Capacitor().at(self._2313.XTAL1).left().label("22p")
+        elm.Line().down().toy(self._2313.XTAL2)
         the_left = Point(self.dwg.here).x
-        self.dwg += elm.Wire("|-").to(self._2313.GND)
+        elm.Wire("|-").to(self._2313.GND)
         return the_left
 
     def not_connected(self):
@@ -135,33 +129,27 @@ class MicrocontrollerBoard:
             self._2313.MISO,
             self._2313.UCSK,
         ]:
-            self.dwg += elm.NoConnect().at(pin)
+            elm.NoConnect().at(pin)
 
     def interconnect_and_ground(self) -> float:
         """simple interconnects from one IC to the other and grounding"""
-        self.dwg += (
-            elm.Line()
-            .endpoints(self._340.RI, self._2313.PB0)
-            .label("Hook up →", loc="bottom")
+        assert self._340 is not None
+        assert self._2313 is not None
+        elm.Line().endpoints(self._340.RI, self._2313.PB0).label(
+            "Hook up →", loc="bottom"
         )
-        self.dwg += (
-            elm.Line()
-            .endpoints(self._340.DTR, self._2313.PD6)
-            .label("← Amp. on", loc="bottom")
+        elm.Line().endpoints(self._340.DTR, self._2313.PD6).label(
+            "← Amp. on", loc="bottom"
         )
-        self.dwg += (
-            elm.Line()
-            .endpoints(self._340.RTS, self._2313.PD5)
-            .label("← Ring", loc="bottom")
+        elm.Line().endpoints(self._340.RTS, self._2313.PD5).label(
+            "← Ring", loc="bottom"
         )
-        self.dwg += (
-            elm.Line()
-            .endpoints(self._340.RXD, self._2313.TXD)
-            .label("Dialled digit →", loc="bottom")
+        elm.Line().endpoints(self._340.RXD, self._2313.TXD).label(
+            "Dialled digit →", loc="bottom"
         )
-        self.dwg += elm.Line().at(self._2313.GND).tox(self.the_right)
+        elm.Line().at(self._2313.GND).tox(self.the_right)
         vss_0v: float = Point(self.dwg.here).y
-        self.dwg += elm.Line().toy(self._340.XI)
+        elm.Line().toy(self._340.XI)
         for pin in [
             self._340.GND,
             self._340.CTS,
@@ -169,81 +157,81 @@ class MicrocontrollerBoard:
             self._340.DCD,
             self._340.R232,
         ]:
-            self.dwg += elm.Line().at(pin).toy(vss_0v)
+            elm.Line().at(pin).toy(vss_0v)
         return vss_0v
 
     def main_vcc(self) -> float:
         """VCC line across the top and define where the top actually is"""
-        self.dwg += elm.Line().up().at(self._340.VCC)
+        assert self._340 is not None
+        assert self._2313 is not None
+        elm.Line().up().at(self._340.VCC)
         vcc_5v: float = Point(self.dwg.here).y
-        self.dwg += elm.Wire("-|").to(self._2313.VCC)
+        elm.Wire("-|").to(self._2313.VCC)
         return vcc_5v
 
     def io_header(self):
         """Header connecting the IO pins to the switching and amplifier circuitry"""
+        self.dwg.move_from(self._2313.PD3, -1.5, 0.1)
         header = elm.Header(
             rows=6, pinsleft=["B1", "B2", "B3", "D2", "D3", "D4"], pinalignleft="center"
         )
-        self.dwg.move_from(self._2313.PD3, -1.5, 0.1)
-        self.dwg += header
-        self.dwg += elm.Line().at(self._2313.PB1).to(header.pin1)
-        self.dwg += elm.Line().at(self._2313.PB2).to(header.pin2)
-        self.dwg += elm.Line().at(self._2313.PB3).to(header.pin3)
-        self.dwg += elm.Line().at(self._2313.PD2).to(header.pin4)
-        self.dwg += elm.Line().at(self._2313.PD3).to(header.pin5)
-        self.dwg += elm.Line().at(self._2313.PD4).to(header.pin6)
+        elm.Line().at(self._2313.PB1).to(header.pin1)
+        elm.Line().at(self._2313.PB2).to(header.pin2)
+        elm.Line().at(self._2313.PB3).to(header.pin3)
+        elm.Line().at(self._2313.PD2).to(header.pin4)
+        elm.Line().at(self._2313.PD3).to(header.pin5)
+        elm.Line().at(self._2313.PD4).to(header.pin6)
 
     def usb(self):
         """The USB header and USB/main power selection switch"""
+        self.dwg.move_from(self._340.UDP, -5, -1)
         header = elm.Header(
             rows=5,
             pinsleft=["5V", "D-", "D+", "CC", "GND"],
             pinalignleft="center",
         )
-        self.dwg.move_from(self._340.UDP, -5, -1)
-        self.dwg += header
-        self.dwg += elm.Line().down(0.3).at(header.pin5)
-        self.dwg += elm.Vss().label("0V")
-        self.dwg += elm.Resistor().right(2).at(header.pin4).label("1K5", ofst=(0, -0.4))
-        self.dwg += elm.Wire("|-").to(header.pin5)
-        self.dwg += elm.Wire("|-").at(self._340.UDP).to(header.pin3)
-        self.dwg += elm.Wire("|-").at(self._340.UDM).to(header.pin2)
-        self.dwg += elm.Switch().at(header.pin1).tox(self._340.UDM)
-        self.dwg += elm.Line().toy(self.vcc_5v)
+        elm.Line().down(0.3).at(header.pin5)
+        elm.Vss().label("0V")
+        elm.Resistor().right(2).at(header.pin4).label("1K5", ofst=(0, -0.4))
+        elm.Wire("|-").to(header.pin5)
+        elm.Wire("|-").at(self._340.UDP).to(header.pin3)
+        elm.Wire("|-").at(self._340.UDM).to(header.pin2)
+        elm.Switch().at(header.pin1).tox(self._340.UDM)
+        elm.Line().toy(self.vcc_5v)
 
     def leds(self):
         """LED and CL Resistor for PB4 and Serial Data"""
-        self.dwg += (
-            elm.Resistor().right(2.66).at(self._2313.PB4).label("220Ω", ofst=(0, -0.4))
-        )
-        self.dwg += elm.LED().down().toy(self._2313.GND).label("Diagnostic", loc="top")
+        elm.Resistor().right(2.66).at(self._2313.PB4).label("220Ω", ofst=(0, -0.4))
+        elm.LED().down().toy(self._2313.GND).label("Diagnostic", loc="top")
         pos = [Point(self.dwg.here).x, self.vcc_5v]
-        self.dwg += elm.Resistor().at(pos).down().label("1K")
-        self.dwg += elm.LED().toy(self._340.RXD).label("Data", loc="top")
+        elm.Resistor().at(pos).down().label("1K")
+        elm.LED().toy(self._340.RXD).label("Data", loc="top")
 
     def _2313_reset(self):
         """Pull up resistor on 2313 reset pin"""
         pos = [self._2313.reset.x, self.vcc_5v]
-        self.dwg += elm.Line().at(pos).down()
-        self.dwg += elm.Line().to(self._2313.reset)
+        elm.Line().at(pos).down()
+        elm.Line().to(self._2313.reset)
 
     def _2313_decoupling(self):
         """Decoupling cap for the ATTiny 2313"""
         top_left = Point([self.the_left, self.vcc_5v])
-        self.dwg += elm.Line().at(top_left).tox(self._2313.VCC).hold()
-        self.dwg += elm.Capacitor().down().toy(self._2313.GND).label("100n")
+        elm.Line().at(top_left).tox(self._2313.VCC).hold()
+        elm.Capacitor().down().toy(self._2313.GND).label("100n")
 
     def vdd_vss_labels(self):
         """The voltage labels"""
-        self.dwg += elm.Vdd().at(Point([self.the_left, self.vcc_5v])).label("5V")
-        self.dwg += elm.Vss().at(Point([self.the_left, self.vss_0v])).label("0V")
+        elm.Vdd().at(Point([self.the_left, self.vcc_5v])).label("5V")
+        elm.Vss().at(Point([self.the_left, self.vss_0v])).label("0V")
 
     def draw(self):
         """Digital part of the drawing"""
         self.dwg.move(0, -18)
-        self.dwg += self._2313.right()
+        self._2313 = self.at_tiny_2313()
+        self._2313.right()
         self.dwg.move(17, 1.9)
-        self.dwg += self._340.right()
+        self._340 = self.ch_340_g()
+        self._340.right()
         self.vcc_5v = self.main_vcc()
         self.the_right = self._340_clock_and_caps()
         self.vss_0v = self.interconnect_and_ground()

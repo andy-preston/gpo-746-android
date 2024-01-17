@@ -67,10 +67,10 @@ class SwitchingBoard:
             self.dwg += diode.up()
             self.dwg.move(1, -0.3)
             self.dwg += solenoid.flip()
-        self.dwg += elm.Line().left(1).at(solenoid.p1)
-        self.dwg += elm.Line().at(self._20v).tox(solenoid.p2)
-        self.dwg += elm.Line().left(1).hold()
-        self.dwg += elm.Line().to(solenoid.p2)
+        elm.Line().left(1).at(solenoid.p1)
+        elm.Line().at(self._20v).tox(solenoid.p2)
+        elm.Line().left(1).hold()
+        elm.Line().to(solenoid.p2)
         return left_edge
 
     def debounce(
@@ -89,10 +89,10 @@ class SwitchingBoard:
             self.dwg += elm.Capacitor().up(1.5).label("100n")
             self.vdd_5v = Point(self.dwg.here)
         else:
-            self.dwg += elm.Line().down(1.5)
-            self.dwg += elm.Capacitor().down(1.5).label("100n")
+            elm.Line().down(1.5)
+            elm.Capacitor().down(1.5).label("100n")
             self.vss_0v = Point(self.dwg.here)
-        self.dwg += elm.Wire("-|").to(base_pin)
+        elm.Wire("-|").to(base_pin)
         self.dwg.pop()
         self.dwg += elm.Resistor().right().label("18K", ofst=(0, -0.4))
         self.dwg.push()
@@ -100,8 +100,8 @@ class SwitchingBoard:
             self.dwg += elm.Line().up(1.2)
             self.dwg += elm.Diode().left().label("1N4148", loc="top")
         else:
-            self.dwg += elm.Line().down(1.2)
-            self.dwg += elm.Diode().left().reverse().label("1N4148", loc="bottom")
+            elm.Line().down(1.2)
+            elm.Diode().left().reverse().label("1N4148", loc="bottom")
         self.dwg.pop()
         self.dwg += elm.Line().right(1.1 if location == "top" else 2.2)
         self.dwg.push()
@@ -109,8 +109,8 @@ class SwitchingBoard:
             self.dwg += OldSchoolNC().down(1.25)
             self.dwg += elm.Resistor().down(2.35).label("82k")
         else:
-            self.dwg += OldSchoolNC().up(1.25)
-            self.dwg += elm.Resistor().up(2.35).label("82k")
+            OldSchoolNC().up(1.25)
+            elm.Resistor().up(2.35).label("82k", loc="bottom")
         self.dwg.pop()
         self.dwg += elm.Line().to(switch_pin)
 
@@ -168,7 +168,7 @@ class SwitchingBoard:
         elm.Line().left(2).at(self.hook_pin)
         elm.Resistor().toy(self.vdd_5v).label("10K").hold()
         elm.Line().down(1)
-        elm.Switch().toy(self.vss_0v).label("Cradle hook", loc="bottom")
+        elm.Switch().toy(self.vss_0v).label("Hook", loc="top")
 
     def draw(self):
         """
@@ -183,7 +183,7 @@ class SwitchingBoard:
         self.dwg.move(-14, -0.5)
         self.dial_circuit()
         self.hook()
-        self.dwg.move(-5, 2.5)
+        self.dwg.move(-4.5, 2.5)
         self.psu()
         self.dwg.move_from(self._20v, -9, 2)
         self.solenoid_transistor("B1")

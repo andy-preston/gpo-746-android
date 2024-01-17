@@ -179,7 +179,7 @@ class MicrocontrollerBoard:
 
     def usb(self):
         """The USB header and USB/main power selection switch"""
-        self.dwg.move_from(self._340.UDP, -5, -1)
+        self.dwg.move_from(self._340.UDP, -4.3, -1)
         header = elm.Header(
             rows=5,
             pinsleft=["5V", "D-", "D+", "CC", "GND"],

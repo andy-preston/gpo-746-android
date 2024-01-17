@@ -23,7 +23,7 @@ class AmplifierBoard:
         """stereo to mono input"""
         elm.Line().left(2.5).at(self.chip.in2)
         self.dwg.push()
-        self.dwg.move(-3.3, -2.1)
+        self.dwg.move(-3.6, -2.1)
         self.input_header = elm.Header(
             rows=4, pinsleft=["left", "right", "B3", "ground"], pinalignleft="center"
         )
@@ -44,7 +44,9 @@ class AmplifierBoard:
         elm.Line().at(self.chip.vd).to(transistor.collector)
         elm.Line().down(1).at(transistor.emitter)
         self.vss_0v = Point(self.dwg.here).y
-        (elm.Resistor().right().at(self.input_header.pin3).label("4K7", ofst=(0, -0.4)))
+        elm.Resistor().right(3.3).at(self.input_header.pin3).label(
+            "4K7", ofst=(0, -0.4)
+        )
         elm.Wire("|-").to(transistor.base)
 
     def output(self):

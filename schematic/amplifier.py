@@ -1,11 +1,10 @@
 """Switched Amplifier for phone receiver"""
 
-from typing import Optional
 from schemdraw import Drawing
 from schemdraw.util import Point
 import schemdraw.elements as elm
 from custom_elements import ElectrolyticCapacitor, OldSchoolNC
-from regulator import RegulatorCircuit
+from regulator import RegulatorCircuit, RegulatorLabels
 
 
 class AmplifierBoard:
@@ -13,16 +12,16 @@ class AmplifierBoard:
 
     def __init__(self, dwg: Drawing):
         self.dwg = dwg
-        self.vss_0v: Optional[float] = None
-        self.the_left: Optional[float] = None
-        self._12v: Optional[Point] = None
-        self.chip: Optional[elm.Opamp] = None
-        self.input_header: Optional[elm.Header] = None
-        self.output_header: Optional[elm.Header] = None
+        self.vss_0v: float
+        self.the_left: float
+        self._12v: Point
+        self.chip: elm.Opamp
+        self.input_header: elm.Header
+        self.output_header: elm.Header
 
     def inputs(self):
         """stereo to mono input"""
-        elm.Line().at(self.chip.in2).left(2.5)
+        elm.Line().left(2.5).at(self.chip.in2)
         self.dwg.push()
         self.dwg.move(-3.3, -2.1)
         self.input_header = elm.Header(
@@ -43,7 +42,7 @@ class AmplifierBoard:
             elm.BjtNpn(circle=True).right().label("BC548B", loc="left", ofst=(0, 0.3))
         )
         elm.Line().at(self.chip.vd).to(transistor.collector)
-        elm.Line().at(transistor.emitter).down(1)
+        elm.Line().down(1).at(transistor.emitter)
         self.vss_0v = Point(self.dwg.here).y
         (elm.Resistor().right().at(self.input_header.pin3).label("4K7", ofst=(0, -0.4)))
         elm.Wire("|-").to(transistor.base)
@@ -56,7 +55,7 @@ class AmplifierBoard:
             .toy(self.vss_0v)
             .label("100μ", loc="bottom")
         )
-        elm.Line().at(self.chip.out).right(1)
+        elm.Line().right(1).at(self.chip.out)
         elm.Capacitor().toy(self.vss_0v).label("100n", loc="bottom").hold()
         ElectrolyticCapacitor().right().label("1000μ")
         self.dwg.push()
@@ -69,11 +68,22 @@ class AmplifierBoard:
 
     def psu_and_ground_rail(self):
         """The 12V power supply and ground rail"""
-        elm.Line().at(self.chip.vs).up(1.2)
+        elm.Line().up(1.2).at(self.chip.vs)
         vdd = self.dwg.here
         self.dwg.move(-13, -4)
-        regulator_circuit = RegulatorCircuit(self.dwg, "7812", vdd.y, self.vss_0v)
-        regulator_circuit.draw("15.4V", "1K4", "4K7", "12V")
+        regulator_circuit = RegulatorCircuit()
+        regulator_circuit.draw(
+            self.dwg,
+            RegulatorLabels(
+                chip="7812",
+                input_voltage="15.4V",
+                output_voltage="12V",
+                top_resistor="1K4",
+                bottom_resistor="4K7",
+            ),
+            vdd.y,
+            self.vss_0v,
+        )
         elm.Line().at(vdd).to(regulator_circuit.output_point)
         self.dwg.move_from(regulator_circuit.output_point, 1.5, 0)
         ElectrolyticCapacitor().toy(self.vss_0v).label("100μ")
@@ -81,9 +91,6 @@ class AmplifierBoard:
 
     def ground_rail(self, ground_point: Point):
         """Ground rail portion of previous function"""
-        assert self.chip is not None
-        assert self.input_header is not None
-        assert self.output_header is not None
         self.dwg.here = Point([self.chip.n2.x, self.vss_0v])
         elm.Line().left(1.75).at(self.chip.in1)
         OldSchoolNC().down().toy(self.vss_0v)

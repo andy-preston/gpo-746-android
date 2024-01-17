@@ -1,11 +1,10 @@
 """"The switching components and the 5V power supply"""
 
-from typing import Optional
 from schemdraw import Drawing
 from schemdraw.util import Point
 import schemdraw.elements as elm
 from custom_elements import OldSchoolNC
-from regulator import RegulatorCircuit
+from regulator import RegulatorCircuit, RegulatorLabels
 
 
 class SwitchingBoard:
@@ -13,15 +12,26 @@ class SwitchingBoard:
 
     def __init__(self, dwg: Drawing):
         self.dwg = dwg
-        self.vss_0v = Optional[Point]
-        self.vdd_5v = Optional[Point]
-        self._20v = Point([0, 0])
-        self.hook_pin = Optional[Point]
+        self.vss_0v: Point
+        self.vdd_5v: Point
+        self._20v: Point
+        self.hook_pin: Point
 
     def psu(self):
         """The 5V power supply"""
-        regulator_circuit = RegulatorCircuit(self.dwg, "7805", self.vdd_5v, self.vss_0v)
-        regulator_circuit.draw("8V", "1K8", "1K2", "5V")
+        regulator_circuit = RegulatorCircuit()
+        regulator_circuit.draw(
+            self.dwg,
+            RegulatorLabels(
+                chip="7805",
+                input_voltage="8V",
+                output_voltage="5V",
+                top_resistor="1K8",
+                bottom_resistor="1K2",
+            ),
+            self.vdd_5v.y,
+            self.vss_0v.y,
+        )
         elm.Line().right(5.5)
         self._20v = regulator_circuit.input_20v
 
@@ -135,12 +145,12 @@ class SwitchingBoard:
         pink = dial_header.pin3
         orange = dial_header.pin4
         brown = dial_header.pin5
-        elm.Line().at(grey).right(1.2)
+        elm.Line().right(1.2).at(grey)
         elm.Wire("|-").to(dpst.p1)
-        elm.Line().at(blue).up(1)
+        elm.Line().up(1).at(blue)
         elm.Line().right(3.6).label("Dial", ofst=(0, 0.2))
         elm.Wire("|-").to(dpst.t1)
-        elm.Line().at(pink).right(1.2)
+        elm.Line().right(1.2).at(pink)
         self.dwg.push()
         elm.Line().down(1)
         elm.Switch().right(2).label("50ms pulse", loc="bottom")
@@ -149,13 +159,13 @@ class SwitchingBoard:
         elm.Wire("|-").to(orange)
         self.dwg.pop()
         elm.Line().to(dpst.p2)
-        elm.Line().at(brown).down(1)
+        elm.Line().down(1).at(brown)
         elm.Line().right(3.6)
         elm.Wire("|-").to(dpst.t2)
 
     def hook(self):
         """Connections to the cradle/hook switch"""
-        elm.Line().at(self.hook_pin).left(2)
+        elm.Line().left(2).at(self.hook_pin)
         elm.Resistor().toy(self.vdd_5v).label("10K").hold()
         elm.Line().down(1)
         elm.Switch().toy(self.vss_0v).label("Cradle hook", loc="bottom")
@@ -179,4 +189,4 @@ class SwitchingBoard:
         self.solenoid_transistor("B1")
         self.dwg.move(-7.05, -4.3)
         left_edge = self.solenoid_transistor("B2")
-        self.dwg.move_from(Point([left_edge, Point(self.vss_0v).y]), 0, 0)
+        self.dwg.here = (left_edge, Point(self.vss_0v).y)

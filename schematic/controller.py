@@ -1,6 +1,5 @@
 """GPO-746 Microcontroller And USB Schematic"""
 
-from typing import Optional
 from schemdraw import Drawing
 from schemdraw.util import Point
 import schemdraw.elements as elm
@@ -11,16 +10,17 @@ class MicrocontrollerBoard:
 
     def __init__(self, dwg: Drawing):
         self.dwg = dwg
-        self._2313: Optional[elm.Ic] = None
-        self._340: Optional[elm.Ic] = None
-        self.vcc_5v: Optional[float] = None
-        self.vss_0v: Optional[float] = None
-        self.the_right: Optional[float] = None
-        self.the_left: Optional[float] = None
+        self._2313: elm.Ic
+        self._340: elm.Ic
+        self.vcc_5v: float
+        self.vss_0v: float
+        self.the_right: float
+        self.the_left: float
 
     def at_tiny_2313(self) -> elm.Ic:
         """chip layout"""
         return elm.Ic(
+            lofst=0.2,
             pins=[
                 elm.IcPin(name="GND", side="bot", pin="10"),
                 elm.IcPin(name="VCC", side="top", pin="20"),
@@ -53,6 +53,7 @@ class MicrocontrollerBoard:
     def ch_340_g(self) -> elm.Ic:
         """chip layout"""
         return elm.Ic(
+            lofst=0.2,
             pins=[
                 elm.IcPin(
                     name=r"$\overline{DTR}$",
@@ -96,7 +97,6 @@ class MicrocontrollerBoard:
 
     def _340_clock_and_caps(self) -> float:
         """V3 Clock crystal and caps for CH340G"""
-        assert self._340 is not None
         elm.Crystal().endpoints(self._340.XI, self._340.XO).label(
             "12 MHz", loc="bottom"
         )
@@ -111,7 +111,6 @@ class MicrocontrollerBoard:
 
     def _2313_clock(self) -> float:
         """Clock crystal and caps for ATTiny 2313"""
-        assert self._2313 is not None
         elm.Crystal().endpoints(self._2313.XTAL1, self._2313.XTAL2).label("14.7456 MHz")
         elm.Capacitor().at(self._2313.XTAL2).left().label("22p", loc="bottom")
         elm.Capacitor().at(self._2313.XTAL1).left().label("22p")
@@ -133,8 +132,6 @@ class MicrocontrollerBoard:
 
     def interconnect_and_ground(self) -> float:
         """simple interconnects from one IC to the other and grounding"""
-        assert self._340 is not None
-        assert self._2313 is not None
         elm.Line().endpoints(self._340.RI, self._2313.PB0).label(
             "Hook up →", loc="bottom"
         )
@@ -162,8 +159,6 @@ class MicrocontrollerBoard:
 
     def main_vcc(self) -> float:
         """VCC line across the top and define where the top actually is"""
-        assert self._340 is not None
-        assert self._2313 is not None
         elm.Line().up().at(self._340.VCC)
         vcc_5v: float = Point(self.dwg.here).y
         elm.Wire("-|").to(self._2313.VCC)
@@ -203,14 +198,13 @@ class MicrocontrollerBoard:
         """LED and CL Resistor for PB4 and Serial Data"""
         elm.Resistor().right(2.66).at(self._2313.PB4).label("220Ω", ofst=(0, -0.4))
         elm.LED().down().toy(self._2313.GND).label("Diagnostic", loc="top")
-        pos = [Point(self.dwg.here).x, self.vcc_5v]
-        elm.Resistor().at(pos).down().label("1K")
+        self.dwg.here = (Point(self.dwg.here).x, self.vcc_5v)
+        elm.Resistor().down().label("1K")
         elm.LED().toy(self._340.RXD).label("Data", loc="top")
 
     def _2313_reset(self):
         """Pull up resistor on 2313 reset pin"""
-        pos = [self._2313.reset.x, self.vcc_5v]
-        elm.Line().at(pos).down()
+        elm.Line().down().at((self._2313.reset.x, self.vcc_5v))
         elm.Line().to(self._2313.reset)
 
     def _2313_decoupling(self):

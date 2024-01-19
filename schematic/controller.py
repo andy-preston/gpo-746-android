@@ -187,7 +187,7 @@ class MicrocontrollerBoard:
         )
         elm.Line().down(0.3).at(header.pin5)
         elm.Vss().label("0V")
-        elm.Resistor().right(2).at(header.pin4).label("1K5", ofst=(0, -0.4))
+        elm.Resistor().right(2).at(header.pin4).label("5K1 ±10%", loc="right", ofst=(-0.4, 0.2))
         elm.Wire("|-").to(header.pin5)
         elm.Wire("|-").at(self._340.UDP).to(header.pin3)
         elm.Wire("|-").at(self._340.UDM).to(header.pin2)

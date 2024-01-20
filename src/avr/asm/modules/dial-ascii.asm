@@ -15,11 +15,11 @@
     ; If there were 10 pulses, the digit "0" has been dialled
     cpi _dialled_digit, 10
 
-    ; If it's not 10 pulses, skip to the end - the number of pulses is the
+    ; If it's NOT 10 pulses, skip to the end - the number of pulses is the
     ; digit dialled
     brne digit_found
 
-    ; But it it was 10 pulses, clear _dialled_digit so that it;s the digit "0"
+    ; But it it was 10 pulses, clear _dialled_digit so that it's the digit "0"
     clr _dialled_digit
 
 digit_found:

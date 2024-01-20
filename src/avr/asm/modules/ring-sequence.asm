@@ -1,6 +1,6 @@
 ; We mark end of data with an output byte with a bit set for a pin that
 ; doesn't even exist.
-.equ end_of_sequence_data = 1 << pin_out_absent_B6
+.equ end_of_sequence_data = 0xff
 
 
 .macro setup_ring_sequence

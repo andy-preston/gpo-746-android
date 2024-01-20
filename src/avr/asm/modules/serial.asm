@@ -36,5 +36,5 @@ buffer_wait:
     sbis UCSRA, UDRE                       ; If buffer is empty, don't wait
     rjmp buffer_wait
 
-    out	UDR, _dialled_digit
+    out    UDR, _dialled_digit
 .endMacro

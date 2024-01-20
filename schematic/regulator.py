@@ -24,18 +24,28 @@ class RegulatorCircuit:
     """78 series regulator with capacitors and voltage divider"""
 
     def __init__(self):
-        self.input_20v: Point
-        self.ground_point: Point
-        self.output_point: Point
+        self.vdd_input: Point
+        self.vdd_output: Point
+        self.vss_input: Point
+        self.vss_output: Point
+        self.output: Point
 
-    def draw(
-        self,
-        dwg: Drawing,
-        labels: RegulatorLabels,
-        vdd_y: float,
-        vss_0v_y: float,
-    ):
+    def draw(self, dwg: Drawing, labels: RegulatorLabels):
         """draw the circuit and determine the anchor points"""
+        input_point = Point(dwg.here)
+        elm.Resistor().at(input_point).down().label(
+            f"{labels.bottom_resistor}\n1W", loc="bottom"
+        )
+        self.vss_input = Point(dwg.here)
+        elm.Vss().label("0V")
+        elm.Resistor().at(input_point).up().label(
+            f"{labels.top_resistor}\n1W", loc="bottom"
+        )
+        self.vdd_input = Point(dwg.here)
+        elm.Vdd().label("(Supply)\n20V")
+        elm.Line().right(2).at(input_point).label(labels.input_voltage)
+        ElectrolyticCapacitor().toy(self.vss_input.y).label("47μ", loc="bottom").hold()
+        dwg.move(1, -1)
         regulator = Ic(
             plblofst=0.15,
             pins=[
@@ -47,25 +57,11 @@ class RegulatorCircuit:
             label=labels.chip,
         )
         regulator.right()
-        elm.Line().left(2).at(regulator.input).label(labels.input_voltage)
-        input_point = Point(dwg.here)
-        elm.Resistor().at(input_point).toy(vss_0v_y).label(
-            f"{labels.bottom_resistor}\n1W", loc="bottom"
-        )
-        ground_left = dwg.here
-        elm.Resistor().at(input_point).toy(vdd_y).label(
-            f"{labels.top_resistor}\n1W", loc="bottom"
-        )
-        self.input_20v = Point(dwg.here)
-        elm.Vdd().label("(Supply)\n20V")
-        ElectrolyticCapacitor().at(regulator.input).toy(vss_0v_y).label(
-            "47μ", loc="bottom"
-        )
-        elm.Line().at(regulator.ground).toy(vss_0v_y)
-        elm.Capacitor().at(regulator.output).toy(vss_0v_y).label("100n")
-        elm.Vss().label("0V")
-        self.ground_point = Point(dwg.here)
-        elm.Line().to(ground_left).hold()
-        elm.Line().toy(vdd_y).at(regulator.output)
+        self.output = regulator.pin3
+        elm.Line().at(regulator.ground).toy(self.vss_input.y)
+        elm.Capacitor().at(regulator.output).toy(self.vss_input.y).label("100n")
+        self.vss_output = Point(dwg.here)
+        elm.Line().at(regulator.output).toy(self.vdd_input.y)
+        self.vdd_output = Point(dwg.here)
         elm.Vdd().label(labels.output_voltage)
-        self.output_point = dwg.here
+        elm.Line().at(self.vss_input).to(self.vss_output)

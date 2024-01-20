@@ -30,7 +30,7 @@ class RegulatorCircuit:
         self.vss_output: Point
         self.output: Point
 
-    def draw(self, dwg: Drawing, labels: RegulatorLabels):
+    def draw(self, dwg: Drawing, labels: RegulatorLabels, headroom: int = 0):
         """draw the circuit and determine the anchor points"""
         input_point = Point(dwg.here)
         elm.Resistor().at(input_point).down().label(
@@ -41,6 +41,8 @@ class RegulatorCircuit:
         elm.Resistor().at(input_point).up().label(
             f"{labels.top_resistor}\n1W", loc="bottom"
         )
+        if headroom > 0:
+            elm.Line().up(headroom)
         self.vdd_input = Point(dwg.here)
         elm.Vdd().label("(Supply)\n20V")
         elm.Line().right(2).at(input_point).label(labels.input_voltage)

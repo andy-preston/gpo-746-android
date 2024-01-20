@@ -34,7 +34,7 @@ class SwitchingBoard:
         """The bell solenoids and their switching transistors"""
         elm.Line().left(2).at(self.regulator_circuit.vdd_input)
         solenoid_common = self.dwg.here
-        elm.Line().left(0.6)
+        elm.Line().left(0.4)
         diode_common = Point(self.dwg.here)
         for position in ("Left", "Right"):
             if position == "Left":
@@ -53,19 +53,20 @@ class SwitchingBoard:
                 solenoid.flip()
             elm.Diode().reverse().at(diode_common).toy(solenoid.p1).label("1N4001")
             elm.Line().to(solenoid.p1).hold()
-            elm.Line().left(1.8)
+            elm.Line().left(2)
+            elm.Line().down(1.5)
             transistor = (
                 elm.BjtNpn(circle=True)
                 .anchor("collector")
                 .right()
-                .label("BC548B", loc="top")
+                .label("BC548B", loc="right")
             )
             elm.Resistor().left().at(transistor.base).label("4K7", ofst=(0, 0.4))
             if position == "Left":
                 header = elm.Header(
                     rows=2, pinsleft=["B1", "B2"], pinalignleft="center"
                 ).anchor("pin1")
-                elm.Line().down(0.5).at(transistor.emitter)
+                elm.Line().down(0.3).at(transistor.emitter)
                 elm.Vss().label("0V")
             else:
                 elm.Wire("-|").to(header.pin2)

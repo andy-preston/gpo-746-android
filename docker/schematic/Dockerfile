@@ -3,9 +3,10 @@ FROM python:3.12.1-bullseye
 ENV TERM=linux
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PIP_ROOT_USER_ACTION=ignore
-ENV PYLINTHOME=/var/tmp
-ENV PYTHONPYCACHEPREFIX=/var/tmp
-ENV DENO_DIR=/var/tmp
+ENV MYPY_CACHE_DIR=/var/tmp/mypy
+ENV PYLINTHOME=/var/tmp/pylint
+ENV PYTHONPYCACHEPREFIX=/var/tmp/pycache
+ENV DENO_DIR=/var/tmp/deno
 
 ADD run /usr/local/bin/run
 

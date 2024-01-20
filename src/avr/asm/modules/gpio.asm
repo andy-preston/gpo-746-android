@@ -7,10 +7,9 @@
     .equ pin_out_RI = 0
     .equ pin_out_ding = 1
     .equ pin_out_dong = 2
-    .equ pin_out_LED = 3
-    .equ pin_out_spare_B4 = 4
-    .equ pin_out_absent_B5 = 5
-    .equ pin_out_absent_B6 = 6
+    .equ pin_out_LED = 4
+    .equ pin_out_MOSI_B5 = 5
+    .equ pin_out_MISO_B6 = 6
     .equ pin_out_UCSK_B7 = 7
 
     .equ input_port = PORTD
@@ -25,8 +24,9 @@
     ; pulses from the dial.
     ; See `setup_20ms_timerCounter0` in `./dial-counter.asm` for usage details.
     .equ pin_in_dial_pink = 4  ; Pulse - orange (GND) -> pink low
+    .equ pin_in_RTS = 5
+    .equ pin_in_DTR = 6
     .equ pin_in_dial_grey = 5  ; Active - blue (VCC) -> grey high
-    .equ pin_in_RTS = 6
     .equ pin_in_absent_D7 = 7
 
 
@@ -59,6 +59,11 @@
 
 .macro skip_on_no_incoming
     sbic input_pins, pin_in_RTS
+.endMacro
+
+
+.macro skip_on_no_amp_required
+    sbic input_pins, pin_in_DTR
 .endMacro
 
 

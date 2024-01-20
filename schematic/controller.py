@@ -179,7 +179,7 @@ class MicrocontrollerBoard:
 
     def usb(self):
         """The USB header and USB/main power selection switch"""
-        self.dwg.move_from(self._340.UDP, -4.3, -1)
+        self.dwg.move_from(self._340.UDP, -6, -1)
         header = elm.Header(
             rows=5,
             pinsleft=["5V", "D-", "D+", "CC", "GND"],
@@ -187,7 +187,7 @@ class MicrocontrollerBoard:
         )
         elm.Line().down(0.3).at(header.pin5)
         elm.Vss().label("0V")
-        elm.Resistor().right(2).at(header.pin4).label("5K1 ±10%", loc="right", ofst=(-0.4, 0.2))
+        elm.Resistor().right(2).at(header.pin4).label("5K1 ±10%", loc="right")
         elm.Wire("|-").to(header.pin5)
         elm.Wire("|-").at(self._340.UDP).to(header.pin3)
         elm.Wire("|-").at(self._340.UDM).to(header.pin2)
@@ -220,7 +220,7 @@ class MicrocontrollerBoard:
 
     def draw(self):
         """Digital part of the drawing"""
-        self.dwg.move(0, -18)
+        self.dwg.move(-10.3, -18)
         self._2313 = self.at_tiny_2313()
         self._2313.right()
         self.dwg.move(17, 1.9)

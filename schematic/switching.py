@@ -3,7 +3,6 @@
 from schemdraw import Drawing
 from schemdraw.util import Point
 import schemdraw.elements as elm
-from custom_elements import OldSchoolNC
 from regulator import RegulatorCircuit, RegulatorLabels
 
 
@@ -12,14 +11,12 @@ class SwitchingBoard:
 
     def __init__(self, dwg: Drawing):
         self.dwg = dwg
-        self.vss_0v: Point
-        self.vdd_5v: Point
-        self._20v: Point
+        self.regulator_circuit = RegulatorCircuit()
+        self.dial_header: elm.Element
 
     def psu(self):
         """The 5V power supply"""
-        regulator_circuit = RegulatorCircuit()
-        regulator_circuit.draw(
+        self.regulator_circuit.draw(
             self.dwg,
             RegulatorLabels(
                 chip="7805",
@@ -28,88 +25,88 @@ class SwitchingBoard:
                 top_resistor="1K8",
                 bottom_resistor="1K2",
             ),
-            self.vdd_5v.y,
-            self.vss_0v.y,
         )
-        self._20v = regulator_circuit.input_20v
 
-    def solenoid_transistor(self, pin: str) -> float:
-        """Transistor circuit for bell solenoid - return x position of header"""
-
-        header = elm.Header(rows=1, pinsleft=[pin], pinalignleft="center")
-        self.dwg.move_from(header.pin1, 3, 0)
-        left_edge = Point(self.dwg.here).x
-        transistor = elm.BjtNpn(circle=True).right().label("BC548B", loc="top")
-        elm.Resistor().at(transistor.base).to(header.pin1).label("4K7", ofst=(0, 0.4))
-        if pin == "B1":
-            elm.Vss().label("0V").at(transistor.emitter)
-        else:
-            elm.Wire("|-").at(transistor.emitter).to(self.vss_0v)
-        elm.Line().right(2).at(transistor.collector)
-        elm.Diode().toy(self._20v).label("1N4001")
-        self.dwg.move(1, 0.2 if pin == "B1" else -0.3)
-        solenoid = elm.Transformer(t1=7, t2=0).right()
-        if pin == "B2":
-            solenoid.flip().label("Bell\nSolenoids", loc="bottom")
-        elm.Line().left(1).at(solenoid.p1)
-        elm.Line().at(self._20v).tox(solenoid.p2)
-        elm.Line().left(1).hold()
-        elm.Line().to(solenoid.p2)
-        return left_edge
-
-    def save_vdd_vss(self):
-        here = Point(self.dwg.here)
-        self.vdd_5v = Point((here.x - 3.7, here.y + 5))
-        self.vss_0v = Point((here.x - 3.7, here.y - 2))
+    def solenoid_transistors(self):
+        """The bell solenoids and their switching transistors"""
+        elm.Line().left(2).at(self.regulator_circuit.vdd_input)
+        solenoids = {
+            "top": elm.Transformer(t1=7, t2=0).right(),
+            "bottom": elm.Transformer(t1=7, t2=0)
+            .right()
+            .flip()
+            .label("Bell\nSolenoids", loc="bottom"),
+        }
+        elm.Line().left(1)
+        diode_common = Point(self.dwg.here)
+        for position, solenoid in solenoids.items():
+            elm.Diode().reverse().at(diode_common).toy(solenoid.p1).label("1N4001")
+            elm.Line().to(solenoid.p1).hold()
+            elm.Line().left(1.5)
+            transistor = (
+                elm.BjtNpn(circle=True)
+                .anchor("collector")
+                .right()
+                .label("BC548B", loc="top")
+            )
+            elm.Resistor().at(transistor.base).left().label("4K7", ofst=(0, 0.4))
+            if position == "top":
+                header = elm.Header(
+                    rows=2, pinsleft=["B1", "B2"], pinalignleft="center"
+                ).anchor("pin1")
+                elm.Vss().label("0V").at(transistor.emitter)
+            else:
+                elm.Wire("-|").to(header.pin2)
+                elm.Wire("|-").at(transistor.emitter).to(
+                    self.regulator_circuit.vss_input
+                )
 
     def dial_circuit(self):
         """The whole dial debounce circuit"""
-        dial_header = elm.Header(
-            rows=4, pinsright=["blue", "pink", "grey", "orange"], pinalignright="center"
-        )
-        self.dwg.move(-8, 0)
+        self.dwg.move_from(self.regulator_circuit.output, 3.3, 0)
+        vdd = self.regulator_circuit.vdd_output
+        vss = self.regulator_circuit.vss_output
         io_header = elm.Header(
             pinsleft=["D4", "D3", ""],
             pinalignleft="center",
             rows=3,
             pinsright=["", "", "D2"],
             pinalignright="center",
-        )
-        self.save_vdd_vss()
+        ).anchor("pin1")
 
-        elm.Wire("|-").at(dial_header.pin1).to(self.vdd_5v)
-        elm.Wire("|-").at(dial_header.pin4).to(self.vss_0v)
+        elm.Line().left(1.8).at(io_header.pin3)
+        elm.Resistor().toy(vdd).label("10K").hold()
+        elm.Switch().toy(vss).label("hook", loc="top")
 
-        elm.Line().at(dial_header.pin2).left(1)
-        self.dwg.push()
-        elm.Resistor().toy(self.vdd_5v).label("10K")
-        self.dwg.pop()
-        elm.Line().to(io_header.pin1)
+        elm.Line().right(10.7).at(io_header.pin2)
+        elm.Resistor().toy(vss).label("10K").hold()
+        elm.Line().right(1)
 
-        elm.Line().at(dial_header.pin3).left(1)
-        self.dwg.push()
-        elm.Resistor().toy(self.vss_0v).label("10K")
-        self.dwg.pop()
-        elm.Line().to(io_header.pin2)
+        self.dial_header = elm.Header(
+            rows=4, pinsright=["blue", "pink", "grey", "orange"], pinalignright="center"
+        ).anchor("pin3")
+        elm.Wire("|-").at(self.dial_header.pin1).to(vdd).color("blue")
+        elm.Wire("|-").at(self.dial_header.pin4).to(vss).color("blue")
 
-        elm.Line().left(2).at(io_header.pin3)
-        elm.Resistor().toy(self.vdd_5v).label("10K").hold()
-        elm.Switch().toy(self.vss_0v).label("hook", loc="top")
+        elm.Line().left(1).at(self.dial_header.pin2)
+        elm.Resistor().toy(vdd).label("10K").hold()
+
 
     def dial(self):
         """The actual dial in the phone"""
-        dial_header = elm.Header(
+        self.dwg.move_from(self.dial_header.pin2, 3, -1.8)
+        header = elm.Header(
             rows=5,
             pinsleft=["blue", "grey", "pink", "orange", "brown"],
             pinalignleft="center",
         )
         self.dwg.move(2, 2.5)
-        dpst = elm.SwitchDpst().label("Trigger", loc="top")
-        blue = dial_header.pin1
-        grey = dial_header.pin2
-        pink = dial_header.pin3
-        orange = dial_header.pin4
-        brown = dial_header.pin5
+        dpst = elm.SwitchDpst().label("Trigger", loc="top").right()
+        blue = header.pin1
+        grey = header.pin2
+        pink = header.pin3
+        orange = header.pin4
+        brown = header.pin5
         elm.Line().right(1.2).at(grey)
         elm.Wire("|-").to(dpst.p1)
         elm.Line().up(1).at(blue)
@@ -129,21 +126,9 @@ class SwitchingBoard:
         elm.Wire("|-").to(dpst.t2)
 
     def draw(self):
-        """
-        Draw switching board
-
-        All These relative moves are a bit horrible and make trying to modify
-        the circuit kinda hard.
-        It would be better if the various parts were properly arranged
-        in relation to each other.
-        """
-        self.dial()
-        self.dwg.move(-6, -1.2)
-        self.dial_circuit()
-        self.dwg.move(-5, 2.5)
+        """Draw switching board"""
         self.psu()
-        self.dwg.move_from(self._20v, -9, 2)
-        self.solenoid_transistor("B1")
-        self.dwg.move(-7.05, -4.3)
-        left_edge = self.solenoid_transistor("B2")
-        self.dwg.here = (left_edge, Point(self.vss_0v).y)
+        self.solenoid_transistors()
+        self.dial_circuit()
+        self.dial()
+        self.dwg.here = self.regulator_circuit.vss_input

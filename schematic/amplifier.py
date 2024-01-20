@@ -23,7 +23,7 @@ class AmplifierBoard:
         self.dwg.push()
         self.dwg.move(-3.6, -2.1)
         self.input_header = elm.Header(
-            rows=4, pinsleft=["left", "right", "B3", "ground"], pinalignleft="center"
+            rows=4, pinsleft=["Left", "Right", "B3", "GND"], pinalignleft="center"
         )
         self.dwg.pop()
         self.dwg.push()
@@ -76,9 +76,8 @@ class AmplifierBoard:
         )
         self.vss_0v = regulator_circuit.vss_output
         self.vdd_12v = regulator_circuit.vdd_output
-        elm.Line().right(1.5).at(self.vdd_12v)
+        self.dwg.move_from(self.vdd_12v, 1.5, 0)
         ElectrolyticCapacitor().toy(self.vss_0v).label("100μ")
-        elm.Line().to(self.vss_0v)
         self.dwg.move_from(self.vdd_12v, 2, -3)
 
     def the_chip(self):

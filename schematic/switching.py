@@ -30,31 +30,40 @@ class SwitchingBoard:
     def solenoid_transistors(self):
         """The bell solenoids and their switching transistors"""
         elm.Line().left(2).at(self.regulator_circuit.vdd_input)
-        solenoids = {
-            "top": elm.Transformer(t1=7, t2=0).right(),
-            "bottom": elm.Transformer(t1=7, t2=0)
-            .right()
-            .flip()
-            .label("Bell\nSolenoids", loc="bottom"),
-        }
-        elm.Line().left(1)
+        solenoid_common = self.dwg.here
+        elm.Line().left(0.6)
         diode_common = Point(self.dwg.here)
-        for position, solenoid in solenoids.items():
+        for position in ("Left", "Right"):
+            if position == "Left":
+                elm.Line().up(0.2).at(solenoid_common)
+            else:
+                elm.Line().down(0.2).at(solenoid_common)
+            solenoid = (
+                elm.Transformer(t1=7, t2=0)
+                .right()
+                .label(
+                    f"{position} solenoid",
+                    loc="top" if position == "Left" else "bottom",
+                )
+            )
+            if position == "Right":
+                solenoid.flip()
             elm.Diode().reverse().at(diode_common).toy(solenoid.p1).label("1N4001")
             elm.Line().to(solenoid.p1).hold()
-            elm.Line().left(1.5)
+            elm.Line().left(1.8)
             transistor = (
                 elm.BjtNpn(circle=True)
                 .anchor("collector")
                 .right()
                 .label("BC548B", loc="top")
             )
-            elm.Resistor().at(transistor.base).left().label("4K7", ofst=(0, 0.4))
-            if position == "top":
+            elm.Resistor().left().at(transistor.base).label("4K7", ofst=(0, 0.4))
+            if position == "Left":
                 header = elm.Header(
                     rows=2, pinsleft=["B1", "B2"], pinalignleft="center"
                 ).anchor("pin1")
-                elm.Vss().label("0V").at(transistor.emitter)
+                elm.Line().down(0.5).at(transistor.emitter)
+                elm.Vss().label("0V")
             else:
                 elm.Wire("-|").to(header.pin2)
                 elm.Wire("|-").at(transistor.emitter).to(
@@ -76,7 +85,7 @@ class SwitchingBoard:
 
         elm.Line().left(1.8).at(io_header.pin3)
         elm.Resistor().toy(vdd).label("10K").hold()
-        elm.Switch().toy(vss).label("hook", loc="top")
+        elm.Switch().toy(vss).label("Hook", loc="top")
 
         elm.Line().right(10.7).at(io_header.pin2)
         elm.Resistor().toy(vss).label("10K").hold()

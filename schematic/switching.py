@@ -4,6 +4,7 @@ from schemdraw import Drawing
 from schemdraw.util import Point
 import schemdraw.elements as elm
 from regulator import RegulatorCircuit, RegulatorLabels
+from custom_elements import ElectrolyticCapacitor, OldSchoolNC
 
 
 class SwitchingBoard:
@@ -12,6 +13,7 @@ class SwitchingBoard:
     def __init__(self, dwg: Drawing):
         self.dwg = dwg
         self.regulator_circuit = RegulatorCircuit()
+        self.input_header: elm.Element
         self.dial_header: elm.Element
 
     def psu(self):
@@ -25,6 +27,7 @@ class SwitchingBoard:
                 top_resistor="1K8",
                 bottom_resistor="1K2",
             ),
+            headroom=1,
         )
 
     def solenoid_transistors(self):
@@ -72,34 +75,74 @@ class SwitchingBoard:
 
     def dial_circuit(self):
         """The whole dial debounce circuit"""
-        self.dwg.move_from(self.regulator_circuit.output, 3.3, 0)
         vdd = self.regulator_circuit.vdd_output
         vss = self.regulator_circuit.vss_output
-        io_header = elm.Header(
-            pinsleft=["D4", "D3", ""],
+        self.dwg.move_from(self.regulator_circuit.output, 3.3, 0)
+        self.input_header = elm.Header(
+            pinsleft=["", "D4", "D3"],
             pinalignleft="center",
             rows=3,
-            pinsright=["", "", "D2"],
+            pinsright=["D2", "", ""],
             pinalignright="center",
         ).anchor("pin1")
 
-        elm.Line().left(1.8).at(io_header.pin3)
-        elm.Resistor().toy(vdd).label("10K").hold()
+        elm.Line().left(1.8).at(self.input_header.pin1)
+        self.dwg.push()
+        elm.Line().up(1.6)
+        elm.Resistor().toy(vdd).label("10K")
+        self.dwg.pop()
         elm.Switch().toy(vss).label("Hook", loc="top")
 
-        elm.Line().right(10.7).at(io_header.pin2)
+        elm.Line().right(10.7).at(self.input_header.pin3)
         elm.Resistor().toy(vss).label("10K").hold()
         elm.Line().right(1)
 
         self.dial_header = elm.Header(
             rows=4, pinsright=["blue", "pink", "grey", "orange"], pinalignright="center"
         ).anchor("pin3")
-        elm.Wire("|-").at(self.dial_header.pin1).to(vdd).color("blue")
-        elm.Wire("|-").at(self.dial_header.pin4).to(vss).color("blue")
+        elm.Wire("|-").at(self.dial_header.pin1).to(vdd)
+        elm.Wire("|-").at(self.dial_header.pin4).to(vss)
+        self.dwg.move_from(self.dial_header.pin2, -1, 0)
+        elm.Line().up(2.1)
+        elm.Resistor().toy(vdd).label("10K")
 
-        elm.Line().left(1).at(self.dial_header.pin2)
-        elm.Resistor().toy(vdd).label("10K").hold()
-
+    def debounce(self):
+        """Debounce the dial pulse line with a 555"""
+        vss = self.regulator_circuit.vss_output
+        vdd = self.regulator_circuit.vdd_output
+        self.dwg.move_from(self.input_header.pin2, 4, 0.4)
+        chip = elm.Ic(
+            size=(4.5, 2.5),
+            pins=[
+                elm.IcPin(name="RST", side="top", pin="4"),
+                elm.IcPin(name="VCC", side="top", pin="8"),
+                elm.IcPin(name="OUT", side="left", pin="3"),
+                elm.IcPin(name="GND", side="bottom", pin="1"),
+                elm.IcPin(name="CTL", side="bottom", pin="5"),
+                elm.IcPin(name="TRIG", side="right", pin="2"),
+                elm.IcPin(name="THRESH", side="left", pin="6"),
+                elm.IcPin(name="DIS", side="left", pin="7"),
+            ],
+            label="555",
+            pinspacing=0.8,
+        ).right()
+        elm.Line().at(chip.RST).toy(vdd)
+        elm.Line().at(chip.VCC).toy(vdd)
+        elm.Line().left(2).at(chip.OUT)
+        elm.Wire("|-").to(self.input_header.pin2)
+        OldSchoolNC().down(1).at(chip.GND)
+        elm.Line().toy(vss)
+        OldSchoolNC().down(1).at(chip.CTL)
+        elm.Capacitor().toy(vss).label("10n")
+        elm.Wire("|-").at(chip.TRIG).to(self.dial_header.pin2)
+        elm.Line().left(0.7).at(chip.DIS)
+        elm.Resistor().toy(vdd).label("47K").hold()
+        elm.Line().toy(chip.THRESH)
+        elm.Line().to(chip.THRESH).hold()
+        OldSchoolNC().down(1.2)
+        elm.Line().down(0.5)
+        OldSchoolNC().down(1)
+        ElectrolyticCapacitor().toy(vss).label("1μ")
 
     def dial(self):
         """The actual dial in the phone"""
@@ -139,5 +182,6 @@ class SwitchingBoard:
         self.psu()
         self.solenoid_transistors()
         self.dial_circuit()
+        self.debounce()
         self.dial()
         self.dwg.here = self.regulator_circuit.vss_input

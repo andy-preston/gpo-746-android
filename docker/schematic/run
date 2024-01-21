@@ -5,6 +5,6 @@ black *.py
 echo PYLint
 pylint *.py
 echo MyPy
-mypy  --check-untyped-defs --cache-dir /var/tmp/mypy *.py
+mypy  --check-untyped-defs *.py
 echo Drawing...
 python draw.py

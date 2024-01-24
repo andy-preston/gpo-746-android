@@ -9,7 +9,7 @@ import android.telephony.TelephonyManager
 
 open class IncomingActivity : IdleActivity() {
 
-    val phoneStateReceiver = object : BroadcastReceiver() {
+    private val phoneStateReceiver = object : BroadcastReceiver() {
         public override fun onReceive(context: Context, intent: Intent) {
             val state: String? = intent.getStringExtra(TelephonyManager.EXTRA_STATE)
             state?.let {

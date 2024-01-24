@@ -13,7 +13,7 @@ open class IdleActivity : PermissionActivity() {
     private val usbHelper = UsbHelper()
     private val ch340g = Ch340g(usbHelper)
 
-    val disconnectedReceiver = object : BroadcastReceiver() {
+    private val disconnectedReceiver = object : BroadcastReceiver() {
         public override fun onReceive(context: Context, intent: Intent) {
             deviceDetached()
         }

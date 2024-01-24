@@ -17,7 +17,7 @@ open class OutgoingActivity : IncomingActivity() {
     private val validator = PhoneNumberValidator()
     private var number: String = ""
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         toneDialButton.setOnClickListener {
             if (tones.isPlaying()) {
@@ -35,7 +35,7 @@ open class OutgoingActivity : IncomingActivity() {
         }
     }
 
-    override fun onDestroy() {
+    public override fun onDestroy() {
         super.onDestroy()
         tones.finish()
     }

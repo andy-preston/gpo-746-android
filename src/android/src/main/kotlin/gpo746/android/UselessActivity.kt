@@ -19,7 +19,7 @@ open class UselessActivity : Activity() {
     protected lateinit var numberDisplay: TextView
     protected lateinit var statusDisplay: TextView
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         logInfo("UselessActivity", "STARTED")
         setContentView(R.layout.activity)

@@ -12,11 +12,11 @@ import andyp.gpo746.UsbSystemInterface
 private const val TIMEOUT_MILLISECONDS = 1000
 
 class UsbHelper : UsbSystemInterface {
+
     private var usbDevice: UsbDevice? = null
     private var usbDeviceConnection: UsbDeviceConnection? = null
     private var usbInterface: UsbInterface? = null
     private var bulkReadEndpoint: UsbEndpoint? = null
-
     private var packetSize: Int = 0
 
     public fun openDevice(device: UsbDevice?, usbManager: UsbManager) {

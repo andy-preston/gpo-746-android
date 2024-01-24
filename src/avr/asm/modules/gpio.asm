@@ -7,6 +7,7 @@
     .equ pin_out_RI = 0
     .equ pin_out_ding = 1
     .equ pin_out_dong = 2
+    .equ pin_out_amplifier = 3
     .equ pin_out_LED = 4
     .equ pin_out_MOSI_B5 = 5
     .equ pin_out_MISO_B6 = 6
@@ -44,6 +45,16 @@
 
 .macro blink_off
     cbi output_port, pin_out_LED
+.endMacro
+
+
+.macro switch_amp_on
+    sbi output_port, pin_out_amplifier
+.endMacro
+
+
+.macro switch_amp_off
+    cbi output_port, pin_out_amplifier
 .endMacro
 
 

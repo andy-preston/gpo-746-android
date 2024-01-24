@@ -1,10 +1,6 @@
 #!/bin/bash
 
-echo Black!
 black *.py
-echo PYLint
 pylint *.py
-echo MyPy
-mypy  --check-untyped-defs --cache-dir /var/tmp/mypy *.py
-echo Drawing...
+mypy  --check-untyped-defs *.py
 python draw.py

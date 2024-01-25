@@ -68,8 +68,8 @@
 .endMacro
 
 
-.macro skip_on_no_incoming
-    sbic input_pins, pin_in_RTS
+.macro skip_on_incoming
+    sbis input_pins, pin_in_RTS
 .endMacro
 
 

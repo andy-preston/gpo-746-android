@@ -69,9 +69,27 @@ delay:
     brne delay
 .endMacro
 
+
+; I've found myself wanting a one-second delay in a few tests and found myself
+; typing wait_for_multiple_20ms 0x50 . which isn't what we want... the
+; hexadecimal obsession of the assembly programmer strikes!
+
 .macro wait_for_a_second
-    ; I've found myself wanting a one-second delay in a few tests and
-    ; found myself typing wait_for_multiple_20ms 0x50 . which isn't what we
-    ; want... the hexadecimal obsession of the assembly programmer strikes!
     wait_for_multiple_20ms 50
+.endMacro
+
+.macro wait_for_two_seconds
+    wait_for_multiple_20ms 100
+.endMacro
+
+.macro wait_for_three_seconds
+    wait_for_multiple_20ms 150
+.endMacro
+
+.macro wait_for_four_seconds
+    wait_for_multiple_20ms 200
+.endMacro
+
+.macro wait_for_five_seconds
+    wait_for_multiple_20ms 250
 .endMacro

@@ -7,9 +7,10 @@ import android.os.Handler
 import android.os.Looper
 import andyp.gpo746.PhoneNumberValidator
 import andyp.gpo746.Tones
+import andyp.gpo746.ToneSelection
 import andyp.gpo746.ValidatorResult
 
-private const val DELAY_MILLISECONDS: Long = 1000
+private const val LOOPER_DELAY_MILLISECONDS: Long = 1000
 
 open class OutgoingActivity : IncomingActivity() {
 
@@ -23,14 +24,14 @@ open class OutgoingActivity : IncomingActivity() {
             if (tones.isPlaying()) {
                 tones.stop()
             } else {
-                tones.play(misdial = false)
+                tones.play(ToneSelection.dial)
             }
         }
         toneMisdialButton.setOnClickListener {
             if (tones.isPlaying()) {
                 tones.stop()
             } else {
-                tones.play(misdial = true)
+                tones.play(ToneSelection.misdial)
             }
         }
     }
@@ -58,17 +59,17 @@ open class OutgoingActivity : IncomingActivity() {
         Handler(Looper.getMainLooper()).postDelayed(
             { poll() },
             "OutgoingActivity",
-            DELAY_MILLISECONDS
+            LOOPER_DELAY_MILLISECONDS
         )
     }
 
     private fun invalidNumber() {
-        tones.play(misdial = true)
+        tones.play(ToneSelection.misdial)
         outputMode(ring = false, amp = true)
     }
 
     private fun incompleteNumber() {
-        tones.play(misdial = false)
+        tones.play(ToneSelection.dial)
         outputMode(ring = false, amp = true)
     }
 

@@ -3,7 +3,7 @@
 CONTAINER_SHARE="/usr/local/share"
 CONTAINER_SRC="/usr/local/src"
 CONTAINER_BIN="/usr/local/bin"
-GRADLE="/opt/gradle/gradle-8.3/bin/gradle"
+GRADLE="/opt/gradle/bin/gradle"
 ANDROID_SDK_ROOT="${CONTAINER_SHARE}/android"
 
 case $1 in

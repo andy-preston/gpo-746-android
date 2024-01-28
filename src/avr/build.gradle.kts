@@ -38,21 +38,11 @@ mainDirectory.getAsFile().listFiles().forEach {
 }
 
 fun addAssemblyTask(name: String) {
-    tasks.register<Exec>(name.replace(Regex("[.-]"), "_")) {
+    val simpleName = name.replace(Regex("[.-]"), "_")
+    tasks.register<Exec>(simpleName) {
         dependsOn(tasks.withType<Copy>())
         workingDir(layout.buildDirectory)
-        standardOutput = FileOutputStream(
-            layout.buildDirectory.get().file(
-                name.replace(".asm", ".log")
-            ).asFile
-        )
-        commandLine(
-            "/opt/gavrasm/gavrasm",
-            "-E", // Longer error comments
-            "-S", // Symbol list in listing file
-            "-M", // Expand macro code
-            name
-        )
+        commandLine("/usr/local/bin/gavrasm", name)
     }
 }
 

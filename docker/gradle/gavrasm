@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ -z "$1" ]
+then
+    echo "gavrasm plop.asm"
+    exit -1
+fi
+
 PLAIN_NAME=$(echo $1 | sed -e 's/.asm$//g')
 LOG_FILE="${PLAIN_NAME}.log"
 ERROR_FILE="${PLAIN_NAME}.err"

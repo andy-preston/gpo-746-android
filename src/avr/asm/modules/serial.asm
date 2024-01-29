@@ -29,12 +29,16 @@
 
 
 .macro write_serial
-    ; This should only be called when there's specifically an ASCII digit to
-    ; output in _dialled_digit. It doesn't do anything clever to ignore null
-    ; values or anything like that.
+    ; Write an ASCII digit in _dialled_digit to the serial port.
+
+    ; If there's nothing to send, just give up
+    tst _dialled_digit
+    breq end_write_serial
+
 buffer_wait:
-    sbis UCSRA, UDRE                       ; If buffer is empty, don't wait
+    sbis UCSRA, UDRE
     rjmp buffer_wait
 
     out    UDR, _dialled_digit
+end_write_serial:
 .endMacro

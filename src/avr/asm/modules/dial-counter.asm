@@ -18,35 +18,33 @@
     ldi _io, T0_rising
     out TCCR0B, _io
 
-    reset_or_abort_dialing
+    ; The counter is probably already zero - but let's zero it anyway
+    ; just in case.
+    out TCNT0, _zero
+
+    ; We skip sending a digit if it's zero, so this is a sensible default
+    clr _dialled_digit
+
     ldi _ascii_zero, '0'
 .endMacro
 
 
 .macro get_dial_pulse_count
-    ; Clear the digit value so that when we "fall through" this macro
-    ; with no digit dialled yet, the result is correctly zero
-    clr _dialled_digit
-
     ; If the dial is active then the full pulse count is not yet available
+    ; and there's nothing to do.
     skip_dial_inactive
-    rjmp got_pulse_count
+    rjmp end_of_pulse_count
 
-    ; Otherwise get the pulse count from the TimerCounter0 register quickly
-    ; before the user starts to dial` another digit
+    ; There may be a digit available now, or perhaps nothing's happened and
+    ; it's zero.
     in _dialled_digit, TCNT0
 
-    ; And clear the TimerCounter0 register, ready for the next digit
+    ; If it's zero, again, we've got nothing to do.
+    tst _dialled_digit
+    breq end_of_pulse_count
+
+    ; If it's not zero, clear the counter ready for the next one.
     out TCNT0, _zero
-got_pulse_count:
-.endMacro
 
-
-.macro reset_or_abort_dialing
-    ; Clear the counter ready for pulses to come in
-    ; And "throw away" any pulses that may have accumulated in TimerCounter0
-    ; "by accident"
-
-    clr _dialled_digit
-    out TCNT0, _dialled_digit
+end_of_pulse_count:
 .endMacro

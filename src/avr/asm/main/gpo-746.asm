@@ -7,98 +7,49 @@
     .include "dial-ascii.asm"
     .include "serial.asm"
 
+
     setup_outputs
     setup_20ms_timer
     setup_dial
     setup_serial
+    setup_ring_sequence
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;             +-----------+
-;             |  Ringing  | --------------+
-;             +-----------+               |
-;               ^                         |
-;               | incoming                |
-;               |                         |
-;             +-----------+               |
-;  +--------> |  Waiting  | <--+          |
-;  |          +-----------+    |          |
-;  |            |              |          |
-;  |            | pick up      | put down |
-;  |            v              |          |
-;  |          +-----------+    |          |
-;  | put down |  Dialing  | ---+          |
-;  |          +-----------+               |
-;  |            |                         |
-;  |            | INCOMING (Abnormal)     |
-;  |            v                         |
-;  |          +-----------+  pick up      |
-;  +--------- |  Calling  | <-------------+
-;             +-----------+
+ring_for_incoming_call:
+    skip_on_incoming
+    rjmp control_amplifier
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ring_prepare:
+    start_20ms_wait
+    load_ring_sequence_byte
 
-enter_waiting:
-state_waiting:
-    skip_on_no_incoming
-    rjmp enter_ringing
+control_amplifier:
+    skip_on_no_amp_required
+    rjmp amp_required
 
+no_amp_required:
+    switch_amp_off
+    rjmp hook_and_dial
+
+amp_required:
+    switch_amp_on
+
+hook_and_dial:
     skip_when_picked_up
-    rjmp enter_dialing
+    rjmp put_down
 
-    rjmp state_waiting
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-enter_ringing:
-    start_ringing
-state_ringing:
-    ring_sequence_step
-    skip_when_picked_up
-    rjmp state_ringing
-
-    ; otherwise "fall through" straight into enter_calling
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-enter_calling:
-state_calling:
-    skip_when_picked_up
-    rjmp enter_waiting
-
-    rjmp state_calling
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-enter_dialing:
-    reset_or_abort_dialing
-state_dialing:
-    ; This is a peculiar state that never happens with a real phone.
-    ; The receiver is picked up, the user is dialing and a call comes in
-    ; On a real phone, the line would be engaged at this point.
-    ; I'm not sure if it's possible to make an Android phone "believe" it's
-    ; engaged when it's, technically, not so.
-    skip_on_no_incoming
-    rjmp enter_calling
-
-    skip_when_picked_up
-    rjmp abandon_dialing
+picked_up:
+    send_picked_up_signal
 
     get_dial_pulse_count
-    ; If there are no pulses, then we can just skip to the end
-    tst _dialled_digit
-    breq state_dialing
-
-    ; ... otherwise
     convert_pulse_count_to_ascii
     write_serial
-    rjmp state_dialing
 
-abandon_dialing:
-    reset_or_abort_dialing
-    rjmp enter_waiting
+    rjmp ring_for_incoming_call
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+put_down:
+    send_put_down_signal
+    rjmp ring_for_incoming_call
 
 ring_sequence:
     ring_data real_ring

@@ -4,11 +4,9 @@
 
 
 .macro convert_pulse_count_to_ascii
-    ; This is only used in `GetAndsend_digit`
-    ; It's responsible for converting the pulse count in `_dialled_digit`
-    ; to an ASCII representation.
+    ; Convert the pulse count in `_dialled_digit` to an ASCII representation.
 
-    ; If digit is zer0, ignore it
+    ; If digit is zero, ignore it
     tst _dialled_digit
     breq end_ascii_count
 

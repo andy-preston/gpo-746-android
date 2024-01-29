@@ -14,6 +14,7 @@ RUN apk add unzip && \
         gavrasm_lin_i386_x64_en_v54 && \
     mv /opt/gavrasm/gavrasm_lin_i386_x64_en_v54 /opt/gavrasm/gavrasm
 
+
 FROM gradle:8.3.0-jdk17-jammy
 
 RUN apt-get update && \

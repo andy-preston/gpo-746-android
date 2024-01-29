@@ -1,3 +1,11 @@
+FROM alpine:3.19.1 as builder
+
+ADD https://github.com/denoland/deno/releases/download/v1.39.4/deno-x86_64-unknown-linux-gnu.zip \
+    /usr/local/share/deno.zip
+
+RUN unzip -d /usr/local/bin /usr/local/share/deno.zip
+
+
 FROM python:3.12.1-bullseye
 
 ENV TERM=linux
@@ -8,10 +16,7 @@ ENV PYLINTHOME=/var/tmp/pylint
 ENV PYTHONPYCACHEPREFIX=/var/tmp/pycache
 ENV DENO_DIR=/var/tmp/deno
 
-ADD https://github.com/denoland/deno/releases/download/v1.39.4/deno-x86_64-unknown-linux-gnu.zip \
-    /var/tmp/deno.zip
-
-RUN unzip -d /usr/local/bin /var/tmp/deno.zip
+COPY --from=builder /usr/local/bin/deno /usr/local/bin/deno
 
 RUN pip install --upgrade pip && \
     pip install --upgrade \

@@ -5,6 +5,7 @@ CONTAINER_SRC="/usr/local/src"
 CONTAINER_BIN="/usr/local/bin"
 GRADLE="/opt/gradle/bin/gradle"
 ANDROID_SDK_ROOT="${CONTAINER_SHARE}/android"
+DOCKER_DIRECTORY="$(pwd)/docker/gradle"
 
 case $1 in
 'sdk')
@@ -59,11 +60,11 @@ else
     mkdir -p ${LOCAL_SHARE}/gradle
     mkdir -p ${LOCAL_SHARE}/konan
     mkdir -p ${LOCAL_SHARE}/android
-    docker build --tag android_gpo ./docker/gradle
+    docker build --tag android_gpo ${DOCKER_DIRECTORY}
     docker run \
         --rm --interactive --tty \
         --volume "${LOCAL_BIN}/gradle:${CONTAINER_BIN}/gradle" \
-        --volume "${LOCAL_BIN}/gavrasm:${CONTAINER_BIN}/gavrasm" \
+        --volume "${DOCKER_DIRECTORY}/gavrasm:${CONTAINER_BIN}/gavrasm" \
         --volume "${LOCAL_SHARE}/android:${ANDROID_SDK_ROOT}" \
         --env "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}" \
         --volume "${LOCAL_SHARE}/gradle:${CONTAINER_SHARE}/gradle" \

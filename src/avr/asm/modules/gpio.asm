@@ -34,7 +34,11 @@
 .macro setup_outputs
     ldi _io, (1 << pin_out_LED) | (1 << pin_out_RI) | (1 << pin_out_ding) | (1 << pin_out_dong)
     out output_DDR, _io
-    sbi output_port, pin_out_LED
+    ; Clear all outputs except the LED.
+    ; To ensure everything is switched off...
+    ; ... apart from what's switched on, of course.
+    ldi _io, 1 << pin_out_LED
+    out output_port, _io
 .endMacro
 
 

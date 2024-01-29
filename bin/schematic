@@ -1,5 +1,8 @@
 #!/bin/bash
 
+DOCKER_DIRECTORY="$(pwd)/docker/schematic"
+CONTAINER_BIN="/usr/local/bin"
+
 case $1 in
 'pylint')
     docker exec schematic $@
@@ -9,7 +12,7 @@ case $1 in
     COMMAND="/usr/local/bin/run"
     ;;
 *)
-    docker build --tag schematic ./docker/schematic
+    docker build --tag schematic ${DOCKER_DIRECTORY}
     COMMAND="bash"
     ;;
 esac
@@ -24,6 +27,7 @@ else
         --workdir "${WORKING_DIR}" \
         --user $(id -u):$(id -g) \
         --volume "${WORKING_DIR}:${WORKING_DIR}" \
+        --volume "${DOCKER_DIRECTORY}/run:${CONTAINER_BIN}/run" \
         --name schematic \
         schematic ${COMMAND}
 fi

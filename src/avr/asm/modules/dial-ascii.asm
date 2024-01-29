@@ -3,6 +3,11 @@
 ; For `write_serial`, see `./serial.asm`
 
 
+.macro setup_ascii
+    ldi _ascii_zero, '0'
+.endMacro
+
+
 .macro convert_pulse_count_to_ascii
     ; Convert the pulse count in `_dialled_digit` to an ASCII representation.
 

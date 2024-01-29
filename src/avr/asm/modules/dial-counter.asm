@@ -24,8 +24,6 @@
 
     ; We skip sending a digit if it's zero, so this is a sensible default
     clr _dialled_digit
-
-    ldi _ascii_zero, '0'
 .endMacro
 
 

@@ -8,8 +8,6 @@ ENV PYLINTHOME=/var/tmp/pylint
 ENV PYTHONPYCACHEPREFIX=/var/tmp/pycache
 ENV DENO_DIR=/var/tmp/deno
 
-ADD run /usr/local/bin/run
-
 ADD https://github.com/denoland/deno/releases/download/v1.39.4/deno-x86_64-unknown-linux-gnu.zip \
     /var/tmp/deno.zip
 

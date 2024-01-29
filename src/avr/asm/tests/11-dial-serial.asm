@@ -9,6 +9,7 @@
 
     setup_outputs
     setup_dial
+    setup_ascii
     setup_serial
 
 check_dial:

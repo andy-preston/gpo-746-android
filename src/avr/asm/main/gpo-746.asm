@@ -12,6 +12,7 @@
     setup_20ms_timer
     setup_dial
     setup_serial
+    setup_ascii
     setup_ring_sequence
 
 

@@ -41,7 +41,7 @@ open class OutgoingActivity : IncomingActivity() {
         tones.finish()
     }
 
-    public fun poll() {
+    private fun poll() {
         logInfo("OutgoingActivity", "Poll")
         if (hookIsUp()) {
             number + dialledDigits()

@@ -8,6 +8,7 @@ import android.hardware.usb.UsbInterface
 import android.hardware.usb.UsbManager
 import android.util.Log
 import andyp.gpo746.UsbSystemInterface
+import andyp.gpo746.Ch340Exception
 
 private const val TIMEOUT_MILLISECONDS = 1000
 
@@ -54,7 +55,7 @@ class UsbHelper : UsbSystemInterface {
 
     private fun exception(message: String) {
         Log.e("gpo746", "UsbHelper - $message")
-        throw Exception(message)
+        throw Ch340Exception(message)
     }
 
     public fun closeDevice() {

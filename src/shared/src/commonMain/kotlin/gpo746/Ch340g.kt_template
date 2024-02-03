@@ -120,7 +120,7 @@ class Ch340g(usbSystem: UsbSystemInterface) : UsbResultBuffer() {
     public fun start() {
         val version: UShort = read(ReadRequest.VendorGetVersion)
         if (version != @usedChipVersion@.toUShort()) {
-            throw Exception("version should be @usedChipVersion@, but it's $version")
+            throw Ch340Exception("version should be @usedChipVersion@, but it's $version")
         }
         write(WriteRequest.VendorSerialInit, 0u)
         writeRegisters(WriteRegister.BaudDivisorPreScale, @divisorPrescale@)

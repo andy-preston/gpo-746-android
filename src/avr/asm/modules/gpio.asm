@@ -25,6 +25,12 @@
     .equ pin_out_MISO_B6 = 6
     .equ pin_out_UCSK_B7 = 7
 
+    ; The output pins for the DDR.
+    .equ control_outputs = (1 << pin_out_LED) | (1 << pin_out_RI)
+    .equ dial_outputs = (1 << pin_out_ding) | (1 << pin_out_dong)
+    .equ outputs = control_outputs | dial_outputs
+
+
     .equ input_port = PORTD
     .equ input_pins = PIND
     .equ input_DDR = DDRD
@@ -57,7 +63,7 @@
 
 
 .macro setup_outputs
-    ldi _io, (1 << pin_out_LED) | (1 << pin_out_RI) | (1 << pin_out_ding) | (1 << pin_out_dong)
+    ldi _io, outputs
     out output_DDR, _io
     ; Clear all outputs except the LED.
     ; To ensure everything is switched off...
@@ -113,5 +119,9 @@
 
 
 .macro skip_dial_inactive
+    sbic input_pins, pin_in_dial_grey
+.endMacro
+
+.macro skip_pulse_pin_low
     sbic input_pins, pin_in_dial_grey
 .endMacro

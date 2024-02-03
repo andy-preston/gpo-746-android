@@ -2,10 +2,9 @@ package andyp.gpo746
 
 import android.media.AudioFormat
 import android.media.AudioTrack
-import android.util.Log
 import java.lang.Thread
 
-enum class ToneSelection { dial, misdial, engaged }
+enum class ToneSelection { DIAL, MISDIAL, ENGAGED }
 
 const val SAMPLE_RATE = 8000 // Hz
 
@@ -83,9 +82,9 @@ final class Tones : ToneBufferBuilder() {
             return
         }
         val tone = when (selection) {
-           ToneSelection.dial -> dialTone
-           ToneSelection.misdial -> misdialTone
-           ToneSelection.engaged -> engagedTone
+            ToneSelection.DIAL -> dialTone
+            ToneSelection.MISDIAL -> misdialTone
+            ToneSelection.ENGAGED -> engagedTone
         }
         stop()
         Thread({

@@ -57,7 +57,7 @@ enum class GclInputBit(val mask: UByte) {
     DCD(0x08u)
 }
 
-const val zeroByte: UByte = 0u
+const val ZERO_BYTE: UByte = 0u
 
 @Suppress("MagicNumber")
 @OptIn(kotlin.ExperimentalUnsignedTypes::class)
@@ -132,9 +132,9 @@ class Ch340g(usbSystem: UsbSystemInterface) : UsbResultBuffer() {
         // This should be a logical OR but, during debugging, I made it an
         // add instead and both are more or less the same.
         val modemControl: UShort = (
-            (if (outputRTS) ModemControlBit.RTS.mask else zeroByte) or
-            (if (outputDTR) ModemControlBit.DTR.mask else zeroByte)
-        ).toUShort()
+            (if (outputRTS) ModemControlBit.RTS.mask else ZERO_BYTE) or
+                (if (outputDTR) ModemControlBit.DTR.mask else ZERO_BYTE)
+            ).toUShort()
         // For a chip version > 0x20, Write to Modem Control
         // For a lower version, Write to GCL
         // But on my version 0x31 chip, both seem to work

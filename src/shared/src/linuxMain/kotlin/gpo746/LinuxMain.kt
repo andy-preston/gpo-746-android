@@ -26,12 +26,12 @@ fun main(args: Array<String>) {
         }
         usb.finish()
     } else {
-        println("./bin/usb-test test-case [number to repeat] [pause between tests]")
+        println("./bin/usb-test [test case] [number to repeat] [pause between tests]")
         println("Available test cases:")
         testMap.keys.forEach { testName ->
             println(testName)
         }
         println("default number of repeats is 1")
-        println("default pause is 10")
+        println("default pause is 10 seconds")
     }
 }

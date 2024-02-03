@@ -19,7 +19,7 @@ abstract class ToneBufferBuilder {
     }
 }
 
-final class Tone(minBufferSize: Int, waveform: ByteArray): ToneBufferBuilder() {
+final class Tone(minBufferSize: Int, waveform: ByteArray) : ToneBufferBuilder() {
     val samples = setupSamples(minBufferSize, waveform)
     val track = AudioTrack(
         AudioAttributes.Builder().setUsage(

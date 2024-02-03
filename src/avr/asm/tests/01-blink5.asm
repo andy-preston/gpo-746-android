@@ -3,8 +3,13 @@
     .include "ring-timer.asm"
     .include "blinks.asm"
 
-    ; A Very simple test which will blink the LED 5 times with a 200ms delay,
-    ; wait 500ms and blink it 5 times again... ad infinitum.
+    ; Test the blinkenlicht
+    ;
+    ; Procedure:
+    ;
+    ; 1. Using just the microcontroller board (with it's power jumper shorted)
+    ;    The LED will blink 5 times with a 200ms delay, wait 500ms and blink
+    ;    5 times again... ad infinitum.
 
     setup_outputs
     setup_20ms_timer

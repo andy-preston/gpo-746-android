@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./share/build/build-shared/bin/linuxX64/releaseExecutable/shared.kexe $@
+./share/build/shared/bin/linuxX64/releaseExecutable/shared.kexe $@

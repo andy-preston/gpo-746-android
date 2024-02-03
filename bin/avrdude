@@ -12,7 +12,7 @@ then
     echo ./bin/avrdude fuses
     echo
     echo Available Hex Files:
-    ls share/build/build-avr/src/*.hex
+    ls share/build/avr/*.hex
     exit
 fi
 

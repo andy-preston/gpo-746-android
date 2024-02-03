@@ -92,18 +92,12 @@ final class Tones : ToneBufferBuilder() {
             var starting: Boolean = true
             playing = selection
             stopped = false
-            try {
-                while (playing != null) {
-                    tone.write()
-                    if (starting) {
-                        tone.start()
-                        starting = false
-                    }
+            while (playing != null) {
+                tone.write()
+                if (starting) {
+                    tone.start()
+                    starting = false
                 }
-            } catch (e: Exception) {
-                Log.e("gpo746", e.toString())
-            } catch (e: OutOfMemoryError) {
-                Log.e("gpo746", e.toString())
             }
             tone.stop()
             stopped = true

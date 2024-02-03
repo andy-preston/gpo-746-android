@@ -4,8 +4,13 @@
     .include "ring-sequence.asm"
     .include "ring-state.asm"
 
-    ; Test the ringing without the bells installed - the LED should
-    ; "impersonate" the ringing cadence of one of the bells.
+    ; Test the blinkenlicht and the ring sequence.
+    ;
+    ; Procedure:
+    ;
+    ; 1. Using just the microcontroller board (with it's power jumper shorted)
+    ;    The LED should blink "impersonating" the ringing cadence of one of
+    ;    the bells.
 
     setup_outputs
     setup_20ms_timer

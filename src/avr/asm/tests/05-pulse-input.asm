@@ -10,8 +10,9 @@
     ;    short `pin_in_dial_pink` to VCC and the LED will light. Short
     ;    `pin_in_dial_pink` to ground and the LED will go out.
     ;
-    ; 2. Using the switching board attached (with it's power jumper missing and
-    ;    555 not inserted), short pin 3 of the 555 to VCC and the LED will
+    ; 2. Attach the switching board (with it's power jumper missing and 555 not
+    ;    inserted), with it's "dial in motion" output connected to
+    ;    `pin_in_dial_pink`. Short pin 3 of the 555 to VCC and the LED will
     ;    light. Short pin 3 to ground and the LED will go out.
 
     setup_outputs

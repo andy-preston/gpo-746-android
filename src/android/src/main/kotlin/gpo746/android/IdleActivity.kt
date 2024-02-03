@@ -66,7 +66,7 @@ open class IdleActivity : PermissionActivity() {
         ch340g.writeHandshake(ring, amp)
     }
 
-    protected fun dialledDigits() : String {
+    protected fun dialledDigits(): String {
         return ch340g.readSerial()
     }
 }

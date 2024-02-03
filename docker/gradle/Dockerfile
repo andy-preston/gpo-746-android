@@ -18,7 +18,6 @@ RUN apk add unzip && \
 FROM gradle:8.3.0-jdk17-jammy
 
 RUN apt-get update && \
-    apt-get -y upgrade && \
     apt-get -y --no-install-recommends install libusb-1.0-0-dev
 
 CMD ["bash"]

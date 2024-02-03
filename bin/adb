@@ -5,7 +5,7 @@
 
 case $1 in
 'install')
-    COMMAND="install -r -d ./share/build/build-android/outputs/apk/debug/android-debug.apk"
+    COMMAND="install -r -d ./share/build/android/outputs/apk/debug/android-debug.apk"
     ;;
 'log')
     COMMAND="logcat -s gpo746"

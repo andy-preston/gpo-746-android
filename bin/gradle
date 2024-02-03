@@ -42,14 +42,14 @@ else
     LOCAL_BIN="$(pwd)/bin"
     LOCAL_SHARE="$(pwd)/share"
     LOCAL_BUILD="${LOCAL_SHARE}/build"
-    for BUILD_DIR in android avr buildSrc shared
+    LOCAL_CACHE="${LOCAL_SHARE}/cache"
+    for BUILD_DIR in android avr buildSrc shared reports
     do
-        mkdir -p ${LOCAL_BUILD}/build-${BUILD_DIR}
+        mkdir -p ${LOCAL_BUILD}/${BUILD_DIR}
     done
-    mkdir -p ${LOCAL_BUILD}/reports
     for CACHE_DIR in buildSrc project
     do
-        mkdir -p ${LOCAL_BUILD}/cache-${CACHE_DIR}
+        mkdir -p ${LOCAL_CACHE}/${CACHE_DIR}
     done
     # Note for write-up re: local_share/gradle
     #
@@ -72,14 +72,14 @@ else
         --volume "${LOCAL_SHARE}/konan:${CONTAINER_SHARE}/konan" \
         --env "KONAN_DATA_DIR=${CONTAINER_SHARE}/konan" \
         --volume "${LOCAL_SRC}:${CONTAINER_SRC}" \
-        --volume "${LOCAL_BUILD}/reports:${CONTAINER_SRC}/build" \
-        --volume "${LOCAL_BUILD}/build-android:${CONTAINER_SRC}/android/build" \
-        --volume "${LOCAL_BUILD}/build-avr:${CONTAINER_SRC}/avr/build" \
-        --volume "${LOCAL_BUILD}/build-buildSrc:${CONTAINER_SRC}/buildSrc/build" \
-        --volume "${LOCAL_BUILD}/cache-buildSrc:${CONTAINER_SRC}/buildSrc/.gradle" \
-        --volume "${LOCAL_BUILD}/build-shared:${CONTAINER_SRC}/shared/build" \
-        --volume "${LOCAL_BUILD}/cache-project:${CONTAINER_SRC}/.gradle" \
         --workdir "${CONTAINER_SRC}" \
+        --volume "${LOCAL_CACHE}/project:${CONTAINER_SRC}/.gradle" \
+        --volume "${LOCAL_CACHE}/buildSrc:${CONTAINER_SRC}/buildSrc/.gradle" \
+        --volume "${LOCAL_BUILD}/reports:${CONTAINER_SRC}/build" \
+        --volume "${LOCAL_BUILD}/android:${CONTAINER_SRC}/android/build" \
+        --volume "${LOCAL_BUILD}/avr:${CONTAINER_SRC}/avr/build" \
+        --volume "${LOCAL_BUILD}/buildSrc:${CONTAINER_SRC}/buildSrc/build" \
+        --volume "${LOCAL_BUILD}/shared:${CONTAINER_SRC}/shared/build" \
         --user $(id -u):$(id -g) \
         --name android_gpo \
         android_gpo ${COMMAND}

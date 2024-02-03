@@ -27,6 +27,7 @@
         "lateinit",
         "leadlen",
         "libusb",
+        "linters",
         "logcat",
         "MISO",
         "MOSI",

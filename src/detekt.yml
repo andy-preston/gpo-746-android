@@ -11,6 +11,3 @@ naming:
     active: true
     rootPackage: 'andyp'
     requireRootInDeclaration: true
-formatting:
-  ImportOrdering:
-    excludes: ['**']

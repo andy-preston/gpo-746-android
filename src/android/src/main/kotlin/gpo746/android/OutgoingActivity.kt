@@ -6,8 +6,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import andyp.gpo746.PhoneNumberValidator
-import andyp.gpo746.Tones
 import andyp.gpo746.ToneSelection
+import andyp.gpo746.Tones
 import andyp.gpo746.ValidatorResult
 
 private const val LOOPER_DELAY_MILLISECONDS: Long = 1000

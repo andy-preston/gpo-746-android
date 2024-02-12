@@ -1,11 +1,10 @@
-
 package andyp.gpo746
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @OptIn(kotlin.ExperimentalUnsignedTypes::class)
-class UsbResultBufferTest(): UsbResultBuffer() {
+class UsbResultBufferTest() : UsbResultBuffer() {
 
     private fun assertEqualsHex(expected: String, value: UShort) {
         assertEquals(expected, value.toString(16).uppercase())
@@ -30,7 +29,7 @@ class UsbResultBufferTest(): UsbResultBuffer() {
 
     @Test
     public fun shortFromBuffer_gives_zero_with_a_null_buffer() {
-        // See the functioon definition for a "null rationalisation"
+        // See the function definition for a "null rationalisation"
         assertEquals(0u, shortFromBuffer(null))
     }
 }

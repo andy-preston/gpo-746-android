@@ -6,9 +6,11 @@ plugins {
     kotlin("android").version("1.9.0").apply(false)
     kotlin("multiplatform").version("1.9.0").apply(false)
 }
+
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.0")
 }
+
 detekt {
     source.setFrom(
         "shared/src/commonMain/kotlin/",

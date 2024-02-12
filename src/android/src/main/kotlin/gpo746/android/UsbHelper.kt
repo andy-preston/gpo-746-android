@@ -7,8 +7,8 @@ import android.hardware.usb.UsbEndpoint
 import android.hardware.usb.UsbInterface
 import android.hardware.usb.UsbManager
 import android.util.Log
-import andyp.gpo746.UsbSystemInterface
 import andyp.gpo746.Ch340Exception
+import andyp.gpo746.UsbSystemInterface
 
 private const val TIMEOUT_MILLISECONDS = 1000
 

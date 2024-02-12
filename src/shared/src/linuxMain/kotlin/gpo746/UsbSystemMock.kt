@@ -45,7 +45,9 @@ class UsbSystemMock : UsbSystemInterface {
         val statusMessage = statusMessages[
             if (knowStatus) statusCode else LIBUSB_ERROR_OTHER
         ]
-        check(statusMessage == "") { "$statusMessage during $operationHint" }
+        check(statusMessage == "") {
+            "$statusMessage during $operationHint"
+        }
     }
 
     private fun openDevice(vid: UShort, pid: UShort) {

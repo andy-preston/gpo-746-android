@@ -133,8 +133,8 @@ class Ch340g(usbSystem: UsbSystemInterface) : UsbResultBuffer() {
         // add instead and both are more or less the same.
         val modemControl: UShort = (
             (if (outputRTS) ModemControlBit.RTS.mask else ZERO_BYTE) or
-                (if (outputDTR) ModemControlBit.DTR.mask else ZERO_BYTE)
-            ).toUShort()
+            (if (outputDTR) ModemControlBit.DTR.mask else ZERO_BYTE)
+        ).toUShort()
         // For a chip version > 0x20, Write to Modem Control
         // For a lower version, Write to GCL
         // But on my version 0x31 chip, both seem to work

@@ -9,7 +9,7 @@ enum class ToneSelection { DIAL, MISDIAL, ENGAGED }
 const val SAMPLE_RATE = 8000 // Hz
 
 final class Tones : ToneBufferBuilder() {
-    private var stopped: Boolean = true
+    private var thread: Thread? = null
     private var playing: ToneSelection? = null
     private val dialTone: Tone
     private val misdialTone: Tone
@@ -82,11 +82,17 @@ final class Tones : ToneBufferBuilder() {
     }
 
     public fun isPlaying(): Boolean {
-        return playing == null || !stopped
+        return playing != null || thread != null
     }
 
     public fun stop() {
-        while (!stopped) { playing = null }
+        playing = null
+        try {
+            thread?.join()
+        } catch (e: InterruptedException) {
+            // pass
+        }
+        thread = null
     }
 
     public fun play(selection: ToneSelection) {
@@ -99,19 +105,14 @@ final class Tones : ToneBufferBuilder() {
             ToneSelection.ENGAGED -> engagedTone
         }
         stop()
-        Thread({
-            var starting: Boolean = true
-            playing = selection
-            stopped = false
+        playing = selection
+        Thread(Runnable {
+            tone.write()
+            tone.start()
             while (playing != null) {
                 tone.write()
-                if (starting) {
-                    tone.start()
-                    starting = false
-                }
             }
             tone.stop()
-            stopped = true
         }).start()
     }
 }

@@ -16,12 +16,12 @@ class Ch340gConstantsTest {
             constants.lcr(
                 setOf(
                     Lcr1Bit.CS7,
-                    Lcr1Bit.parityEnable,
-                    Lcr1Bit.enableTX,
-                    Lcr1Bit.enableRX
+                    Lcr1Bit.ParityEnable,
+                    Lcr1Bit.EnableTX,
+                    Lcr1Bit.EnableRX
                 ),
                 setOf(
-                    Lcr2Bit.parityOdd
+                    Lcr2Bit.ParityOdd
                 )
             ).toString(16)
         )

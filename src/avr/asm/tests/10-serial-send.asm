@@ -1,5 +1,5 @@
     .include "prelude.asm"
-    .include "ring-timer.asm"
+    .include "timer.asm"
     .include "serial.asm"
     .include "gpio.asm"
     .include "blinks.asm"

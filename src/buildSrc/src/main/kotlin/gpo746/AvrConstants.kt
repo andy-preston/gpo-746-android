@@ -1,9 +1,14 @@
 private const val CLOCK_FREQUENCY = 14745600
 
+// To match both sides of the connection, baudRate should be one of the
+// keys in Ch340gConstants.baudRate.basis
 private const val BAUD_RATE = 9600
 
 private const val RING_HALF_PERIOD_MILLISECONDS = 20
+private const val DEBOUNCE_PERIOD_MILLISECONDS = 30
 
+// Better to calculate PreScale and get an optimal value
+// (Which, it looks like, I've already done by hand)
 private const val TIMER1_PRE_SCALE = 256
 
 final class AvrConstants {
@@ -11,7 +16,10 @@ final class AvrConstants {
         return mapOf(
             "usart_baud_rate_register" to "${baud()}",
             "timer1_clock_select" to timer1ClockSelect(),
-            "timer1_20ms_ticks" to "${timer1Ticks20ms()}"
+            "timer1_20ms_ticks" to
+                "${timer1Ticks(RING_HALF_PERIOD_MILLISECONDS)}",
+            "timer1_30ms_ticks" to
+                "${timer1Ticks(DEBOUNCE_PERIOD_MILLISECONDS)}"
         )
     }
 
@@ -45,10 +53,10 @@ final class AvrConstants {
     }
 
     @Suppress("MagicNumber")
-    private fun timer1Ticks20ms(): Int {
+    private fun timer1Ticks(milliseconds: Int): Int {
         val timerFrequency: Int = CLOCK_FREQUENCY / TIMER1_PRE_SCALE
         val tick: Double = (1.0 / timerFrequency) * 1000.0
-        val ticks: Double = RING_HALF_PERIOD_MILLISECONDS.toDouble() / tick
+        val ticks: Double = milliseconds.toDouble() / tick
         val approxTicks = ticks.toInt()
         require(approxTicks <= 0xffff && approxTicks > 1)
         return approxTicks

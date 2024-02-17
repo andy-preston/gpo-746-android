@@ -154,7 +154,15 @@ class SwitchingBoard:
             pinalignleft="center",
         )
         self.dwg.move(2, 2.5)
-        dpst = elm.SwitchDpst().label("Trigger", loc="top").right()
+        dpst = (
+            elm.SwitchDpst()
+            .label(
+                "Noramlly Open\nClosed while\ndial in motion",
+                loc="right",
+                ofst=(1, -0.2),
+            )
+            .right()
+        )
         blue = header.pin1
         grey = header.pin2
         pink = header.pin3
@@ -168,7 +176,9 @@ class SwitchingBoard:
         elm.Line().right(1.2).at(pink)
         self.dwg.push()
         elm.Line().down(1)
-        elm.Switch().right(2).label("50ms pulse", loc="bottom")
+        elm.Switch().right(2).label(
+            "Normally Closed\n50ms open pulses", loc="right", ofst=(0.5, -0.2)
+        )
         elm.Line().down(0.75)
         elm.Line().left(2.5)
         elm.Wire("|-").to(orange)

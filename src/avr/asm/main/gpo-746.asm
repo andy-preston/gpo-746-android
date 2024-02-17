@@ -9,7 +9,7 @@
 
 
     setup_outputs
-    setup_20ms_timer
+    setup_timer
     setup_dial
     setup_serial
     setup_ascii
@@ -21,7 +21,8 @@ ring_for_incoming_call:
     rjmp control_amplifier
 
 ring_prepare:
-    start_20ms_wait
+    set_timer_interval_to_20ms
+    start_interval_timer
     load_ring_sequence_byte
 
 control_amplifier:

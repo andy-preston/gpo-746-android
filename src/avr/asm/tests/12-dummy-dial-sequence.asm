@@ -8,18 +8,14 @@
     ; android app more than the microcontroller code.
 
     setup_outputs
-    setup_20ms_timer
+    setup_timer
     setup_serial
 
 the_top:
     send_put_down_signal
 
-    ldi _long_delay, 20
-wait_to_settle:
-    blink_flip
-    wait_for_a_second
-    dec _long_delay
-    brne wait_to_settle
+    wait_for_five_seconds
+    wait_for_five_seconds
 
     send_picked_up_signal
 
@@ -36,17 +32,12 @@ send_digit:
     write_serial
 
     blink_flip
-    wait_for_multiple_20ms 25
+    wait_for_half_a_second
     rjmp send_digit
 
 number_finished:
-    ldi _long_delay, 10
-wait_to_restart:
-    blink_flip
-    wait_for_a_second
-    dec _long_delay
-    brne wait_to_restart
-
+    wait_for_five_seconds
+    wait_for_five_seconds
     rjmp the_top
 
 digits_to_send:

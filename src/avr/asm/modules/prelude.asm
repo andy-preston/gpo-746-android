@@ -22,23 +22,20 @@
     ; been completed so far
     .def _delay_repeat = r16
 
-    ; Used for even longer delays - in the test code
-    .def _long_delay = r17
-
     ; For quick load immediate and store to IO register operations.
-    .def _io =  r18
+    .def _io =  r17
 
     ; In the phone bell ringing code for "command" bytes to write to the output
     ; GPIO port
-    .def _ring_sequence_byte = r19
+    .def _ring_sequence_byte = r18
 
     ; Used to store the dialled digit in the form of a pulse count or ASCII
     ; digit during the dial handling and serial output routines
-    .def _dialled_digit = r20
+    .def _dialled_digit = r19
 
     ; Always has the value of "0" in ASCII - used for conversion from number
     ; of pulses in the dial scan code to ASCII in the serial output code
-    .def _ascii_zero = r21
+    .def _ascii_zero = r20
 
     ; I always need reminding about X, Y, and Z - they're the last ones
     ; to assign a more general purpose use to.

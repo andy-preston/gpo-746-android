@@ -31,13 +31,13 @@ blink_loop:
     breq blink_end
 
     blink_on
-    wait_for_multiple_20ms 10
+    wait_for_fifth_of_a_second
     blink_off
-    wait_for_multiple_20ms 10
+    wait_for_fifth_of_a_second
 
     dec _blink_count
     rjmp blink_loop
 
 blink_end:
-    wait_for_multiple_20ms 25
+    wait_for_half_a_second
 .endMacro

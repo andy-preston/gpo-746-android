@@ -13,7 +13,6 @@
 .macro setup_timer
     ; Set the timer in normal mode rather than any of the PWM options, etc.
     out TCCR1A, _zero
-
     ; Set up the timer pre-scaler bits
     ldi _io, @timer1_clock_select@
     out TCCR1B, _io
@@ -111,17 +110,21 @@ delay:
     wait_for_multiple_20ms 50
 .endMacro
 
+
 .macro wait_for_two_seconds
     wait_for_multiple_20ms 100
 .endMacro
+
 
 .macro wait_for_three_seconds
     wait_for_multiple_20ms 150
 .endMacro
 
+
 .macro wait_for_four_seconds
     wait_for_multiple_20ms 200
 .endMacro
+
 
 .macro wait_for_five_seconds
     wait_for_multiple_20ms 250

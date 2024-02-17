@@ -1,6 +1,6 @@
     .include "prelude.asm"
     .include "gpio.asm"
-    .include "ring-timer.asm"
+    .include "timer.asm"
 
     ; A Very simple test which will switch the amp on and off with a 3 second
     ; delay.

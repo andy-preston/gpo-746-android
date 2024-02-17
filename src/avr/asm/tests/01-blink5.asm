@@ -1,6 +1,6 @@
     .include "prelude.asm"
     .include "gpio.asm"
-    .include "ring-timer.asm"
+    .include "timer.asm"
     .include "blinks.asm"
 
     ; Test the blinkenlicht

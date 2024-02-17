@@ -12,7 +12,8 @@
     ;    5 times again... ad infinitum.
 
     setup_outputs
-    setup_20ms_timer
+    setup_timer
+
     ldi _dialled_digit, 5
 loop:
     blink_count

@@ -18,7 +18,7 @@
     ;    Can this be done by measuring the voltage on pin 5?
 
     setup_outputs
-    setup_20ms_timer
+    setup_timer
 loop:
     switch_amp_on
     wait_for_three_seconds

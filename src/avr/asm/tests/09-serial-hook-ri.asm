@@ -7,15 +7,15 @@
     ; to detect this.
 
     setup_outputs
-    setup_20ms_timer
+    setup_timer
 
 the_top:
     blink_on
     send_picked_up_signal
-    wait_for_multiple_20ms 25
+    wait_for_half_a_second
 
     blink_off
     send_put_down_signal
-    wait_for_multiple_20ms 25
+    wait_for_half_a_second
 
     rjmp the_top

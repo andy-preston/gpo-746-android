@@ -18,7 +18,7 @@
     ;    (with "0" being 10)
 
     setup_outputs
-    setup_20ms_timer
+    setup_timer
     setup_dial
     blink_off
 check_dial:

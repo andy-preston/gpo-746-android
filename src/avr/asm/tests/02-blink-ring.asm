@@ -13,7 +13,7 @@
     ;    the bells.
 
     setup_outputs
-    setup_20ms_timer
+    setup_timer
     start_ringing
 testLoop:
     ring_sequence_step

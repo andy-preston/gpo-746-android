@@ -7,7 +7,7 @@
     ; Continuously sends the given string across the serial port which should be
     ; detected by the attached device.
 
-    setup_20ms_timer
+    setup_timer
     setup_serial
 
 the_top:

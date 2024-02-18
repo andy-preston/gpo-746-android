@@ -46,9 +46,10 @@
     ; The dial's grey line switches to blue (VCC) when the dial is active.
     .equ pin_in_dial_grey = 3
 
-    ; D4 isn't used as a GPIO but for as the T0 pin for TimerCounter0 to count
-    ; pulses from the dial. See ./dial-counter.asm` for usage details.
-    ; The pink line is switched to orange (GND) for 50ms for each pulse.
+    ; Used to count pulses from the dial.
+    ; See ./dial-counter.asm` for usage details.
+    ; The pink line is normally closed and held to orange (GND).
+    ; It goes open (into a pulled-up state) for 50ms for each pulse.
     .equ pin_in_dial_pink = 4
 
     ; Used to read the RTS line on the CH340G to see if we should ring or not.
@@ -118,9 +119,10 @@
 .endMacro
 
 
-.macro skip_dial_inactive
-    sbic input_pins, pin_in_dial_grey
+.macro skip_dial_active
+    sbis input_pins, pin_in_dial_grey
 .endMacro
+
 
 .macro skip_pulse_pin_low
     sbic input_pins, pin_in_dial_grey

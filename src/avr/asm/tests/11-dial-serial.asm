@@ -1,5 +1,6 @@
     .include "prelude.asm"
     .include "gpio.asm"
+    .include "timer.asm"
     .include "dial-counter.asm"
     .include "serial.asm"
     .include "dial-ascii.asm"

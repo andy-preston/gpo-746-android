@@ -21,12 +21,12 @@
     setup_outputs
     blink_off
 check_dial:
-    skip_dial_inactive
-    rjmp active
+    skip_dial_active
+    rjmp inactive
 
-    blink_off
+    blink_on
     rjmp check_dial
 
-active:
-    blink_on
+inactive:
+    blink_off
     rjmp check_dial

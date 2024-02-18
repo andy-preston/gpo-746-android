@@ -22,7 +22,7 @@ pulse_is_high:
     ; But if it is high we ensure that it's been consistently high for
     ; at least 30ms (it's a 50ms pulse).
     sbrs _previous_pulse_state, pin_in_dial_pink
-    rjmp pulse_was_previously_low:
+    rjmp pulse_was_previously_low
 
 pulse_was_previously_high:
     ; If it been high for long enough, it counts as a pulse.
@@ -40,7 +40,8 @@ been_high_for_long_enough:
 pulse_was_previously_low:
     ; This is the transition of a low to high. So let's start the timer to
     ; make sure it stays consistently high.
-    start_30ms_timer
+    set_timer_interval_to_30ms
+    start_interval_timer
 
 save_previous_state:
     mov _previous_pulse_state, _io
@@ -55,7 +56,7 @@ save_previous_state:
 
 dial_active:
     accumulate_pulse_count
-    rjmp end_of_pulse
+    rjmp end_of_pulse_count
 
 dial_inactive:
     ; There may be a digit available now, or perhaps nothing's happened and

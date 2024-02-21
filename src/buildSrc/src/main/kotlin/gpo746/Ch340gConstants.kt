@@ -1,4 +1,4 @@
-import java.io.PrintWriter
+import java.io.File
 
 @Suppress("MagicNumber")
 enum class Lcr1Bit(val mask: Int) {
@@ -22,25 +22,23 @@ enum class Lcr2Bit(val mask: Int) {
 
 final class Ch340gConstants {
 
-    public fun fileOutput(out: PrintWriter) {
-        out.println("package andyp.gpo746\n")
-        for ((name, value) in map()) {
-            out.println("const val CH340G_$name: UShort = $value")
-        }
-    }
-
     @Suppress("MagicNumber")
-    public fun map(): Map<String, String> {
+    public fun fileOutput(constFile: File) {
         val (divisorPrescaler, mod) = baudRate(9600)
-        return mapOf(
-            "DIVISOR_PRESCALER" to "${divisorPrescaler}u",
-            "BAUD_MOD" to "${mod}u",
-            "DEFAULT_LCR" to "${defaultLcr()}u",
+        val prefix = "const val CH340G_"
+        val suffix = ": UShort ="
+        constFile.printWriter().use { out ->
+            out.println("package andyp.gpo746\n")
+            out.println(
+                "${prefix}DIVISOR_PRESCALER${suffix} ${divisorPrescaler}u"
+            )
+            out.println("${prefix}BAUD_MOD${suffix} ${mod}u")
+            out.println("${prefix}DEFAULT_LCR${suffix} ${defaultLcr()}u")
             // This is the version used in the prototype hardware
             // Some of the stuff I've seen in BSD drivers wants version >= 0030
             // There are also differences writing handshake with version < 0020
-            "CHIP_VERSION" to "0x0031u"
-        )
+            out.println("${prefix}CHIP_VERSION${suffix} 0x0031u")
+        }
     }
 
     @Suppress("MagicNumber")

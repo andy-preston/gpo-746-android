@@ -52,14 +52,11 @@ android {
     }
 }
 
-val constFile = layout.projectDirectory.file(
-    "src/commonMain/kotlin/gpo746/Ch340Constants.kt"
-)
 tasks.register("ch340gConstants") {
     doLast {
-        file(constFile).printWriter().use { out ->
-            Ch340gConstants().fileOutput(out)
-        }
+        Ch340gConstants().fileOutput(file(layout.projectDirectory.file(
+            "src/commonMain/kotlin/gpo746/Ch340Constants.kt"
+        )))
     }
 }
 

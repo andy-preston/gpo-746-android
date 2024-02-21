@@ -5,7 +5,7 @@ class TestCases(driver: Ch340g) {
     private var flipBit = false
 
     private fun highLow(bit: Boolean, line: String): String {
-        return if (flipBit) "$line 5V" else "$line Gnd"
+        return if (bit) "$line 5V" else "$line Gnd"
     }
 
     private fun serialInput() {

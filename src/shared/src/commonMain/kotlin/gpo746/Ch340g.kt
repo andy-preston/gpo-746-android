@@ -23,6 +23,12 @@ package andyp.gpo746
  * https://github.com/torvalds/linux/blob/master/drivers/usb/serial/ch341.c
  */
 
+
+// This is the version used in the prototype hardware
+// Some of the stuff I've seen in BSD drivers wants version >= 0030
+// There are also differences writing handshake with version < 0020
+const CH340G_CHIP_VERSION: uShort = 0x0031u
+
 enum class ReadRequest(val code: UByte) {
     VendorGetVersion(0x5Fu),
     VendorReadRegisters(0x95u)

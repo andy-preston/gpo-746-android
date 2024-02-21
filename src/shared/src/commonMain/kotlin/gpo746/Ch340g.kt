@@ -38,6 +38,8 @@ enum class ReadRegister(val address: UShort) {
     GCL(0x0706u)
 }
 
+// val baudModLow1 = "14", baudPaddingHigh2 = "0F"; // some drivers use 2C not 14
+
 enum class WriteRegister(val address: UShort) {
     BaudDivisorPreScale(0x1312u),
     BaudMod(0x0F14u),
@@ -119,13 +121,16 @@ class Ch340g(usbSystem: UsbSystemInterface) : UsbResultBuffer() {
 
     public fun start() {
         val version: UShort = read(ReadRequest.VendorGetVersion)
-        if (version != @usedChipVersion@.toUShort()) {
-            throw Ch340Exception("version should be @usedChipVersion@, but it's $version")
+        val expectedVersion = CH340G_CHIP_VERSION.toUShort()
+        if (version != expectedVersion) {
+            throw Ch340Exception(
+                "version should be $expectedVersion, but it's $version"
+            )
         }
         write(WriteRequest.VendorSerialInit, 0u)
-        writeRegisters(WriteRegister.BaudDivisorPreScale, @divisorPrescale@)
-        writeRegisters(WriteRegister.BaudMod, @mod@)
-        writeRegisters(WriteRegister.LCR, @defaultLcr@)
+        writeRegisters(WriteRegister.BaudDivisorPreScale, CH340G_DIVISOR_PRESCALER)
+        writeRegisters(WriteRegister.BaudMod, CH340G_BAUD_MOD)
+        writeRegisters(WriteRegister.LCR, CH340G_DEFAULT_LCR)
     }
 
     public fun writeHandshake(outputRTS: Boolean, outputDTR: Boolean) {

@@ -52,17 +52,17 @@ android {
     }
 }
 
-val commonDirectory = layout.projectDirectory.dir("src/commonMain/kotlin/gpo746")
-tasks.register<Copy>("ch340gConstants") {
-    from(commonDirectory)
-    into(commonDirectory)
-    include("*.kt_template")
-    rename("(.*)_template", "$1")
-    filter(
-        ReplaceTokens::class,
-        "tokens" to Ch340gConstants().map()
-    )
+val constFile = layout.projectDirectory.file(
+    "src/commonMain/kotlin/gpo746/Ch340Constants.kt"
+)
+tasks.register("ch340gConstants") {
+    doLast {
+        file(constFile).printWriter().use { out ->
+            Ch340gConstants().fileOutput(out)
+        }
+    }
 }
+
 tasks.named("compileKotlinLinuxX64") {
     dependsOn("ch340gConstants")
 }

@@ -1,3 +1,5 @@
+import java.io.PrintWriter
+
 @Suppress("MagicNumber")
 enum class Lcr1Bit(val mask: Int) {
     CS5(0x00), // Not defined in FreeBSD, only in NetBSD
@@ -20,17 +22,24 @@ enum class Lcr2Bit(val mask: Int) {
 
 final class Ch340gConstants {
 
+    public fun fileOutput(out: PrintWriter) {
+        out.println("package andyp.gpo746\n")
+        for ((name, value) in map()) {
+            out.println("const val CH340G_$name: UShort = $value")
+        }
+    }
+
     @Suppress("MagicNumber")
     public fun map(): Map<String, String> {
-        val (divisorPrescale, mod) = baudRate(9600)
+        val (divisorPrescaler, mod) = baudRate(9600)
         return mapOf(
-            "divisorPrescale" to "${divisorPrescale}u",
-            "mod" to "${mod}u",
-            "defaultLcr" to "${defaultLcr()}u",
+            "DIVISOR_PRESCALER" to "${divisorPrescaler}u",
+            "BAUD_MOD" to "${mod}u",
+            "DEFAULT_LCR" to "${defaultLcr()}u",
             // This is the version used in the prototype hardware
             // Some of the stuff I've seen in BSD drivers wants version >= 0030
             // There are also differences writing handshake with version < 0020
-            "usedChipVersion" to "0x0031u"
+            "CHIP_VERSION" to "0x0031u"
         )
     }
 

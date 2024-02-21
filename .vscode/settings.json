@@ -1,7 +1,4 @@
 {
-    "files.associations": {
-        "*.kt_template": "kotlin"
-    },
     "cSpell.words": [
         "ActivityCompat",
         "anchorname",

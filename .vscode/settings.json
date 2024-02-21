@@ -34,6 +34,8 @@
         "MPCM",
         "noninteractive",
         "nybble",
+        "prescaler",
+        "prescalers",
         "PIND",
         "pinspacing",
         "PORTB",

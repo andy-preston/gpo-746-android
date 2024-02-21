@@ -7,8 +7,10 @@ private const val BAUD_RATE = 9600
 private const val RING_HALF_PERIOD_MILLISECONDS = 20
 private const val DEBOUNCE_PERIOD_MILLISECONDS = 30
 
-// Better to calculate PreScale and get an optimal value
-// (Which, it looks like, I've already done by hand)
+// Any of the available prescalers are perfectly valid
+// Except 1 - which will have a number of ticks that will overflow the 16 bit
+// counter. The 8 bit counter is unsuitable for the intervals we need as none
+// of the prescalers are enough to prevent an 8-bit overflow.
 private const val TIMER1_PRE_SCALE = 256
 
 final class AvrConstants {
@@ -39,7 +41,8 @@ final class AvrConstants {
     @Suppress("MagicNumber")
     private fun timer1ClockSelect(): String {
         val shiftMap = mapOf(
-            0 to "(1 << CS10)",
+            0 to "0",
+            1 to "(1 << CS10)",
             8 to "(1 << CS11)",
             64 to "(1 << CS11) | (1 << CS10)",
             256 to "(1 << CS12)",
@@ -57,8 +60,8 @@ final class AvrConstants {
         val timerFrequency: Int = CLOCK_FREQUENCY / TIMER1_PRE_SCALE
         val tick: Double = (1.0 / timerFrequency) * 1000.0
         val ticks: Double = milliseconds.toDouble() / tick
-        val approxTicks = ticks.toInt()
-        require(approxTicks <= 0xffff && approxTicks > 1)
-        return approxTicks
+        val roundedTicks = ticks.toInt()
+        require(roundedTicks <= 0xffff && roundedTicks > 1)
+        return roundedTicks
     }
 }

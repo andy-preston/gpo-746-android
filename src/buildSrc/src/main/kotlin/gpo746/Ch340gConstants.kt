@@ -34,10 +34,6 @@ final class Ch340gConstants {
             )
             out.println("${prefix}BAUD_MOD${suffix} ${mod}u")
             out.println("${prefix}DEFAULT_LCR${suffix} ${defaultLcr()}u")
-            // This is the version used in the prototype hardware
-            // Some of the stuff I've seen in BSD drivers wants version >= 0030
-            // There are also differences writing handshake with version < 0020
-            out.println("${prefix}CHIP_VERSION${suffix} 0x0031u")
         }
     }
 

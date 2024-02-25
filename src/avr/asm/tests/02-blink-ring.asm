@@ -2,7 +2,6 @@
     .include "gpio.asm"
     .include "timer.asm"
     .include "ring-sequence.asm"
-    .include "ring-state.asm"
 
     ; Test the blinkenlicht and the ring sequence.
     ;
@@ -14,7 +13,7 @@
 
     setup_outputs
     setup_timer
-    start_ringing
+    ring_sequence_start
 testLoop:
     ring_sequence_step
     rjmp testLoop

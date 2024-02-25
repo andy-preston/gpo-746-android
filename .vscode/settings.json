@@ -1,4 +1,7 @@
 {
+    "files.associations": {
+        "*.asm": "gavrasm"
+    },
     "cSpell.words": [
         "ActivityCompat",
         "anchorname",

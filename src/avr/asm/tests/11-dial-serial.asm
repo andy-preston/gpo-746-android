@@ -1,6 +1,7 @@
     .include "prelude.asm"
     .include "gpio.asm"
     .include "timer.asm"
+    .include "state-machine.asm"
     .include "dial-counter.asm"
     .include "serial.asm"
     .include "dial-ascii.asm"
@@ -9,9 +10,11 @@
     ; detected by the attached device.
 
     setup_outputs
+    setup_state_machine
     setup_dial
     setup_ascii
     setup_serial
+    set_timer_interval_to_30ms
 
 check_dial:
     get_dial_pulse_count

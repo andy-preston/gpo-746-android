@@ -18,13 +18,13 @@
     setup_outputs
     blink_off
 check_pulse:
-    skip_pulse_pin_low
-    rjmp it_is_low
-
-it_is_high:
-    blink_on
-    rjmp check_pulse
+    skip_if_pulse_is_high
+    rjmp it_is_high
 
 it_is_low:
     blink_off
+    rjmp check_pulse
+
+it_is_high:
+    blink_on
     rjmp check_pulse

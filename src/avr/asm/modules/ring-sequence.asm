@@ -3,11 +3,24 @@
 .equ end_of_sequence_data = 0xff
 
 
-.macro setup_ring_sequence
+; Do this once as we transition to the ringing state
+.macro ring_sequence_start
+    set_timer_interval_to_20ms
+    start_interval_timer
     ; As this stands, we're counting on no other code using the Z register pair.
     ; This would certainly not be the case if some other routine wanted to `lpm`.
     ; But for now we're safe in that assumption.
     load_z_for_lpm ring_sequence
+.endMacro
+
+
+; When the phone is in the "ringing" state this macro should run once
+; every time round the loop
+.macro ring_sequence_step
+    load_ring_sequence_byte
+    wait_for_interval
+    output_ring_sequence_byte
+    start_interval_timer
 .endMacro
 
 

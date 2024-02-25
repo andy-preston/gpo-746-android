@@ -29,8 +29,8 @@
     ; For quick load immediate and store to IO register operations.
     .def _io =  r18
 
-    ; Used to hold the previous state of dial pulse line when debouncing
-    .def _previous_pulse_state = r19
+    ; Used to keep track of which state the system was previously in
+    .def _state_flags = r19
 
     ; Holds a running count of dial pulses
     .def _pulse_counter = r20

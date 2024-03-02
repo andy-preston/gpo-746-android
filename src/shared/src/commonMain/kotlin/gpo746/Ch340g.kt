@@ -23,7 +23,6 @@ package andyp.gpo746
  * https://github.com/torvalds/linux/blob/master/drivers/usb/serial/ch341.c
  */
 
-
 // This is the version used in the prototype hardware
 // Some of the stuff I've seen in BSD drivers wants version >= 0030
 // There are also differences writing handshake with version < 0020

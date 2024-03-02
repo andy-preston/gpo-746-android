@@ -66,7 +66,7 @@ linters, etc in your chromium browser.
 A different Docker container for creating the `schematic.html` file.
 
 If you don't modify the schematic, you won't need this as a copy of this file
-is also included in the repository.
+is also included.
 
 ## `usb-test`
 

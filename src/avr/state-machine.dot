@@ -1,8 +1,0 @@
-digraph {
-    Waiting -> Ringing [label="incoming"];
-    Waiting -> Dialing [label="pick up"];
-    Ringing -> Calling [label="pick up"];
-    Calling -> Waiting [label="put down"];
-    Dialing -> Calling [label="INCOMING"];
-    Dialing -> Waiting [label="put down"];
-}

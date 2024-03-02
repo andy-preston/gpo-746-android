@@ -157,7 +157,7 @@ class SwitchingBoard:
         dpst = (
             elm.SwitchDpst()
             .label(
-                "Noramlly Open\nClosed while\ndial in motion",
+                "Normally Open\nClosed while\ndial in motion",
                 loc="right",
                 ofst=(1, -0.2),
             )

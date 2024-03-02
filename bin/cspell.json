@@ -1,0 +1,26 @@
+{
+    "version": "0.2",
+    "language": "en",
+    "words": [
+        "avrdude",
+        "avrnude",
+        "cmdline",
+        "codebases",
+        "detekt",
+        "dockerenv",
+        "efuse",
+        "gavrasm",
+        "hfuse",
+        "kexe",
+        "konan",
+        "lfuse",
+        "microcontroller",
+        "plugdev",
+        "pylint",
+        "sdkmanager",
+        "udev",
+        "usbasp",
+        "willy-nilly",
+        "workdir"
+    ]
+}

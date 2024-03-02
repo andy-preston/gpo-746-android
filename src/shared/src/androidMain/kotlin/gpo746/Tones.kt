@@ -106,13 +106,15 @@ final class Tones : ToneBufferBuilder() {
         }
         stop()
         playing = selection
-        Thread(Runnable {
-            tone.write()
-            tone.start()
-            while (playing != null) {
+        Thread(
+            Runnable {
                 tone.write()
+                tone.start()
+                while (playing != null) {
+                    tone.write()
+                }
+                tone.stop()
             }
-            tone.stop()
-        }).start()
+        ).start()
     }
 }

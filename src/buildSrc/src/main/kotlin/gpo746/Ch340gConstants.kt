@@ -30,10 +30,10 @@ final class Ch340gConstants {
         constFile.printWriter().use { out ->
             out.println("package andyp.gpo746\n")
             out.println(
-                "${prefix}DIVISOR_PRESCALER${suffix} ${divisorPrescaler}u"
+                "${prefix}DIVISOR_PRESCALER$suffix ${divisorPrescaler}u"
             )
-            out.println("${prefix}BAUD_MOD${suffix} ${mod}u")
-            out.println("${prefix}DEFAULT_LCR${suffix} ${defaultLcr()}u")
+            out.println("${prefix}BAUD_MOD$suffix ${mod}u")
+            out.println("${prefix}DEFAULT_LCR$suffix ${defaultLcr()}u")
         }
     }
 

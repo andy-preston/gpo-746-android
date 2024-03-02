@@ -47,7 +47,7 @@ container will run the tests for the `buildSrc` sub-project.
 
 `./bin/gradle build` outside the container or `gradle build` inside the
 container will build the Android app and all the microcontroller
-test or application firmwares.
+test or application binaries.
 
 You can also run any parameters the the normal gradle command would accept.
 

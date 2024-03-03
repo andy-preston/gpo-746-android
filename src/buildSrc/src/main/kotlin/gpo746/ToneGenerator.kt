@@ -1,142 +1,26 @@
 import java.io.File
 import java.io.PrintWriter
-import java.math.RoundingMode
-import kotlin.math.PI
-import kotlin.math.sin
 
-const val TWO_PI: Double = 2.0 * PI
-const val PRECISION_DIGITS = 5
-
-final class ToneGeneratorException(message: String) : RuntimeException(message)
-
-abstract class ToneGenerator(sampleFrequency: Int) {
-
-    public val samplingFrequency = sampleFrequency
-
-    private var currentValue: Double = 0.0
-
-    protected abstract fun calculate(): Double
-
-    public fun thisVal(): Double = currentValue
-
-    public open fun next(): Double {
-        currentValue = calculate()
-        return currentValue
-    }
+abstract class Scaler<T> {
+    abstract protected val scaleFactor: Double
+    protected fun toInt(double: Double): Int = (double * scaleFactor).toInt()
+    abstract public fun scale(double: Double): T
+    abstract public fun width(): Int
+    abstract public fun type(): String
 }
 
-abstract class CountingGenerator(
-    sampleFrequency: Int
-) : ToneGenerator(sampleFrequency) {
-
-    private var count: Int = 0
-
-    public fun sampleCount() = count
-
-    protected fun resetCount() {
-        count = 0
-    }
-
-    public override fun next(): Double {
-        count = count + 1
-        return super.next()
-    }
+final class ShortScaler: Scaler<Short>() {
+    override protected val scaleFactor = Short.MAX_VALUE.toDouble()
+    override public fun scale(double: Double): Short = super.toInt(double).toShort()
+    override public fun width(): Int = Short.SIZE_BITS
+    override public fun type(): String = "short"
 }
 
-final class Sine(
-    waveFrequency: Int,
-    sampleFrequency: Int
-) : ToneGenerator(sampleFrequency) {
-
-    private val ratio = samplingFrequency.toDouble() / waveFrequency.toDouble()
-
-    private val deltaTheta: Double = TWO_PI / ratio
-
-    private var theta: Double = 0.0
-
-    private var cycles = 0
-
-    public fun cyclesCompleted() = cycles
-
-    protected override fun calculate(): Double {
-        theta = theta + deltaTheta
-        while (theta > TWO_PI) {
-            theta = theta - TWO_PI
-            cycles = cycles + 1
-        }
-        return sin(theta).toBigDecimal().setScale(
-            PRECISION_DIGITS,
-            RoundingMode.HALF_EVEN
-        ).toDouble()
-    }
-}
-
-final class Chopper(
-    tg: ToneGenerator,
-    chopTenthsSecond: Int
-) : CountingGenerator(tg.samplingFrequency) {
-
-    private val generator = tg
-
-    @Suppress("MagicNumber")
-    private val chopSamples = (chopTenthsSecond * tg.samplingFrequency) / 10
-
-    private var chopping = false
-
-    private var cycle = 0
-
-    public fun cyclesCompleted() = cycle
-
-    protected override fun calculate(): Double {
-        val result = if (chopping) 0.0 else generator.next()
-        if (sampleCount() == chopSamples) {
-            resetCount()
-            if (chopping) {
-                cycle = cycle + 1
-            }
-            chopping = !chopping
-        }
-        return result
-    }
-}
-
-final class Modulator(
-    tg1: ToneGenerator,
-    tg2: ToneGenerator,
-) : CountingGenerator(tg1.samplingFrequency) {
-
-    private val generator1 = tg1
-
-    private val generator2 = tg2
-
-    init {
-        if (tg1.samplingFrequency != tg2.samplingFrequency) {
-            throw ToneGeneratorException(
-                "Sampling frequencies ${tg1.samplingFrequency} != ${tg2.samplingFrequency}"
-            )
-        }
-    }
-
-    public fun bothZeroCrossing(): Boolean {
-        return sampleCount() > 0 &&
-            generator1.thisVal() == 0.0 &&
-            generator2.thisVal() == 0.0
-    }
-
-    protected override fun calculate(): Double {
-        return (generator1.next() + generator2.next()) / 2.0
-    }
-}
-
-final class ToneScaler(tg: ToneGenerator) {
-
-    private val generator = tg
-
-    private val scaleFactor = Int.MAX_VALUE.toDouble()
-
-    public fun next(): Int {
-        return (generator.next() * scaleFactor).toInt()
-    }
+final class ByteScaler: Scaler<Byte>() {
+    override protected val scaleFactor = Byte.MAX_VALUE.toDouble()
+    override public fun scale(double: Double): Byte = super.toInt(double).toByte()
+    override public fun width(): Int = Byte.SIZE_BITS
+    override public fun type(): String = "byte"
 }
 
 @Suppress("MagicNumber")
@@ -144,50 +28,49 @@ final class Tones {
 
     private val samplingFrequency = 11025
 
-    private fun dial(): Sequence<Int> {
+    private val scaler: Scaler<Byte> = ByteScaler()
+
+    private fun dial(): Sequence<Double> {
         val modulator = Modulator(
             Sine(350, samplingFrequency),
             Sine(450, samplingFrequency)
         )
-        val scaler = ToneScaler(modulator)
         return sequence {
             while (!modulator.bothZeroCrossing()) {
-                yield(scaler.next())
+                yield(modulator.next())
             }
         }
     }
 
-    private fun engaged(): Sequence<Int> {
+    private fun engaged(): Sequence<Double> {
         val chopper = Chopper(
             Sine(400, samplingFrequency),
             4
         )
-        val scaler = ToneScaler(chopper)
         return sequence {
             while (chopper.cyclesCompleted() < 1) {
-                yield(scaler.next())
+                yield(chopper.next())
             }
         }
     }
 
-    private fun misdial(): Sequence<Int> {
+    private fun misdial(): Sequence<Double> {
         val sine = Sine(400, samplingFrequency)
-        val scaler = ToneScaler(sine)
         return sequence {
             while (sine.cyclesCompleted() < 1) {
-                yield(scaler.next())
+                yield(sine.next())
             }
         }
     }
 
     private fun arrayOutput(
         name: String,
-        tone: Sequence<Int>,
+        tone: Sequence<Double>,
         out: PrintWriter
     ) {
         val indent = " ".repeat(8)
-        out.println("    protected val ${name}ToneData = intArrayOf(")
-        out.println(tone.joinToString(",\n$indent", indent))
+        out.println("    protected val ${name}ToneData = ${scaler.type()}ArrayOf(")
+        out.println(tone.map { scaler.scale(it) }.joinToString(",\n$indent", indent))
         out.println("    )")
     }
 
@@ -195,6 +78,7 @@ final class Tones {
         sourceFile.printWriter().use { out ->
             out.println("package andyp.gpo746\n")
             out.println("const val SAMPLE_RATE = $samplingFrequency\n")
+            out.println("const val BIT_WIDTH = ${scaler.width()}\n")
             out.println("@Suppress(\"MagicNumber\", \"LargeClass\")")
             out.println("abstract class ToneData {\n")
             arrayOutput("dial", dial(), out)

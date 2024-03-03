@@ -6,9 +6,7 @@ import java.lang.Thread
 
 enum class ToneSelection { DIAL, MISDIAL, ENGAGED }
 
-const val SAMPLE_RATE = 8000 // Hz
-
-final class Tones : ToneBufferBuilder() {
+final class Tones : ToneData() {
     private var thread: Thread? = null
     private var playing: ToneSelection? = null
     private val dialTone: Tone

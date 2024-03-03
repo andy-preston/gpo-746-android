@@ -1,8 +1,18 @@
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-class ToneGeneratorTest {
+final class MockGenerator(
+    sampleFrequency: Int
+) : ToneGenerator(sampleFrequency) {
+
+    protected override fun calculate(): Double {
+        return 1.0
+    }
+}
+
+final class ToneGeneratorTest {
 
     @Test
     fun the_period_of_the_wave_is_a_ratio_of_the_wave_frequency_to_the_sample_frequency() {
@@ -172,16 +182,18 @@ class ToneGeneratorTest {
     }
 
     @Test
-    public fun dial_tone_generator_still_works() {
-        var tones = Tones()
-        tones.dial().forEachIndexed { index, sample ->
-            println("$index: $sample")
+    public fun chopper_chops_in_specified_period_and_records_cycles() {
+        val generator = MockGenerator(20)
+        val chopper = Chopper(generator, 3)
+
+        for (sample in 1..6) {
+            assertEquals(1.0, chopper.next(), "first period sample $sample not 1")
         }
-        tones.misdial().forEachIndexed { index, sample ->
-            println("$index: $sample")
+        assertEquals(0, chopper.cyclesCompleted(), "chop cycle should not have completed")
+        for (sample in 1..6) {
+            assertEquals(0.0, chopper.next(), "second period sample $sample not 0")
         }
-        tones.engaged().forEachIndexed { index, sample ->
-            println("$index: $sample")
-        }
+        assertEquals(1, chopper.cyclesCompleted(), "chop cycle should have completed")
+        assertEquals(1.0, chopper.next(), "final sample not 1")
     }
 }

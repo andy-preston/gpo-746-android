@@ -27,9 +27,13 @@ abstract class CountingGenerator(
     sampleFrequency: Int
 ) : ToneGenerator(sampleFrequency) {
 
-    protected var count: Int = 0
+    private var count: Int = 0
 
     public fun sampleCount() = count
+
+    protected fun resetCount() {
+        count = 0
+    }
 
     public override fun next(): Double {
         count = count + 1
@@ -60,6 +64,35 @@ final class Sine(
     }
 }
 
+final class Chopper(
+    tg: ToneGenerator,
+    chopTenthsSecond: Int
+) : CountingGenerator(tg.samplingFrequency) {
+
+    private val generator = tg
+
+    @Suppress("MagicNumber")
+    private val chopSamples = (chopTenthsSecond * tg.samplingFrequency) / 10
+
+    private var chopping = false
+
+    private var cycle = 0
+
+    public fun cyclesCompleted() = cycle
+
+    protected override fun calculate(): Double {
+        val result = if (chopping) 0.0 else generator.next()
+        if (sampleCount() == chopSamples) {
+            resetCount()
+            if (chopping) {
+                cycle = cycle + 1
+            }
+            chopping = !chopping
+        }
+        return result
+    }
+}
+
 final class Modulator(
     tg1: ToneGenerator,
     tg2: ToneGenerator,
@@ -85,7 +118,7 @@ final class Modulator(
     }
 
     protected override fun calculate(): Double {
-        if (count > maxCount) {
+        if (sampleCount() > maxCount) {
             throw ToneGeneratorException(
                 "$maxCount samples generated without zero crossing"
             )
@@ -105,18 +138,32 @@ final class ToneScaler(tg: ToneGenerator) {
     }
 }
 
-final class Tones {
+final class Tones(sampleFrequency: Int) {
+
+    private val samplingFrequency = sampleFrequency
 
     @Suppress("MagicNumber")
     public fun dial(): IntArray {
-        val generator1 = Sine(350, 11025)
-        val generator2 = Sine(450, 11025)
+        val generator1 = Sine(350, samplingFrequency)
+        val generator2 = Sine(450, samplingFrequency)
         val modulator = Modulator(generator1, generator2, 512)
         val scaler = ToneScaler(modulator)
         val values = ArrayList<Int>()
         do {
             values.add(scaler.next())
         } while (!modulator.bothZeroCrossing())
+        return values.toIntArray()
+    }
+
+    @Suppress("MagicNumber")
+    public fun engaged(): IntArray {
+        val generator = Sine(400, samplingFrequency)
+        val chopper = Chopper(generator, 4)
+        val scaler = ToneScaler(chopper)
+        val values = ArrayList<Int>()
+        while (chopper.cyclesCompleted() < 1) {
+            values.add(scaler.next())
+        }
         return values.toIntArray()
     }
 }

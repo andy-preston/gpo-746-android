@@ -114,7 +114,9 @@ final class Modulator(
     }
 
     public fun bothZeroCrossing(): Boolean {
-        return generator1.thisVal() == 0.0 && generator2.thisVal() == 0.0
+        return sampleCount() > 0 &&
+            generator1.thisVal() == 0.0 &&
+            generator2.thisVal() == 0.0
     }
 
     protected override fun calculate(): Double {
@@ -138,30 +140,39 @@ final class ToneScaler(tg: ToneGenerator) {
     }
 }
 
+@Suppress("MagicNumber")
 final class Tones(sampleFrequency: Int) {
 
     private val samplingFrequency = sampleFrequency
 
-    @Suppress("MagicNumber")
     public fun dial(): IntArray {
         val generator1 = Sine(350, samplingFrequency)
         val generator2 = Sine(450, samplingFrequency)
         val modulator = Modulator(generator1, generator2, 512)
         val scaler = ToneScaler(modulator)
         val values = ArrayList<Int>()
-        do {
+        while (!modulator.bothZeroCrossing()) {
             values.add(scaler.next())
-        } while (!modulator.bothZeroCrossing())
+        }
         return values.toIntArray()
     }
 
-    @Suppress("MagicNumber")
     public fun engaged(): IntArray {
         val generator = Sine(400, samplingFrequency)
         val chopper = Chopper(generator, 4)
         val scaler = ToneScaler(chopper)
         val values = ArrayList<Int>()
         while (chopper.cyclesCompleted() < 1) {
+            values.add(scaler.next())
+        }
+        return values.toIntArray()
+    }
+
+    public fun misdial(): IntArray {
+        val generator = Sine(400, samplingFrequency)
+        val scaler = ToneScaler(generator)
+        val values = ArrayList<Int>()
+        while (values.count() == 0 || values.last() != 0) {
             values.add(scaler.next())
         }
         return values.toIntArray()

@@ -1,3 +1,5 @@
+import java.io.File
+import java.io.PrintWriter
 import java.math.RoundingMode
 import kotlin.math.PI
 import kotlin.math.sin
@@ -138,11 +140,11 @@ final class ToneScaler(tg: ToneGenerator) {
 }
 
 @Suppress("MagicNumber")
-final class Tones(sampleFrequency: Int) {
+final class Tones {
 
-    private val samplingFrequency = sampleFrequency
+    private val samplingFrequency = 11025
 
-    public fun dial(): Sequence<Int> {
+    private fun dial(): Sequence<Int> {
         val modulator = Modulator(
             Sine(350, samplingFrequency),
             Sine(450, samplingFrequency)
@@ -155,7 +157,7 @@ final class Tones(sampleFrequency: Int) {
         }
     }
 
-    public fun engaged(): Sequence<Int> {
+    private fun engaged(): Sequence<Int> {
         val chopper = Chopper(
             Sine(400, samplingFrequency),
             4
@@ -168,13 +170,39 @@ final class Tones(sampleFrequency: Int) {
         }
     }
 
-    public fun misdial(): Sequence<Int> {
+    private fun misdial(): Sequence<Int> {
         val sine = Sine(400, samplingFrequency)
         val scaler = ToneScaler(sine)
         return sequence {
             while (sine.cyclesCompleted() < 1) {
                 yield(scaler.next())
             }
+        }
+    }
+
+    private fun arrayOutput(
+        name: String,
+        tone: Sequence<Int>,
+        out: PrintWriter
+    ) {
+        val indent = " ".repeat(8)
+        out.println("    protected val ${name}ToneData = intArrayOf(")
+        out.println(tone.joinToString(",\n$indent", indent))
+        out.println("    )")
+    }
+
+    public fun fileOutput(sourceFile: File) {
+        sourceFile.printWriter().use { out ->
+            out.println("package andyp.gpo746\n")
+            out.println("const val SAMPLE_RATE = $samplingFrequency\n")
+            out.println("@Suppress(\"MagicNumber\", \"LargeClass\")")
+            out.println("abstract class ToneData {\n")
+            arrayOutput("dial", dial(), out)
+            out.println("")
+            arrayOutput("engaged", engaged(), out)
+            out.println("")
+            arrayOutput("misdial", misdial(), out)
+            out.println("}")
         }
     }
 }

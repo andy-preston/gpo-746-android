@@ -52,10 +52,15 @@ final class Sine(
 
     private var theta: Double = 0.0
 
+    private var cycles = 0
+
+    public fun cyclesCompleted() = cycles
+
     protected override fun calculate(): Double {
         theta = theta + deltaTheta
         while (theta > TWO_PI) {
             theta = theta - TWO_PI
+            cycles = cycles + 1
         }
         return sin(theta).toBigDecimal().setScale(
             PRECISION_DIGITS,
@@ -96,14 +101,11 @@ final class Chopper(
 final class Modulator(
     tg1: ToneGenerator,
     tg2: ToneGenerator,
-    maximumSampleCount: Int
 ) : CountingGenerator(tg1.samplingFrequency) {
 
     private val generator1 = tg1
 
     private val generator2 = tg2
-
-    private val maxCount = maximumSampleCount
 
     init {
         if (tg1.samplingFrequency != tg2.samplingFrequency) {
@@ -120,11 +122,6 @@ final class Modulator(
     }
 
     protected override fun calculate(): Double {
-        if (sampleCount() > maxCount) {
-            throw ToneGeneratorException(
-                "$maxCount samples generated without zero crossing"
-            )
-        }
         return (generator1.next() + generator2.next()) / 2.0
     }
 }
@@ -145,36 +142,39 @@ final class Tones(sampleFrequency: Int) {
 
     private val samplingFrequency = sampleFrequency
 
-    public fun dial(): IntArray {
-        val generator1 = Sine(350, samplingFrequency)
-        val generator2 = Sine(450, samplingFrequency)
-        val modulator = Modulator(generator1, generator2, 512)
+    public fun dial(): Sequence<Int> {
+        val modulator = Modulator(
+            Sine(350, samplingFrequency),
+            Sine(450, samplingFrequency)
+        )
         val scaler = ToneScaler(modulator)
-        val values = ArrayList<Int>()
-        while (!modulator.bothZeroCrossing()) {
-            values.add(scaler.next())
+        return sequence {
+            while (!modulator.bothZeroCrossing()) {
+                yield(scaler.next())
+            }
         }
-        return values.toIntArray()
     }
 
-    public fun engaged(): IntArray {
-        val generator = Sine(400, samplingFrequency)
-        val chopper = Chopper(generator, 4)
+    public fun engaged(): Sequence<Int> {
+        val chopper = Chopper(
+            Sine(400, samplingFrequency),
+            4
+        )
         val scaler = ToneScaler(chopper)
-        val values = ArrayList<Int>()
-        while (chopper.cyclesCompleted() < 1) {
-            values.add(scaler.next())
+        return sequence {
+            while (chopper.cyclesCompleted() < 1) {
+                yield(scaler.next())
+            }
         }
-        return values.toIntArray()
     }
 
-    public fun misdial(): IntArray {
-        val generator = Sine(400, samplingFrequency)
-        val scaler = ToneScaler(generator)
-        val values = ArrayList<Int>()
-        while (values.count() == 0 || values.last() != 0) {
-            values.add(scaler.next())
+    public fun misdial(): Sequence<Int> {
+        val sine = Sine(400, samplingFrequency)
+        val scaler = ToneScaler(sine)
+        return sequence {
+            while (sine.cyclesCompleted() < 1) {
+                yield(scaler.next())
+            }
         }
-        return values.toIntArray()
     }
 }

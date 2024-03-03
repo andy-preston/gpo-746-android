@@ -91,27 +91,16 @@ final class ToneGeneratorTest {
         val sine1 = Sine(6, 96)
         val sine2 = Sine(8, 42)
         assertFailsWith<ToneGeneratorException> {
-            Modulator(sine1, sine2, 200)
+            Modulator(sine1, sine2)
         }
     }
 
     @Test
-    fun the_modulator_throws_if_it_exhausts_it_maximum_sample_count_before_a_zero_crossing() {
-        val sine1 = Sine(6, 96)
-        val sine2 = Sine(8, 96)
-        val modulator = Modulator(sine1, sine2, 10)
-        assertFailsWith<ToneGeneratorException> {
-            do {
-                modulator.next()
-            } while (!modulator.bothZeroCrossing())
-        }
-    }
-
-    @Test
-    fun the_modulator_completes_if_it_is_given_enough_memory() {
-        val sine1 = Sine(6, 96)
-        val sine2 = Sine(8, 96)
-        val modulator = Modulator(sine1, sine2, 24)
+    fun the_modulator_keeps_track_of_how_many_samples_have_passed_through() {
+        val modulator = Modulator(
+            Sine(6, 96),
+            Sine(8, 96)
+        )
         do {
             modulator.next()
         } while (!modulator.bothZeroCrossing())
@@ -120,9 +109,10 @@ final class ToneGeneratorTest {
 
     @Test
     fun the_modulator_does_not_peak_but_approaches_the_peaks() {
-        val sine1 = Sine(6, 200)
-        val sine2 = Sine(8, 200)
-        val modulator = Modulator(sine1, sine2, 200)
+        val modulator = Modulator(
+            Sine(6, 200),
+            Sine(8, 200)
+        )
         var positivePeak = 0.0
         var negativePeak = 0.0
         for (sample in 1..200) {
@@ -142,9 +132,10 @@ final class ToneGeneratorTest {
 
     @Test
     fun the_modulator_is_scaled_to_integers_by_the_tone_scaler() {
-        val sine1 = Sine(6, 200)
-        val sine2 = Sine(8, 200)
-        val modulator = Modulator(sine1, sine2, 200)
+        val modulator = Modulator(
+            Sine(6, 200),
+            Sine(8, 200)
+        )
         val scaler = ToneScaler(modulator)
         val positiveMax = Int.MAX_VALUE
         val negativeMax = -positiveMax

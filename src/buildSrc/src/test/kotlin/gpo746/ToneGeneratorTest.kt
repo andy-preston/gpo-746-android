@@ -77,8 +77,19 @@ class ToneGeneratorTest {
     }
 
     @Test
+    fun the_modulator_throws_if_the_supplied_waves_have_different_sampling_frequencies() {
+        val sine1 = Sine(6, 96)
+        val sine2 = Sine(8, 42)
+        assertFailsWith<ToneGeneratorException> {
+            Modulator(sine1, sine2, 200)
+        }
+    }
+
+    @Test
     fun the_modulator_throws_if_it_exhausts_it_maximum_sample_count_before_a_zero_crossing() {
-        val modulator = Modulator(6, 8, 96, 10)
+        val sine1 = Sine(6, 96)
+        val sine2 = Sine(8, 96)
+        val modulator = Modulator(sine1, sine2, 10)
         assertFailsWith<ToneGeneratorException> {
             do {
                 modulator.next()
@@ -88,16 +99,20 @@ class ToneGeneratorTest {
 
     @Test
     fun the_modulator_completes_if_it_is_given_enough_memory() {
-        val modulator = Modulator(6, 8, 96, 24)
+        val sine1 = Sine(6, 96)
+        val sine2 = Sine(8, 96)
+        val modulator = Modulator(sine1, sine2, 24)
         do {
             modulator.next()
         } while (!modulator.bothZeroCrossing())
-        assertTrue(modulator.samplesAccumulated() <= 24)
+        assertTrue(modulator.sampleCount() <= 24)
     }
 
     @Test
     fun the_modulator_does_not_peak_but_approaches_the_peaks() {
-        val modulator = Modulator(6, 8, 200, 200)
+        val sine1 = Sine(6, 200)
+        val sine2 = Sine(8, 200)
+        val modulator = Modulator(sine1, sine2, 200)
         var positivePeak = 0.0
         var negativePeak = 0.0
         for (sample in 1..200) {
@@ -117,7 +132,9 @@ class ToneGeneratorTest {
 
     @Test
     fun the_modulator_is_scaled_to_integers_by_the_tone_scaler() {
-        val modulator = Modulator(6, 8, 200, 200)
+        val sine1 = Sine(6, 200)
+        val sine2 = Sine(8, 200)
+        val modulator = Modulator(sine1, sine2, 200)
         val scaler = ToneScaler(modulator)
         val positiveMax = Int.MAX_VALUE
         val negativeMax = -positiveMax
@@ -154,5 +171,17 @@ class ToneGeneratorTest {
         )
     }
 
-
+    @Test
+    public fun dial_tone_generator_still_works() {
+        var tones = Tones()
+        tones.dial().forEachIndexed { index, sample ->
+            println("$index: $sample")
+        }
+        tones.misdial().forEachIndexed { index, sample ->
+            println("$index: $sample")
+        }
+        tones.engaged().forEachIndexed { index, sample ->
+            println("$index: $sample")
+        }
+    }
 }

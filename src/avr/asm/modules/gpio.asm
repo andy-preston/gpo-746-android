@@ -119,11 +119,11 @@
 .endMacro
 
 
-.macro skip_dial_active
-    sbis input_pins, pin_in_dial_grey
+.macro skip_dial_inactive
+    sbic input_pins, pin_in_dial_grey
 .endMacro
 
 
-.macro skip_if_pulse_is_high
-    sbis input_pins, pin_in_dial_pink
+.macro skip_if_pulse_is_low
+    sbic input_pins, pin_in_dial_pink
 .endMacro

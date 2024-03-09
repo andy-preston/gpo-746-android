@@ -125,5 +125,5 @@
 
 
 .macro skip_if_pulse_is_high
-    sbis input_pins, pin_in_dial_grey
+    sbis input_pins, pin_in_dial_pink
 .endMacro

@@ -2,7 +2,7 @@
 ; into digits. For `skip_dial_active`, see `gpio.asm`
 
 
-.macro setup_dial
+.macro setup_or_restart_dial
     clr _pulse_counter
     clr _dialled_digit
 .endMacro
@@ -30,6 +30,7 @@ pulse_is_high:
 
 start_waiting_for_pulse:
     start_interval_timer
+    enter state_previous_pulse_high
 
 keep_waiting_for_pulse:
     skip_if_interval_complete

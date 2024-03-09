@@ -11,7 +11,7 @@
 
     setup_outputs
     setup_state_machine
-    setup_dial
+    setup_or_restart_dial
     setup_ascii
     setup_serial
     set_timer_interval_to_30ms

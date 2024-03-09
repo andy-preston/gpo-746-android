@@ -9,7 +9,7 @@
     ;
     ; Procedure:
     ;
-    ; 1. Insert the 555 and connect it's output to a 'scope or logic analyser
+    ; 1. Insert the 555 and connect it's output to a 'scope or logic analyzer
     ;    ensure there is one pulse emitted at about 50ms each.
     ;
     ; 2. With the 555 inserted and all dial pins attached and both dial outputs
@@ -21,13 +21,14 @@
     setup_outputs
     setup_timer
     setup_state_machine
-    setup_dial
+    setup_or_restart_dial
     blink_off
-    set_timer_interval_to_30ms
 check_dial:
+    set_timer_interval_to_30ms ; blink resets this to 20ms
     get_dial_pulse_count
     tst _dialled_digit
     breq check_dial
 
     blink_count
+    setup_or_restart_dial ; make sure dialed digit is cleared after use
     rjmp check_dial

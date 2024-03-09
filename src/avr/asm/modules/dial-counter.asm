@@ -1,5 +1,5 @@
 ; This is stuff for counting pulses coming from the dial and grouping them
-; into digits. For `skip_dial_inactive`, see `gpio.asm`
+; into digits. For `skip_dial_active`, see `gpio.asm`
 
 
 .macro setup_dial

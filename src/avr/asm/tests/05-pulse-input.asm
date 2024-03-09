@@ -18,7 +18,7 @@
     setup_outputs
     blink_off
 check_pulse:
-    skip_if_pulse_is_high
+    skip_if_pulse_is_low
     rjmp it_is_high
 
 it_is_low:

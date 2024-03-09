@@ -23,12 +23,13 @@
     setup_state_machine
     setup_or_restart_dial
     blink_off
-check_dial:
     set_timer_interval_to_30ms ; blink resets this to 20ms
+check_dial:
     get_dial_pulse_count
     tst _dialled_digit
     breq check_dial
 
     blink_count
-    setup_or_restart_dial ; make sure dialed digit is cleared after use
+    setup_or_restart_dial      ; make sure dialed digit is cleared after use
+    set_timer_interval_to_30ms ; blink resets this to 20ms
     rjmp check_dial

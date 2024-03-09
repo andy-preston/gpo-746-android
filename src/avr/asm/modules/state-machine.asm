@@ -3,7 +3,7 @@
 
     .equ state_ringing = 0
     .equ state_dial_active = 1
-    .equ state_previous_pulse_high = 2
+    .equ state_waiting_for_pulse_timer = 2
 
 
 .macro setup_state_machine

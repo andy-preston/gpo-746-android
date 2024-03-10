@@ -17,10 +17,15 @@
 ; When the phone is in the "ringing" state this macro should run once
 ; every time round the loop
 .macro ring_sequence_step
+    skip_if_interval_complete
+    rjmp nothing_left_to_do
+
+next_step:
     load_ring_sequence_byte
-    wait_for_interval
     output_ring_sequence_byte
     start_interval_timer
+
+nothing_left_to_do:
 .endMacro
 
 

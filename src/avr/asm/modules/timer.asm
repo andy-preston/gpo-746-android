@@ -16,26 +16,16 @@
     ; Set up the timer pre-scaler bits
     ldi _io, @timer1_clock_select@
     out TCCR1B, _io
-.endMacro
 
-
-.macro set_timer_interval_to_20ms
-    ; Set the number of timer ticks to count up to
-    ; in the timer's output compare register
     ldi _io, high(@timer1_20ms_ticks@)
     out OCR1AH, _io
     ldi _io, low(@timer1_20ms_ticks@)
     out OCR1AL, _io
-.endMacro
 
-
-.macro set_timer_interval_to_30ms
-    ; Set the number of timer ticks to count up to
-    ; in the timer's output compare register
     ldi _io, high(@timer1_30ms_ticks@)
-    out OCR1AH, _io
+    out OCR1BH, _io
     ldi _io, low(@timer1_30ms_ticks@)
-    out OCR1AL, _io
+    out OCR1BL, _io
 .endMacro
 
 
@@ -45,12 +35,12 @@
     out TCNT1L, _zero
     ; clear the output compare flag
     ; which will be set again when the timer count is complete
-    ldi _io, (1 << OCF1A)
+    ldi _io, (1 << OCF1A) | (1 << OCF1B)
     out TIFR, _io ; TIFR (56) is out of range for `sbi`
 .endMacro
 
 
-.macro skip_if_interval_complete
+.macro skip_if_20ms_interval_complete
     ; skip the next instruction if @timer1_20ms_ticks@ have passed
     ; at which point the timer sets the output compare flag again
     in _timer_wait, TIFR
@@ -58,11 +48,19 @@
 .endMacro
 
 
-.macro wait_for_interval
+.macro skip_if_30ms_interval_complete
+    ; skip the next instruction if @timer1_30ms_ticks@ have passed
+    ; at which point the timer sets the output compare flag again
+    in _timer_wait, TIFR
+    sbrs _timer_wait, OCF1B
+.endMacro
+
+
+.macro wait_for_20ms_interval
     ; Wait for @timer1_20ms_ticks@ ticks to complete
-wait_for_timer1:
-    skip_if_interval_complete
-    rjmp wait_for_timer1
+wait_for_timer:
+    skip_if_20ms_interval_complete
+    rjmp wait_for_timer
 .endMacro
 
 
@@ -76,9 +74,8 @@ wait_for_timer1:
 
 
 .macro wait_for_20ms
-    set_timer_interval_to_20ms
     start_interval_timer
-    wait_for_interval
+    wait_for_20ms_interval
 .endMacro
 
 

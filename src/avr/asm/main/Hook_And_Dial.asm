@@ -3,8 +3,6 @@
     rjmp put_down
 
     send_picked_up_signal
-    set_timer_interval_to_30ms
-
     get_dial_pulse_count
     tst _dialled_digit
     breq end

@@ -32,7 +32,7 @@ final class Tone(minBufferSize: Int, waveform: ByteArray) : ToneBufferBuilder() 
         ).setChannelMask(
             AudioFormat.CHANNEL_OUT_MONO
         ).setSampleRate(
-            SAMPLE_RATE
+            SAMPLE_FREQUENCY
         ).build(),
         samples.size,
         AudioTrack.MODE_STREAM,

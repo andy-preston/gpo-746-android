@@ -54,7 +54,7 @@ start_waiting_for_pulse:
     enter state_waiting_for_pulse_timer
 
 continue_waiting_for_pulse:
-    skip_if_interval_complete
+    skip_if_30ms_interval_complete
     rjmp nothing_left_to_do
 
 interval_complete:

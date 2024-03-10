@@ -15,7 +15,7 @@ final class Tones : ToneData() {
 
     init {
         val minBufferSize = AudioTrack.getMinBufferSize(
-            SAMPLE_RATE,
+            SAMPLE_FREQUENCY,
             AudioFormat.CHANNEL_OUT_MONO,
             AudioFormat.ENCODING_PCM_8BIT
         )

@@ -57,7 +57,7 @@ tasks.register("createDataSource") {
     val ch340gConstantsSource = "src/commonMain/kotlin/gpo746/Ch340Constants.kt"
     doLast {
         if (!file(toneDataSource).exists()) {
-            Tones().fileOutput(
+            ToneGenerator(SAMPLE_FREQUENCY).fileOutput(
                 file(
                     layout.projectDirectory.file(
                         toneDataSource

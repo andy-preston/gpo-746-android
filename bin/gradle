@@ -64,7 +64,6 @@ else
     docker run \
         --rm --interactive --tty \
         --volume "${LOCAL_BIN}/gradle:${CONTAINER_BIN}/gradle" \
-        --volume "${DOCKER_DIRECTORY}/gavrasm:${CONTAINER_BIN}/gavrasm" \
         --volume "${LOCAL_SHARE}/android:${ANDROID_SDK_ROOT}" \
         --env "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}" \
         --volume "${LOCAL_SHARE}/gradle:${CONTAINER_SHARE}/gradle" \

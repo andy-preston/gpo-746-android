@@ -1,9 +1,10 @@
 import java.io.FileOutputStream
 import org.apache.tools.ant.filters.ReplaceTokens
 
-val moduleDirectory = layout.projectDirectory.dir("asm/modules")
-val testsDirectory = layout.projectDirectory.dir("asm/tests")
-val mainDirectory = layout.projectDirectory.dir("asm/main")
+val sourceDirectory = layout.projectDirectory.dir("asm");
+val moduleDirectory = sourceDirectory.dir("modules")
+val testsDirectory = sourceDirectory.dir("tests")
+val mainDirectory = sourceDirectory.dir("main")
 
 val assembly = "*.asm"
 
@@ -30,19 +31,34 @@ tasks.register<Copy>("prepareModules") {
 }
 
 testsDirectory.getAsFile().listFiles().forEach {
-    addAssemblyTask(it.name)
+    addAssemblyTask(it)
 }
 
 mainDirectory.getAsFile().listFiles().forEach {
-    addAssemblyTask(it.name)
+    addAssemblyTask(it)
 }
 
-fun addAssemblyTask(name: String) {
-    val simpleName = name.replace(Regex("[.-]"), "_")
-    tasks.register<Exec>(simpleName) {
+fun addAssemblyTask(file: File) {
+    val fullName = file.name
+    val name = fullName.substring(0, fullName.lastIndexOf('.'))
+    tasks.register<Exec>(name.replace(Regex("[.-]"), "_")) {
         dependsOn(tasks.withType<Copy>())
         workingDir(layout.buildDirectory)
-        commandLine("/usr/local/bin/gavrasm", name)
+        isIgnoreExitValue = true
+        standardOutput = FileOutputStream(
+            layout.buildDirectory.file("${name}.log").get().asFile
+        )
+        commandLine("/opt/gavrasm/gavrasm", "-E", "-S", "-M", name)
+        doLast {
+            if (executionResult.get().exitValue != 0) {
+                val errors = layout.buildDirectory.file(
+                    "${name}.err"
+                ).get().asFile.readLines().joinToString(
+                    separator="\n"
+                )
+                throw GradleException(errors)
+            }
+        }
     }
 }
 

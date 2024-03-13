@@ -1,3 +1,4 @@
+    .include "constants.asm"
     .include "prelude.asm"
     .include "gpio.asm"
     .include "timer.asm"

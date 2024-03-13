@@ -7,24 +7,25 @@
 ; For timer1_clock_select and timer1_20ms_ticks calculations, see:
 ;     src/buildSrc/src/main/kotlin/gpo746/AvrConstants.kt
 
-; For details of @timer1_clock_select@ and @timer1_20ms_ticks@,
-; see `src/buildSrc/src/main/kotlin/gpo746/AvrConstants.kt`
+; For details of timer1_clock_select, timer1_ring_ticks, and
+; timer1_debounce_ticks see
+; `src/buildSrc/src/main/kotlin/gpo746/AvrConstants.kt`
 
 .macro setup_timer
     ; Set the timer in normal mode rather than any of the PWM options, etc.
     out TCCR1A, _zero
     ; Set up the timer pre-scaler bits
-    ldi _io, @timer1_clock_select@
+    ldi _io, timer1_clock_select
     out TCCR1B, _io
 
-    ldi _io, high(@timer1_20ms_ticks@)
+    ldi _io, high(timer1_ring_ticks)
     out OCR1AH, _io
-    ldi _io, low(@timer1_20ms_ticks@)
+    ldi _io, low(timer1_ring_ticks)
     out OCR1AL, _io
 
-    ldi _io, high(@timer1_30ms_ticks@)
+    ldi _io, high(timer1_debounce_ticks)
     out OCR1BH, _io
-    ldi _io, low(@timer1_30ms_ticks@)
+    ldi _io, low(timer1_debounce_ticks)
     out OCR1BL, _io
 .endMacro
 
@@ -41,7 +42,7 @@
 
 
 .macro skip_if_20ms_interval_complete
-    ; skip the next instruction if @timer1_20ms_ticks@ have passed
+    ; skip the next instruction if timer1_ring_ticks have passed
     ; at which point the timer sets the output compare flag again
     in _timer_wait, TIFR
     sbrs _timer_wait, OCF1A
@@ -49,7 +50,7 @@
 
 
 .macro skip_if_30ms_interval_complete
-    ; skip the next instruction if @timer1_30ms_ticks@ have passed
+    ; skip the next instruction if timer1_debounce_ticks have passed
     ; at which point the timer sets the output compare flag again
     in _timer_wait, TIFR
     sbrs _timer_wait, OCF1B
@@ -57,7 +58,7 @@
 
 
 .macro wait_for_20ms_interval
-    ; Wait for @timer1_20ms_ticks@ ticks to complete
+    ; Wait for timer1_ring_ticks ticks to complete
 wait_for_timer:
     skip_if_20ms_interval_complete
     rjmp wait_for_timer
@@ -65,7 +66,7 @@ wait_for_timer:
 
 
 ; The following `wait_for_XXX` macros naming specific time intervals are only
-; for use in testing where @timer1_20ms_ticks@ is too short for a human to
+; for use in testing where timer1_ring_ticks is too short for a human to
 ; notice. The timing values aren't particularly accurate because we're ignoring
 ; the few cycles it takes to set up the timer before it runs. But it's close
 ; enough for testing. Also some of the code winds up being a tad inefficient.

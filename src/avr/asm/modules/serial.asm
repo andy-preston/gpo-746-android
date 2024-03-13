@@ -2,11 +2,11 @@
     ; Set the baud rate.
     ; Always set high before low! Writing UBRRL triggers an immediate
     ; update of the baud rate register.
-    ; For @usart_baud_rate_register@ calculations, see:
+    ; For usart_baud_rate_register calculations, see:
     ;     src/buildSrc/src/main/kotlin/gpo746/AvrConstants.kt
-    ldi _io, high(@usart_baud_rate_register@)
+    ldi _io, high(usart_baud_rate_register)
     out UBRRH, _io
-    ldi _io, low(@usart_baud_rate_register@)
+    ldi _io, low(usart_baud_rate_register)
     out UBRRL, _io
 
     ; Clear the transmission complete flag

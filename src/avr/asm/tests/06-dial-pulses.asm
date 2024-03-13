@@ -1,3 +1,4 @@
+    .include "constants.asm"
     .include "prelude.asm"
     .include "gpio.asm"
     .include "timer.asm"
@@ -24,10 +25,10 @@
     setup_or_restart_dial
     blink_off
 check_dial:
-    get_dial_pulse_count
+    different_pulse_count
     tst _dialled_digit
     breq check_dial
 
     blink_count
-    setup_or_restart_dial      ; make sure dialed digit is cleared after use
+    clr _dialled_digit
     rjmp check_dial

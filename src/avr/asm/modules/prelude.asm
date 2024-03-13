@@ -8,7 +8,7 @@
     ; There's still quite a few registers free so this scheme can still be
     ; expanded quite a bit
 
-    ; It must be all those MIPS book I've been reading but r0 is always zero
+    ; It must be all those MIPS books I've been reading but r0 is always zero
     .def _zero = r0
 
     ; Used in timer loops when we're checking some IO register for an

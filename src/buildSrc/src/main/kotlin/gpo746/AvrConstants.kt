@@ -1,11 +1,13 @@
+import java.io.File
+
 private const val CLOCK_FREQUENCY = 14745600
 
 // To match both sides of the connection, baudRate should be one of the
 // keys in Ch340gConstants.baudRate.basis
 private const val BAUD_RATE = 9600
 
-private const val RING_HALF_PERIOD_MILLISECONDS = 20
-private const val DEBOUNCE_PERIOD_MILLISECONDS = 30
+internal const val RING_HALF_PERIOD_MILLISECONDS = 20
+internal const val DEBOUNCE_PERIOD_MILLISECONDS = 30
 
 // Any of the available prescalers are perfectly valid
 // Except 1 - which will have a number of ticks that will overflow the 16 bit
@@ -13,20 +15,9 @@ private const val DEBOUNCE_PERIOD_MILLISECONDS = 30
 // of the prescalers are enough to prevent an 8-bit overflow.
 private const val TIMER1_PRE_SCALE = 256
 
-final class AvrConstants {
-    public fun map(): Map<String, String> {
-        return mapOf(
-            "usart_baud_rate_register" to "${baud()}",
-            "timer1_clock_select" to timer1ClockSelect(),
-            "timer1_20ms_ticks" to
-                "${timer1Ticks(RING_HALF_PERIOD_MILLISECONDS)}",
-            "timer1_30ms_ticks" to
-                "${timer1Ticks(DEBOUNCE_PERIOD_MILLISECONDS)}"
-        )
-    }
-
+internal final class AvrConstantsGenerator {
     @Suppress("MagicNumber")
-    private fun baud(): Int {
+    public fun baud(): Int {
         // This calculation is actually quite straightforward
         // Especially if you have a look at the one for the CH340G
         // src/buildSrc/src/main/kotlin/gpo746/Ch340gConstants.kt
@@ -39,7 +30,7 @@ final class AvrConstants {
     }
 
     @Suppress("MagicNumber")
-    private fun timer1ClockSelect(): String {
+    public fun timer1ClockSelect(): String {
         val shiftMap = mapOf(
             0 to "0",
             1 to "(1 << CS10)",
@@ -56,7 +47,7 @@ final class AvrConstants {
     }
 
     @Suppress("MagicNumber")
-    private fun timer1Ticks(milliseconds: Int): Int {
+    public fun timer1Ticks(milliseconds: Int): Int {
         val timerFrequency: Int = CLOCK_FREQUENCY / TIMER1_PRE_SCALE
         val tick: Double = (1.0 / timerFrequency) * 1000.0
         val ticks: Double = milliseconds.toDouble() / tick
@@ -64,4 +55,21 @@ final class AvrConstants {
         require(roundedTicks <= 0xffff && roundedTicks > 1)
         return roundedTicks
     }
+}
+
+final class AvrConstants {
+    public fun fileOutput(constFile: File) {
+        val generator = AvrConstantsGenerator()
+        val baud = generator.baud()
+        val cs = generator.timer1ClockSelect()
+        val ticksRing = generator.timer1Ticks(RING_HALF_PERIOD_MILLISECONDS)
+        val ticksDebounce = generator.timer1Ticks(DEBOUNCE_PERIOD_MILLISECONDS)
+        constFile.printWriter().use { out ->
+            out.println("    .equ usart_baud_rate_register = ${baud}")
+            out.println("    .equ timer1_clock_select = ${cs}")
+            out.println("    .equ timer1_ring_ticks = ${ticksRing}")
+            out.println("    .equ timer1_debounce_ticks = ${ticksDebounce}")
+        }
+    }
+
 }

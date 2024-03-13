@@ -7,10 +7,10 @@ class AvrConstantsTest {
 
     @Test
     fun values_are_what_I_have_already_pre_calculated() {
-        val map = AvrConstants().map()
-        assertEquals("95", map["usart_baud_rate_register"])
-        assertEquals("1152", map["timer1_20ms_ticks"])
-        assertEquals("1728", map["timer1_30ms_ticks"])
-        assertEquals("(1 << CS12)", map["timer1_clock_select"])
+        val generator = AvrConstantsGenerator()
+        assertEquals(95, generator.baud())
+        assertEquals(1152, generator.timer1Ticks(RING_HALF_PERIOD_MILLISECONDS))
+        assertEquals(1728, generator.timer1Ticks(DEBOUNCE_PERIOD_MILLISECONDS))
+        assertEquals("(1 << CS12)", generator.timer1ClockSelect())
     }
 }

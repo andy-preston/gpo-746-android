@@ -52,33 +52,35 @@ android {
     }
 }
 
-tasks.register("createDataSource") {
-    val toneDataSource = "src/androidMain/kotlin/gpo746/ToneData.kt"
-    val ch340gConstantsSource = "src/commonMain/kotlin/gpo746/Ch340Constants.kt"
+fun sourceFile(project: String, file: String): File {
+    return layout.projectDirectory.dir(
+        "src"
+    ).dir(
+        project
+    ).dir(
+        "kotlin"
+    ).dir(
+        "gpo746"
+    ).file(
+        file
+    ).asFile
+}
+
+tasks.register("createDataSources") {
+    val toneDataSource = sourceFile("androidMain", "ToneData.kt")
+    val ch340gConstantsSource = sourceFile("commonMain", "Ch340Constants.kt")
     doLast {
         if (!file(toneDataSource).exists()) {
-            ToneGenerator(SAMPLE_FREQUENCY).fileOutput(
-                file(
-                    layout.projectDirectory.file(
-                        toneDataSource
-                    )
-                )
-            )
+            ToneGenerator(SAMPLE_FREQUENCY).fileOutput(toneDataSource)
         }
         if (!file(ch340gConstantsSource).exists()) {
-            Ch340gConstants().fileOutput(
-                file(
-                    layout.projectDirectory.file(
-                        ch340gConstantsSource
-                    )
-                )
-            )
+            Ch340gConstants().fileOutput(ch340gConstantsSource)
         }
     }
 }
 
 tasks.named("compileKotlinLinuxX64") {
-    dependsOn("createDataSource")
+    dependsOn("createDataSources")
 }
 val dependentTasks = listOf(
     "compileCommonMainKotlinMetadata",
@@ -87,6 +89,6 @@ val dependentTasks = listOf(
 )
 tasks.whenTaskAdded {
     if (dependentTasks.contains(name)) {
-        dependsOn("createDataSource")
+        dependsOn("createDataSources")
     }
 }

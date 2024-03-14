@@ -1,12 +1,28 @@
 import java.io.FileOutputStream
-import org.apache.tools.ant.filters.ReplaceTokens
 
-val sourceDirectory = layout.projectDirectory.dir("asm");
+val sourceDirectory = layout.projectDirectory.dir("asm")
 val moduleDirectory = sourceDirectory.dir("modules")
 val testsDirectory = sourceDirectory.dir("tests")
 val mainDirectory = sourceDirectory.dir("main")
 
 val assembly = "*.asm"
+val gavrasmOptions = mapOf(
+    "noList" to "-L",
+    "expandMacros" to "-M",
+    "quiet" to "-Q",
+    "symbolList" to "-S",
+    "beginnersErrors" to "-B",
+    "ansiOutput" to "-A",
+    "longerErrors" to "-E",
+    "listDirectives" to "-D",
+    "enableWrap" to "-W",
+    "supportedAvrTypes" to "-T",
+    "internalDefIncludeOff" to "-X",
+    "defineDateConstants" to "-Z"
+)
+
+// GAVRASM builds in the same directory as the source
+// So we do this little dance to copy the source into the build directory
 
 tasks.register<Copy>("prepareTests") {
     from(testsDirectory)
@@ -24,10 +40,14 @@ tasks.register<Copy>("prepareModules") {
     from(moduleDirectory)
     include(assembly)
     into(layout.buildDirectory)
-    filter(
-        ReplaceTokens::class,
-        "tokens" to AvrConstants().map()
-    )
+}
+
+tasks.register("prepareConstants") {
+    doLast {
+        AvrConstants().fileOutput(
+            layout.buildDirectory.file("constants.asm").get().asFile
+        )
+    }
 }
 
 testsDirectory.getAsFile().listFiles().forEach {
@@ -38,30 +58,38 @@ mainDirectory.getAsFile().listFiles().forEach {
     addAssemblyTask(it)
 }
 
+fun buildFile(name: String): File = layout.buildDirectory.file(name).get().asFile
+
 fun addAssemblyTask(file: File) {
     val fullName = file.name
     val name = fullName.substring(0, fullName.lastIndexOf('.'))
     tasks.register<Exec>(name.replace(Regex("[.-]"), "_")) {
-        dependsOn(tasks.withType<Copy>())
+        dependsOn(tasks.withType<Copy>(), "prepareConstants")
         workingDir(layout.buildDirectory)
         isIgnoreExitValue = true
-        standardOutput = FileOutputStream(
-            layout.buildDirectory.file("${name}.log").get().asFile
+        // The standardOutput isn't of much interest (the good stuff is in
+        // ${name}.lst and ${name}.err) but it's here just in case we DO need
+        // it.
+        standardOutput = FileOutputStream(buildFile("${name}.log"))
+        commandLine(
+            "/opt/gavrasm/gavrasm",
+            gavrasmOptions["longerErrors"],
+            gavrasmOptions["symbolList"],
+            gavrasmOptions["expandMacros"],
+            fullName
         )
-        commandLine("/opt/gavrasm/gavrasm", "-E", "-S", "-M", name)
         doLast {
             if (executionResult.get().exitValue != 0) {
-                val errors = layout.buildDirectory.file(
-                    "${name}.err"
-                ).get().asFile.readLines().joinToString(
-                    separator="\n"
-                )
-                throw GradleException(errors)
+                throw GradleException(buildFile("${name}.err").readText())
             }
         }
     }
 }
 
-tasks.register<DefaultTask>("build") {
+tasks.register<DefaultTask>("avr") {
     dependsOn(tasks.withType<Exec>())
+}
+
+tasks.register<DefaultTask>("build") {
+    dependsOn("avr")
 }

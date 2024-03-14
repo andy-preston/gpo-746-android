@@ -1,9 +1,13 @@
-import org.apache.tools.ant.filters.ReplaceTokens
-
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
 }
+
+val sourceDirectory = layout.projectDirectory.dir("src")
+
+val linuxPlatform = sourceDirectory.dir("linuxMain")
+val androidPlatform = sourceDirectory.dir("androidMain")
+val commonPlatform = sourceDirectory.dir("commonMain")
 
 @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
 kotlin {
@@ -23,7 +27,7 @@ kotlin {
         }
         compilations.getByName("main") {
             val libUsb by cinterops.creating {
-                defFile(project.file("src/linuxMain/libusb.def"))
+                defFile(linuxPlatform.file("libusb.def"))
                 packageName("libusb")
             }
         }
@@ -52,23 +56,13 @@ android {
     }
 }
 
-fun sourceFile(project: String, file: String): File {
-    return layout.projectDirectory.dir(
-        "src"
-    ).dir(
-        project
-    ).dir(
-        "kotlin"
-    ).dir(
-        "gpo746"
-    ).file(
-        file
-    ).asFile
+fun sourceFile(platform: Directory, file: String): File {
+    return platform.dir("kotlin").dir("gpo746").file(file).asFile
 }
 
 tasks.register("createDataSources") {
-    val toneDataSource = sourceFile("androidMain", "ToneData.kt")
-    val ch340gConstantsSource = sourceFile("commonMain", "Ch340Constants.kt")
+    val toneDataSource = sourceFile(androidPlatform, "ToneData.kt")
+    val ch340gConstantsSource = sourceFile(commonPlatform, "Ch340Constants.kt")
     doLast {
         if (!file(toneDataSource).exists()) {
             ToneGenerator(SAMPLE_FREQUENCY).fileOutput(toneDataSource)

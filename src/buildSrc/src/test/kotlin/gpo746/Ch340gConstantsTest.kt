@@ -1,19 +1,18 @@
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 class Ch340gConstantsTest {
 
     @Test
     fun bits_are_combined_into_2_bytes_as_big_endian_word() {
-        val constants = Ch340gConstants()
+        val calculator = Ch340gCalculator(Ch340gBaudRate())
         assertEquals(
             "83",
-            constants.defaultLcr().toString(16)
+            calculator.defaultLcr().toString(16)
         )
         assertEquals(
             "6ca",
-            constants.lcr(
+            calculator.lcr(
                 setOf(
                     Lcr1Bit.CS7,
                     Lcr1Bit.ParityEnable,
@@ -28,19 +27,6 @@ class Ch340gConstantsTest {
     }
 
     @Test
-    fun invalid_baud_rate_throws_an_exception() {
-        val exception = assertFailsWith<Exception>(
-            block = {
-                Ch340gConstants().baudRate(1024)
-            }
-        )
-        assertEquals(
-            "Invalid baud rate 1024 not in [2400, 4800, 9600, 19200, 38400, 115200]",
-            exception.message
-        )
-    }
-
-    @Test
     fun calculated_baud_values_from_free_bsd_match_lookup_table_from_other_drivers() {
         val expectation = mapOf(
             2400 to mapOf("divisorPreScale" to 0xd901, "mod" to 0x0038),
@@ -51,7 +37,9 @@ class Ch340gConstantsTest {
             115200 to mapOf("divisorPreScale" to 0xcc03, "mod" to 0x0008),
         )
         for ((rate, expected) in expectation) {
-            val (divisorPreScale, mod) = Ch340gConstants().baudRate(rate)
+            val (divisorPreScale, mod) = Ch340gCalculator(
+                Ch340gBaudRate(rate)
+            ).baudRate()
             assertEquals(
                 expected["divisorPreScale"],
                 divisorPreScale,

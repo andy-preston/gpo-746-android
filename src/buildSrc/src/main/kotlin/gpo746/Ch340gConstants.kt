@@ -1,7 +1,7 @@
 import java.io.File
 
 @Suppress("MagicNumber")
-enum class Lcr1Bit(val mask: Int) {
+internal enum class Lcr1Bit(val mask: Int) {
     CS5(0x00), // Not defined in FreeBSD, only in NetBSD
     CS6(0x01), // Not defined in FreeBSD, only in NetBSD
     CS7(0x02), // Not defined in FreeBSD, only in NetBSD
@@ -12,7 +12,7 @@ enum class Lcr1Bit(val mask: Int) {
 }
 
 @Suppress("MagicNumber")
-enum class Lcr2Bit(val mask: Int) {
+internal enum class Lcr2Bit(val mask: Int) {
     ParityNone(0x00),
     ParityEven(0x07), // FreeBSD says 0x07 Linux & NetBSD says 0x10
     ParityOdd(0x06), //  FreeBSD says 0x06         NetBSD says 0x00
@@ -20,22 +20,8 @@ enum class Lcr2Bit(val mask: Int) {
     ParitySpace(0x04) // FreeBSD says 0x04         NetBSD says 0x30
 }
 
-final class Ch340gConstants {
-
-    @Suppress("MagicNumber")
-    public fun fileOutput(constFile: File) {
-        val (divisorPrescaler, mod) = baudRate(9600)
-        val prefix = "const val CH340G_"
-        val suffix = ": UShort ="
-        constFile.printWriter().use { out ->
-            out.println("package andyp.gpo746\n")
-            out.println(
-                "${prefix}DIVISOR_PRESCALER$suffix ${divisorPrescaler}u"
-            )
-            out.println("${prefix}BAUD_MOD$suffix ${mod}u")
-            out.println("${prefix}DEFAULT_LCR$suffix ${defaultLcr()}u")
-        }
-    }
+internal final class Ch340gCalculator(baudRate: Ch340gBaudRate) {
+    private val ch340gBaudRate = baudRate
 
     @Suppress("MagicNumber")
     private fun wordFromBytes(highByte: Int, lowByte: Int): Int {
@@ -43,28 +29,17 @@ final class Ch340gConstants {
     }
 
     /* For details of sources, etc, see:
-     * src/shared/src/commonMain/kotlin/gpo746/Ch340g.kt_template
+     * src/shared/src/commonMain/kotlin/gpo746/Ch340g.kt
      *
      * There's also a very interesting, but quite long, explanation of baud rate
      * calculation at:
      * https://github.com/nospam2000/ch341-baudrate-calculation
      */
     @Suppress("MagicNumber", "ThrowsCount")
-    public fun baudRate(rate: Int): List<Int> {
-        val basis = mapOf(
-            2400 to listOf(93750, 1),
-            4800 to listOf(750000, 2),
-            9600 to listOf(750000, 2),
-            19200 to listOf(750000, 2),
-            38400 to listOf(6000000, 3),
-            115200 to listOf(6000000, 3),
-        )
-
-        check(basis.containsKey(rate)) {
-            "Invalid baud rate $rate not in ${basis.keys}"
-        }
-
-        val (clock, scalar) = basis[rate]!!
+    public fun baudRate(): List<Int> {
+        val rate = ch340gBaudRate.checkedRate()
+        val clock = ch340gBaudRate.ch340gClock()
+        val scalar = ch340gBaudRate.ch340gScaler()
         val remainder = clock % rate
         var dividend = clock / rate
 
@@ -103,5 +78,24 @@ final class Ch340gConstants {
             setOf(Lcr1Bit.EnableRX, Lcr1Bit.CS8),
             setOf(Lcr2Bit.ParityNone)
         )
+    }
+}
+
+final class Ch340gConstants {
+    @Suppress("MagicNumber")
+    public fun fileOutput(constFile: File) {
+        val calculator = Ch340gCalculator(Ch340gBaudRate())
+        val (divisorPrescaler, mod) = calculator.baudRate()
+        val lcr = calculator.defaultLcr()
+        val prefix = "const val CH340G_"
+        val suffix = ": UShort ="
+        constFile.printWriter().use { out ->
+            out.println("package andyp.gpo746\n")
+            out.println(
+                "${prefix}DIVISOR_PRESCALER$suffix ${divisorPrescaler}u"
+            )
+            out.println("${prefix}BAUD_MOD$suffix ${mod}u")
+            out.println("${prefix}DEFAULT_LCR$suffix ${lcr}u")
+        }
     }
 }

@@ -1,10 +1,8 @@
 import java.io.File
 
+// This is a "universal, perfect for serial" crystal frequency that's easily
+// divisible by any of our available baud rates.
 private const val CLOCK_FREQUENCY = 14745600
-
-// To match both sides of the connection, baudRate should be one of the
-// keys in Ch340gConstants.baudRate.basis
-private const val BAUD_RATE = 9600
 
 internal const val RING_HALF_PERIOD_MILLISECONDS = 20
 internal const val DEBOUNCE_PERIOD_MILLISECONDS = 30
@@ -18,14 +16,15 @@ private const val TIMER1_PRE_SCALE = 256
 internal final class AvrConstantsGenerator {
     @Suppress("MagicNumber")
     public fun baud(): Int {
+        val baudRate = Ch340gBaudRate().checkedRate()
         // This calculation is actually quite straightforward
         // Especially if you have a look at the one for the CH340G
         // src/buildSrc/src/main/kotlin/gpo746/Ch340gConstants.kt
-        val multiplier: Int = BAUD_RATE * 16
+        val multiplier: Int = baudRate * 16
         val usartBaudRateRegister: Int = CLOCK_FREQUENCY / multiplier
         require(usartBaudRateRegister * multiplier == CLOCK_FREQUENCY)
         val derived: Int = CLOCK_FREQUENCY / (16 * usartBaudRateRegister)
-        require(derived == BAUD_RATE)
+        require(derived == baudRate)
         return usartBaudRateRegister - 1
     }
 
@@ -52,7 +51,7 @@ internal final class AvrConstantsGenerator {
         val tick: Double = (1.0 / timerFrequency) * 1000.0
         val ticks: Double = milliseconds.toDouble() / tick
         val roundedTicks = ticks.toInt()
-        require(roundedTicks <= 0xffff && roundedTicks > 1)
+        require(roundedTicks <= 0xffff && roundedTicks > 0)
         return roundedTicks
     }
 }
@@ -65,11 +64,10 @@ final class AvrConstants {
         val ticksRing = generator.timer1Ticks(RING_HALF_PERIOD_MILLISECONDS)
         val ticksDebounce = generator.timer1Ticks(DEBOUNCE_PERIOD_MILLISECONDS)
         constFile.printWriter().use { out ->
-            out.println("    .equ usart_baud_rate_register = ${baud}")
-            out.println("    .equ timer1_clock_select = ${cs}")
-            out.println("    .equ timer1_ring_ticks = ${ticksRing}")
-            out.println("    .equ timer1_debounce_ticks = ${ticksDebounce}")
+            out.println("    .equ usart_baud_rate_register = $baud")
+            out.println("    .equ timer1_clock_select = $cs")
+            out.println("    .equ timer1_ring_ticks = $ticksRing")
+            out.println("    .equ timer1_debounce_ticks = $ticksDebounce")
         }
     }
-
 }

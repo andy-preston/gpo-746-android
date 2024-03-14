@@ -13,13 +13,19 @@ dependencies {
 
 detekt {
     source.setFrom(
-        "shared/src/commonMain/kotlin/",
-        "shared/src/linuxMain/kotlin/",
-        "shared/src/androidUnitTest/kotlin/",
-        "shared/src/androidMain/kotlin/",
-        "android/src/main/kotlin/",
-        "buildSrc/src/test/kotlin/",
-        "buildSrc/src/main/kotlin/"
+        "./",
+        "./android/build.gradle.kts",
+        "./android/src/main/kotlin/gpo746/android/",
+        "./avr/",
+        "./buildSrc/",
+        "./buildSrc/src/main/kotlin/gpo746/",
+        "./buildSrc/src/test/kotlin/gpo746/",
+        "./shared/",
+        "./shared/src/androidMain/kotlin/gpo746/",
+        "./shared/src/androidUnitTest/kotlin/gpo746/",
+        "./shared/src/commonMain/kotlin/gpo746/",
+        "./shared/src/commonTest/kotlin/gpo746/",
+        "./shared/src/linuxMain/kotlin/gpo746/"
     )
     config.setFrom("detekt.yml")
     buildUponDefaultConfig = true

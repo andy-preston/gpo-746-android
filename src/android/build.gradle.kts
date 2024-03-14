@@ -30,7 +30,7 @@ android {
         disable += "GradleDependency"
         // The App is in English only, if we need i18n down the line,
         // then it can be added.
-        disable +=  "SetTextI18n"
+        disable += "SetTextI18n"
         disable += "HardcodedText"
     }
     packaging {

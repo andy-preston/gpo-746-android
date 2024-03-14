@@ -70,7 +70,7 @@ fun addAssemblyTask(file: File) {
         // The standardOutput isn't of much interest (the good stuff is in
         // ${name}.lst and ${name}.err) but it's here just in case we DO need
         // it.
-        standardOutput = FileOutputStream(buildFile("${name}.log"))
+        standardOutput = FileOutputStream(buildFile("$name.log"))
         commandLine(
             "/opt/gavrasm/gavrasm",
             gavrasmOptions["longerErrors"],
@@ -80,7 +80,7 @@ fun addAssemblyTask(file: File) {
         )
         doLast {
             if (executionResult.get().exitValue != 0) {
-                throw GradleException(buildFile("${name}.err").readText())
+                throw GradleException(buildFile("$name.err").readText())
             }
         }
     }

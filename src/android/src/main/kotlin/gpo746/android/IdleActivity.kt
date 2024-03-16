@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import andyp.gpo746.Ch340g
+import andyp.gpo746.UsbHelper
 
 open class IdleActivity : PermissionActivity() {
 

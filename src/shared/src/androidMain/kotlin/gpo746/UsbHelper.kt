@@ -1,4 +1,4 @@
-package andyp.gpo746.android
+package andyp.gpo746
 
 import android.hardware.usb.UsbConstants
 import android.hardware.usb.UsbDevice
@@ -7,8 +7,6 @@ import android.hardware.usb.UsbEndpoint
 import android.hardware.usb.UsbInterface
 import android.hardware.usb.UsbManager
 import android.util.Log
-import andyp.gpo746.Ch340Exception
-import andyp.gpo746.UsbSystemInterface
 
 private const val TIMEOUT_MILLISECONDS = 1000
 

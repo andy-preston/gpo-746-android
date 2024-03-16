@@ -4,11 +4,11 @@ import java.math.RoundingMode
 import kotlin.math.PI
 import kotlin.math.sin
 
-const val SAMPLE_FREQUENCY = 11025
-
-internal final class Waveform(samplingFrequency: Int) {
+internal final class Waveform(samplingFrequency: Int = 11025) {
 
     private val sampleFrequency = samplingFrequency
+
+    public fun getSampleFrequency() = sampleFrequency
 
     public fun sine(
         waveFrequency: Int,
@@ -101,12 +101,10 @@ internal final class Scaler {
     ).map { it.toByte() }
 }
 
-final class ToneGenerator(samplingFrequency: Int) {
-
-    private val sampleFrequency = samplingFrequency
-
-    private val tone = Tone(Waveform(samplingFrequency))
-
+// This should be a gradle task
+final class ToneGenerator() {
+    private val waveform = Waveform()
+    private val tone = Tone(waveform)
     private val scaler = Scaler()
 
     private fun arrayOutput(
@@ -122,9 +120,10 @@ final class ToneGenerator(samplingFrequency: Int) {
     }
 
     public fun fileOutput(sourceFile: File) {
+        var freq = waveform.getSampleFrequency()
         sourceFile.printWriter().use { out ->
             out.println("package andyp.gpo746\n")
-            out.println("const val SAMPLE_FREQUENCY = $sampleFrequency\n")
+            out.println("const val SAMPLE_FREQUENCY = $freq\n")
             out.println("const val BIT_WIDTH = 8\n")
             out.println("@Suppress(\"MagicNumber\", \"LargeClass\")")
             out.println("abstract class ToneData {\n")

@@ -4,7 +4,6 @@ plugins {
 }
 
 val sourceDirectory = layout.projectDirectory.dir("src")
-
 val linuxPlatform = sourceDirectory.dir("linuxMain")
 val androidPlatform = sourceDirectory.dir("androidMain")
 val commonPlatform = sourceDirectory.dir("commonMain")
@@ -26,6 +25,7 @@ kotlin {
             executable()
         }
         compilations.getByName("main") {
+            @Suppress("UnusedPrivateProperty")
             val libUsb by cinterops.creating {
                 defFile(linuxPlatform.file("libusb.def"))
                 packageName("libusb")
@@ -34,12 +34,13 @@ kotlin {
     }
 
     sourceSets {
+        @Suppress("UnusedPrivateProperty")
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
             }
         }
-
+        @Suppress("UnusedPrivateProperty")
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
@@ -65,7 +66,7 @@ tasks.register("createDataSources") {
     val ch340gConstantsSource = sourceFile(commonPlatform, "Ch340Constants.kt")
     doLast {
         if (!file(toneDataSource).exists()) {
-            ToneGenerator(SAMPLE_FREQUENCY).fileOutput(toneDataSource)
+            ToneGenerator().fileOutput(toneDataSource)
         }
         if (!file(ch340gConstantsSource).exists()) {
             Ch340gConstants().fileOutput(ch340gConstantsSource)

@@ -4,14 +4,10 @@ plugins {
 }
 
 val sourceDirectory = layout.projectDirectory.dir("src")
-val linuxPlatform = sourceDirectory.dir("linuxMain")
-val androidPlatform = sourceDirectory.dir("androidMain")
-val commonPlatform = sourceDirectory.dir("commonMain")
 
 @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
 kotlin {
     targetHierarchy.default()
-
     androidTarget {
         compilations.all {
             kotlinOptions {
@@ -19,27 +15,28 @@ kotlin {
             }
         }
     }
-
     linuxX64 {
         binaries {
             executable()
         }
         compilations.getByName("main") {
+
             @Suppress("UnusedPrivateProperty")
             val libUsb by cinterops.creating {
-                defFile(linuxPlatform.file("libusb.def"))
+                defFile(sourceDirectory.dir("linuxMain").file("libusb.def"))
                 packageName("libusb")
             }
         }
     }
-
     sourceSets {
+
         @Suppress("UnusedPrivateProperty")
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
             }
         }
+
         @Suppress("UnusedPrivateProperty")
         val commonTest by getting {
             dependencies {
@@ -57,26 +54,20 @@ android {
     }
 }
 
-fun sourceFile(platform: Directory, file: String): File {
-    return platform.dir("kotlin").dir("gpo746").file(file).asFile
+tasks.register<Ch340gConstants>("prepareConstants") {
+    directory(sourceDirectory.dir("commonMain").dir("kotlin").dir("gpo746"))
+    file("Ch340Constants.kt")
 }
 
-tasks.register("createDataSources") {
-    val toneDataSource = sourceFile(androidPlatform, "ToneData.kt")
-    val ch340gConstantsSource = sourceFile(commonPlatform, "Ch340Constants.kt")
-    doLast {
-        if (!file(toneDataSource).exists()) {
-            ToneGenerator().fileOutput(toneDataSource)
-        }
-        if (!file(ch340gConstantsSource).exists()) {
-            Ch340gConstants().fileOutput(ch340gConstantsSource)
-        }
-    }
+tasks.register<ToneGenerator>("prepareTones") {
+    directory(sourceDirectory.dir("androidMain").dir("kotlin").dir("gpo746"))
+    file("ToneData.kt")
 }
 
 tasks.named("compileKotlinLinuxX64") {
-    dependsOn("createDataSources")
+    dependsOn("prepareConstants")
 }
+
 val dependentTasks = listOf(
     "compileCommonMainKotlinMetadata",
     "compileReleaseKotlinAndroid",
@@ -84,6 +75,7 @@ val dependentTasks = listOf(
 )
 tasks.whenTaskAdded {
     if (dependentTasks.contains(name)) {
-        dependsOn("createDataSources")
+        dependsOn("prepareConstants")
+        dependsOn("prepareTones")
     }
 }

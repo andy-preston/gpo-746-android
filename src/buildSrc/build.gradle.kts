@@ -3,8 +3,15 @@ plugins {
 }
 
 sourceSets {
+
+    @Suppress("UnusedPrivateProperty")
     val main by getting {
+        dependencies {
+            implementation(gradleApi())
+        }
     }
+
+    @Suppress("UnusedPrivateProperty")
     val test by getting {
         dependencies {
             implementation(kotlin("test"))

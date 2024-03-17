@@ -81,9 +81,10 @@ internal final class Ch340gCalculator(baudRate: Ch340gBaudRate) {
     }
 }
 
-final class Ch340gConstants {
+abstract class Ch340gConstants : ConstantsSourceFile() {
+
     @Suppress("MagicNumber")
-    public fun fileOutput(constFile: File) {
+    protected override fun writeFile(constFile: File) {
         val calculator = Ch340gCalculator(Ch340gBaudRate())
         val (divisorPrescaler, mod) = calculator.baudRate()
         val lcr = calculator.defaultLcr()

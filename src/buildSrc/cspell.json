@@ -3,8 +3,8 @@
     "language": "en",
     "words": [
         "ALaw",
-        "andyp",
-        "javax",
+        "AndyP",
+        "JavaX",
         "lateinit",
         "prescale",
         "prescaler",
@@ -12,6 +12,6 @@
         "println",
         "Stdlib",
         "ULaw",
-        "usart"
+        "USART"
     ]
 }

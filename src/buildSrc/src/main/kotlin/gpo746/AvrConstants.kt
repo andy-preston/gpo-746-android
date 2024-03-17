@@ -14,6 +14,7 @@ internal const val DEBOUNCE_PERIOD_MILLISECONDS = 30
 private const val TIMER1_PRE_SCALE = 256
 
 internal final class AvrConstantsGenerator {
+
     @Suppress("MagicNumber")
     public fun baud(): Int {
         val baudRate = Ch340gBaudRate().checkedRate()
@@ -56,8 +57,9 @@ internal final class AvrConstantsGenerator {
     }
 }
 
-final class AvrConstants {
-    public fun fileOutput(constFile: File) {
+abstract class AvrConstants : ConstantsSourceFile() {
+
+    protected override fun writeFile(constFile: File) {
         val generator = AvrConstantsGenerator()
         val baud = generator.baud()
         val cs = generator.timer1ClockSelect()

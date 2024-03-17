@@ -101,8 +101,8 @@ internal final class Scaler {
     ).map { it.toByte() }
 }
 
-// This should be a gradle task
-final class ToneGenerator() {
+abstract class ToneGenerator : ConstantsSourceFile() {
+
     private val waveform = Waveform()
     private val tone = Tone(waveform)
     private val scaler = Scaler()
@@ -119,9 +119,9 @@ final class ToneGenerator() {
         out.println("    )")
     }
 
-    public fun fileOutput(sourceFile: File) {
+    protected override fun writeFile(constFile: File) {
         var freq = waveform.getSampleFrequency()
-        sourceFile.printWriter().use { out ->
+        constFile.printWriter().use { out ->
             out.println("package andyp.gpo746\n")
             out.println("const val SAMPLE_FREQUENCY = $freq\n")
             out.println("const val BIT_WIDTH = 8\n")

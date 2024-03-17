@@ -23,6 +23,7 @@ android {
         textReport = false
         xmlReport = false
         htmlReport = true
+        disable += "IconLauncherShape"
         // I'm specifically targeting MY phone, which runs Android 12
         // I need to understand how SDK versions work for old versions
         // before paying any attention to this.

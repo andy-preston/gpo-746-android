@@ -114,7 +114,7 @@ abstract class ToneGenerator : ConstantsSourceFile() {
     ) {
         @Suppress("MagicNumber")
         val indent = " ".repeat(8)
-        out.println("    protected val ${name}ToneData = byteArrayOf(")
+        out.println("    protected fun ${name}ToneData() = byteArrayOf(")
         out.println(scaler.bytes(tone).joinToString(",\n$indent", indent))
         out.println("    )")
     }
@@ -125,8 +125,13 @@ abstract class ToneGenerator : ConstantsSourceFile() {
             out.println("package andyp.gpo746\n")
             out.println("const val SAMPLE_FREQUENCY = $freq\n")
             out.println("const val BIT_WIDTH = 8\n")
-            out.println("@Suppress(\"MagicNumber\", \"LargeClass\")")
-            out.println("abstract class ToneData {\n")
+            val suppressions = listOf(
+                "MagicNumber",
+                "LargeClass",
+                "LongMethod"
+            ).joinToString(prefix = "\"", postfix = "\"", separator = "\", \"")
+            out.println("@Suppress($suppressions)")
+            out.println("internal interface ToneData {\n")
             arrayOutput("dial", tone.dial(), out)
             out.println("")
             arrayOutput("engaged", tone.engaged(), out)

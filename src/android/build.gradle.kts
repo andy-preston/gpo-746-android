@@ -33,6 +33,7 @@ android {
         // then it can be added.
         disable += "SetTextI18n"
         disable += "HardcodedText"
+        enable += "AppCompatMethod"
     }
     packaging {
         resources {

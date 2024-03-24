@@ -12,7 +12,7 @@
 
     setup_outputs
     setup_state_machine
-    setup_or_restart_dial
+    setup_dial
     setup_ascii
     setup_serial
 

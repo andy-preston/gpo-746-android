@@ -13,12 +13,12 @@
     setup_serial
 
 the_top:
-    send_put_down_signal
+    cbi output_port, pin_out_pick_up_RI
 
     wait_for_five_seconds
     wait_for_five_seconds
 
-    send_picked_up_signal
+    sbi output_port, pin_out_pick_up_RI
 
     ; lpm always uses the Z-Register and never X and Y
     ; It's OK for us to have a table in program memory here

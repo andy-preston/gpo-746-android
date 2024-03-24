@@ -1,11 +1,11 @@
 .macro Amplifier
-    skip_on_no_amp_required
+    sbic input_pins, pin_in_amp_required_DTR
     rjmp amp_required
 
-    switch_amp_off
+    cbi output_port, pin_out_amplifier
     rjmp end
 
 amp_required:
-    switch_amp_on
+    sbi output_port, pin_out_amplifier
 end:
 .endMacro

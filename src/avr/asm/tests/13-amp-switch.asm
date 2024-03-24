@@ -21,8 +21,8 @@
     setup_outputs
     setup_timer
 loop:
-    switch_amp_on
+    sbi output_port, pin_out_amplifier
     wait_for_three_seconds
-    switch_amp_off
+    cbi output_port, pin_out_amplifier
     wait_for_three_seconds
     rjmp loop

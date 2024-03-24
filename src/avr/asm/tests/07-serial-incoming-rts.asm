@@ -5,14 +5,14 @@
     ; when the device lowers RTS the LED should go out.
 
 the_top:
-    skip_on_incoming
+    sbis input_pins, pin_in_incoming_RTS
     rjmp no_incoming
 
 incoming:
-    blink_on
+    sbi output_port, pin_out_LED
     rjmp the_top
 
 no_incoming:
-    blink_off
+    cbi output_port, pin_out_LED
     rjmp the_top
 

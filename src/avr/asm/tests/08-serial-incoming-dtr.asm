@@ -5,13 +5,13 @@
     ; when the device lowers DTR the LED should go out.
 
 the_top:
-    skip_on_no_amp_required
+    sbic input_pins, pin_in_amp_required_DTR
     rjmp amp_required
 
 no_amp_required:
-    blink_off
+    cbi output_port, pin_out_LED
     rjmp the_top
 
 amp_required:
-    blink_on
+    sbi output_port, pin_out_LED
     rjmp the_top

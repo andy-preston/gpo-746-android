@@ -1,5 +1,5 @@
 .macro Ringing
-    skip_on_incoming
+    sbis input_pins, pin_in_incoming_RTS
     rjmp no_incoming
 
     skip_if_not_in state_ringing

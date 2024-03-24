@@ -1,6 +1,6 @@
 ; These "clever" blinks are here exclusively for diagnostics during testing.
-; Any use of the LED in production code is limited to the blink_on / blink_off
-; macros in `gpio.asm`
+; Any use of the LED in production code is limited to a straight "blink on" or
+; "blink off"
 
 .macro blink_flip
     ; If the LED bit is 0 (off)
@@ -8,12 +8,12 @@
     rjmp blink_off
 
     ; Switch it on
-    blink_on
+    sbi output_port, pin_out_LED
     rjmp blink_end
 
     ; if it was on, switch it off
 blink_off:
-    blink_off
+    cbi output_port, pin_out_LED
 
 blink_end:
 .endMacro
@@ -30,9 +30,9 @@ blink_loop:
     tst _blink_count
     breq blink_end
 
-    blink_on
+    sbi output_port, pin_out_LED
     wait_for_fifth_of_a_second
-    blink_off
+    cbi output_port, pin_out_LED
     wait_for_fifth_of_a_second
 
     dec _blink_count

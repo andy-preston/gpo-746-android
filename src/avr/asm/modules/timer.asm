@@ -1,15 +1,16 @@
-; The 16-bit TimerCounter1 is used for a delay for the ringer AND the blink
-; test! Using the blink test as part of the test for the ringer that way.
-
-; The 8-bit TimerCounter0 is used as part of the dial reading procedures
-; so it's setup and operation code isn't here, see `dial-counter.asm`
-
-; For timer1_clock_select and timer1_20ms_ticks calculations, see:
+; The 16-bit TimerCounter1 is used for a delay for the ringer, the blink
+; test and the pulse debounce.
+;
+; For timer1_clock_select and timer1 ticks calculations, see:
 ;     src/buildSrc/src/main/kotlin/gpo746/AvrConstants.kt
+; The values from these calculations are written to the compile-time file:
+;     "constants.asm"
+;
 
-; For details of timer1_clock_select, timer1_ring_ticks, and
-; timer1_debounce_ticks see
-; `src/buildSrc/src/main/kotlin/gpo746/AvrConstants.kt`
+; Easier names for the bits to check in TIFR
+
+    .equ ring_interval = OCF1A
+    .equ debounce_interval = OCF1B
 
 .macro setup_timer
     ; Set the timer in normal mode rather than any of the PWM options, etc.
@@ -30,100 +31,15 @@
 .endMacro
 
 
-.macro start_interval_timer
-    ; start a timer count at zero
+.macro start_interval_timers
+    ; Start the timer counts at zero
     out TCNT1H, _zero
     out TCNT1L, _zero
-    ; clear the output compare flag
-    ; which will be set again when the timer count is complete
-    ldi _io, (1 << OCF1A) | (1 << OCF1B)
-    out TIFR, _io ; TIFR (56) is out of range for `sbi`
-.endMacro
-
-
-.macro skip_if_20ms_interval_complete
-    ; skip the next instruction if timer1_ring_ticks have passed
-    ; at which point the timer sets the output compare flag again
-    in _timer_wait, TIFR
-    sbrs _timer_wait, OCF1A
-.endMacro
-
-
-.macro skip_if_30ms_interval_complete
-    ; skip the next instruction if timer1_debounce_ticks have passed
-    ; at which point the timer sets the output compare flag again
-    in _timer_wait, TIFR
-    sbrs _timer_wait, OCF1B
-.endMacro
-
-
-.macro wait_for_20ms_interval
-    ; Wait for timer1_ring_ticks ticks to complete
-wait_for_timer:
-    skip_if_20ms_interval_complete
-    rjmp wait_for_timer
-.endMacro
-
-
-; The following `wait_for_XXX` macros naming specific time intervals are only
-; for use in testing where timer1_ring_ticks is too short for a human to
-; notice. The timing values aren't particularly accurate because we're ignoring
-; the few cycles it takes to set up the timer before it runs. But it's close
-; enough for testing. Also some of the code winds up being a tad inefficient.
-; But, again, that's no big deal during testing. I wouldn't like that sort of
-; thing in "production" though.
-
-
-.macro wait_for_20ms
-    start_interval_timer
-    wait_for_20ms_interval
-.endMacro
-
-
-.macro wait_for_multiple_20ms
-    ; Used in tests . Because we're re-using a delay loop with a specific purpose just
-    ; to get a human visible delay, the timing is a bit odd here:
-    ; The parameter is duration with a value of 50 indicating 1 second
-    ; (Plus a little bit extra as we're ignoring the time it takes the loop
-    ; itself to execute)
-    ldi _delay_repeat, @0
-delay:
-    wait_for_20ms
-    dec _delay_repeat
-    brne delay
-.endMacro
-
-
-.macro wait_for_fifth_of_a_second
-    wait_for_multiple_20ms 10
-.endMacro
-
-
-.macro wait_for_half_a_second
-    wait_for_multiple_20ms 25
-.endMacro
-
-
-.macro wait_for_a_second
-    wait_for_multiple_20ms 50
-.endMacro
-
-
-.macro wait_for_two_seconds
-    wait_for_multiple_20ms 100
-.endMacro
-
-
-.macro wait_for_three_seconds
-    wait_for_multiple_20ms 150
-.endMacro
-
-
-.macro wait_for_four_seconds
-    wait_for_multiple_20ms 200
-.endMacro
-
-
-.macro wait_for_five_seconds
-    wait_for_multiple_20ms 250
+    ; Clear the output compare flags, which will be set again when the timer
+    ; counts are complete. It looks like it's wrong because we're clearing
+    ; flags by writing a 1 to them. But that is how it works! Also, we're
+    ; using `ldi` and `out` here because TIFR is out of range to be able to
+    ; use `sbi`
+    ldi _io, (1 << ring_interval) | (1 << debounce_interval)
+    out TIFR, _io
 .endMacro

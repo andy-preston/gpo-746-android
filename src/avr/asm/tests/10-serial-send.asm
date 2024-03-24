@@ -1,6 +1,7 @@
     .include "constants.asm"
     .include "prelude.asm"
     .include "timer.asm"
+    .include "test-delays.asm"
     .include "serial.asm"
     .include "gpio.asm"
     .include "blinks.asm"

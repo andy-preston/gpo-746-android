@@ -1,68 +1,103 @@
-; This is stuff for counting pulses coming from the dial and grouping them
-; into digits. For `skip_dial_active`, see `gpio.asm`
+; Debouncing and counting the pulses that come from the dial.
+;
+; After measuring with a logic analyzer, the pulse width is uniformly,
+; approximately 50ms (TODO: Measure it again!)
+;
+; (TODO: How long are the gaps between pulses? Does it matter anyway?)
+;
+; The debounce algorithm below is driven by a timer and accumulates the 8
+; previous states of the input pin. Once 8 ticks have all "seen" high, it's
+; considered a single pulse. The count is then cleared but the actual input
+; pulse may still be high (referred to as the "dregs"). As long as these
+; "dregs" last for less than the time required to accumulate another 8
+; consecutive high readings, they won't skew the results.
+;
+; | Clock | 8 ticks | "Dregs" | Failure case or Ratio              |
+; | ----- | ------- | ------- | ---------------------------------- |
+; | 6.5ms | 52ms    | -2ms    | Longer pulse than available        |
+; | 6.0ms | 48ms    |  2ms    | 24.0                               |
+; | 5.5ms | 44ms    |  6ms    |  7.3                               |
+; | 5.0ms | 40ms    | 10ms    |  4.0 *                             |
+; | 4.5ms | 36ms *  | 14ms    |  2.3                               |
+; | 4.0ms | 32ms    | 18ms    |  1.7                               |
+; | 3.5ms | 28ms    | 22ms    |  1.3                               |
+; | 3.0ms | 24ms    | 26ms    | "Dregs" longer than expected pulse |
+;
+; start timer
+; loop
+;     if not active
+;         move _dialled_digit <- _pulse_count
+;         clear _pulse_count
+;         clear _bounce_state
+;     else if timer has ticked
+;         start timer
+;         left shift _bounce_state
+;         read input into _bounce_state[0]
+;         if _bounce_state == 11111111
+;             inc _pulse_count
+;             clear _bounce_state
+;         end
+;     end
+;     if _dialled_digit > 0
+;         send it in ASCII
+;         clear _dialled_digit
+;     end
+; end
+
+.macro skip_if_5ms_interval_complete
+    ; skip the next instruction if timer1_debounce_ticks have passed
+    ; at which point the timer sets the output compare flag again
+.endMacro
 
 
-.macro setup_or_restart_dial
-    clr _pulse_counter
+.macro setup_dial
+    start_interval_timers
     clr _dialled_digit
+    clr _pulse_count
+    clr _bounce_state
+.endMacro
+
+
+.macro count_incoming_pulses
+    in _timer_wait, TIFR
+    sbrc _timer_wait, debounce_interval
+    rjmp still_waiting
+
+timer_tick:
+    start_interval_timers
+    in _io, input_pins
+    lsl _bounce_state
+    bst _io, pin_in_dial_pulse_pink
+    bld _bounce_state, 0
+    cp _bounce_state, _all_bits_high
+    brne still_waiting
+
+definitely_a_pulse:
+    inc _pulse_count
+    clr _bounce_state
+
+still_waiting:
 .endMacro
 
 
 .macro get_dial_pulse_count
-    skip_dial_inactive
-    rjmp dial_active
+    ; If the dial is active then the full pulse count is not yet available
+    ; and there's nothing to do.
+    sbis input_pins, pin_in_dial_active_grey
+    rjmp still_counting
 
-dial_inactive:
-    ; The pulse count might be 0 (indicating no digit dialed) or, if we've
-    ; previously been active, it'll have a count of the pulses dialed and the
-    ; digit is now finished.
-    mov _dialled_digit, _pulse_counter
-    ; We may or may not have been in these states.
-    ; But, if the dial is inactive, we certainly don't want to be in them now.
-    leave state_dial_active
-    leave state_waiting_for_pulse_timer
-    rjmp nothing_left_to_do
+finished_counting:
+    ; There may be a digit available now, or perhaps nothing's happened and
+    ; it's zero.
+    mov _dialled_digit, _pulse_count
 
-dial_active:
-    skip_if_not_in state_dial_active
-    rjmp already_active
+    ; zero everything out, ready for the next digit
+    clr _pulse_count
+    clr _bounce_state
+    rjmp end_of_pulse_count
 
-only_just_gone_active:
-    enter state_dial_active
-    ; As we've only just entered the active state, there's no way that we can
-    ; also have seen the start of a pulse and be waiting for the timer.
-    leave state_waiting_for_pulse_timer
-    ; Also, as we've only just gone active, there can't be any pulses counted
-    ; yet either.
-    setup_or_restart_dial
+still_counting:
+    count_incoming_pulses
 
-already_active:
-    skip_if_pulse_is_low
-    rjmp pulse_is_high
-
-pulse_is_low:
-    ; We're certainly not waiting for a pulse timer if it's already low.
-    leave state_waiting_for_pulse_timer
-    rjmp nothing_left_to_do
-
-pulse_is_high:
-    skip_if_in state_waiting_for_pulse_timer
-    rjmp continue_waiting_for_pulse
-
-start_waiting_for_pulse:
-    start_interval_timer
-    enter state_waiting_for_pulse_timer
-
-continue_waiting_for_pulse:
-    skip_if_30ms_interval_complete
-    rjmp nothing_left_to_do
-
-interval_complete:
-    inc _pulse_counter
-    ; Let's pretend that the previous pulse-pin state was LOW because it's got
-    ; less that 20ms before it really does go low and the 30ms timer won't have
-    ; completed again in that time.
-    leave state_waiting_for_pulse_timer
-
-nothing_left_to_do:
+end_of_pulse_count:
 .endMacro

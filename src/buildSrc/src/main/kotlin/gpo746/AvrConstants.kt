@@ -5,7 +5,7 @@ import java.io.File
 private const val CLOCK_FREQUENCY = 14745600
 
 internal const val RING_HALF_PERIOD_MILLISECONDS = 20
-internal const val DEBOUNCE_PERIOD_MILLISECONDS = 30
+internal const val DEBOUNCE_PERIOD_MILLISECONDS = 5
 
 // Any of the available prescalers are perfectly valid
 // Except 1 - which will have a number of ticks that will overflow the 16 bit

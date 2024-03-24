@@ -14,7 +14,7 @@
 put_down:
     cbi output_port, pin_out_pick_up_RI
     clr _dialled_digit
-    clr _pulse_counter
+    clr _pulse_count
 
 end:
 .endMacro

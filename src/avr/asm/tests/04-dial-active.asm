@@ -6,11 +6,11 @@
     ; Procedure:
     ;
     ; 1. Using just the microcontroller board (with it's power jumper shorted),
-    ;    short `pin_in_dial_grey` to VCC and the LED will light. Short
-    ;    `pin_in_dial_grey` to ground and the LED will go out.
+    ;    short `pin_in_dial_active_grey` to VCC and the LED will light. Short
+    ;    `pin_in_dial_active_grey` to ground and the LED will go out.
     ;
     ; 2. Attach the switching board (with it's power jumper missing), by
-    ;    connecting it's dial active output to `pin_in_dial_grey`
+    ;    connecting it's dial active output to `pin_in_dial_active_grey`
     ;    short the "grey" pin of the switching board's dial input to VCC and
     ;    the LED will light.
     ;
@@ -19,15 +19,15 @@
     ;    will light.
 
     setup_outputs
-    blink_off
+    cbi output_port, pin_out_LED
 check_dial:
-    skip_dial_inactive
+    sbic input_pins, pin_in_dial_active_grey
     rjmp active
 
 inactive:
-    blink_off
+    cbi output_port, pin_out_LED
     rjmp check_dial
 
 active:
-    blink_on
+    sbi output_port, pin_out_LED
     rjmp check_dial

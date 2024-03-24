@@ -17,12 +17,12 @@
 
     setup_outputs
 check_receiver_state:
-    skip_when_picked_up
+    sbis input_pins, pin_in_receiver
     rjmp receiver_down
 
-    blink_off
+    cbi output_port, pin_out_LED
     rjmp check_receiver_state
 
 receiver_down:
-    blink_on
+    sbi output_port, pin_out_LED
     rjmp check_receiver_state

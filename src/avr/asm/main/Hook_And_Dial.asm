@@ -1,8 +1,8 @@
 .macro Hook_And_Dial
-    skip_when_picked_up
+    sbis input_pins, pin_in_receiver
     rjmp put_down
 
-    send_picked_up_signal
+    sbi output_port, pin_out_pick_up_RI
     get_dial_pulse_count
     tst _dialled_digit
     breq end
@@ -12,7 +12,7 @@
     rjmp end
 
 put_down:
-    send_put_down_signal
+    cbi output_port, pin_out_pick_up_RI
     clr _dialled_digit
     clr _pulse_counter
 

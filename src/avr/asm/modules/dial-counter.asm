@@ -1,9 +1,7 @@
 ; Debouncing and counting the pulses that come from the dial.
 ;
 ; After measuring with a logic analyzer, the pulse width is uniformly,
-; approximately 50ms (TODO: Measure it again!)
-;
-; (TODO: How long are the gaps between pulses? Does it matter anyway?)
+; approximately 50ms
 ;
 ; The debounce algorithm below is driven by a timer and accumulates the 8
 ; previous states of the input pin. Once 8 ticks have all "seen" high, it's

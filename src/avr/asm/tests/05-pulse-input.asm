@@ -16,15 +16,15 @@
     ;    light. Short pin 3 to ground and the LED will go out.
 
     setup_outputs
-    blink_off
+    cbi output_port, pin_out_LED
 check_pulse:
-    skip_if_pulse_is_low
+    sbic input_pins, pin_in_dial_pulse_pink
     rjmp it_is_high
 
 it_is_low:
-    blink_off
+    cbi output_port, pin_out_LED
     rjmp check_pulse
 
 it_is_high:
-    blink_on
+    sbi output_port, pin_out_LED
     rjmp check_pulse

@@ -51,7 +51,7 @@
     ; See `setup_dial` in `./dial-counter.asm` for usage details.
     ; The pink line is normally closed and held to orange (GND).
     ; It goes open (into a pulled-up state) for 50ms for each pulse.
-    .equ pin_in_dial_pink = 4
+    .equ pin_in_dial_pulse_pink = 4
 
     ; Used to read the RTS line on the CH340G to see if we should ring or not.
     .equ pin_in_incoming_RTS = 5

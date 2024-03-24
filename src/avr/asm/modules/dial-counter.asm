@@ -42,11 +42,6 @@
 ;     end
 ; end
 
-.macro skip_if_5ms_interval_complete
-    ; skip the next instruction if timer1_debounce_ticks have passed
-    ; at which point the timer sets the output compare flag again
-.endMacro
-
 
 .macro setup_dial
     start_interval_timers

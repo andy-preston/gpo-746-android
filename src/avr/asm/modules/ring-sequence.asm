@@ -5,7 +5,7 @@
 
 ; Do this once as we transition to the ringing state
 .macro ring_sequence_start
-    start_interval_timer
+    start_interval_timers
     ; As this stands, we're counting on no other code using the Z register pair.
     ; This would certainly not be the case if some other routine wanted to `lpm`.
     ; But for now we're safe in that assumption.
@@ -16,13 +16,14 @@
 ; When the phone is in the "ringing" state this macro should run once
 ; every time round the loop
 .macro ring_sequence_step
-    skip_if_20ms_interval_complete
+    in _timer_wait, TIFR
+    sbrs _timer_wait, ring_interval
     rjmp nothing_left_to_do
 
 next_step:
     load_ring_sequence_byte
     output_ring_sequence_byte
-    start_interval_timer
+    start_interval_timers
 
 nothing_left_to_do:
 .endMacro

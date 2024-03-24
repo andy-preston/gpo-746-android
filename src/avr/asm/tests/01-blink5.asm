@@ -2,6 +2,7 @@
     .include "prelude.asm"
     .include "gpio.asm"
     .include "timer.asm"
+    .include "test-delays.asm"
     .include "blinks.asm"
 
     ; Test the blinkenlicht

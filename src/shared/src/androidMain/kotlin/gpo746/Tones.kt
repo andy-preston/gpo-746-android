@@ -9,32 +9,7 @@ import java.lang.Thread
 
 enum class ToneSelection { DIAL, MISDIAL, ENGAGED }
 
-internal final class Tone(
-    sampleArray: ByteArray,
-    audioAttributes: AudioAttributes,
-    audioFormat: AudioFormat
-) {
-
-    private val samples = sampleArray
-
-    private val track = AudioTrack(
-        audioAttributes,
-        audioFormat,
-        samples.size,
-        AudioTrack.MODE_STREAM,
-        AudioManager.AUDIO_SESSION_ID_GENERATE
-    )
-
-    public fun release() = track.release()
-
-    public fun write() = track.write(samples, 0, samples.size)
-
-    public fun start() = track.play()
-
-    public fun stop() = track.stop()
-}
-
-abstract class ToneBufferBuilder {
+abstract class ToneBufferFiller {
 
     protected fun setupSamples(minimumSize: Int, waveform: ByteArray): ByteArray {
         var bufferBytes = 0
@@ -48,16 +23,15 @@ abstract class ToneBufferBuilder {
     }
 }
 
-final class Tones : ToneBufferBuilder(), ToneData {
+final class Tones : ToneSamples() {
 
     private var thread: Thread? = null
-    private var playing: ToneSelection? = null
-    private val dialTone: Tone
-    private val misdialTone: Tone
-    private val engagedTone: Tone
+    private var sampleSource: ByteArray? = null
+    private val buffer: ByteArray
+    private val audioTrack: AudioTrack
 
     init {
-        val minBufferSize = AudioTrack.getMinBufferSize(
+        val bufferSize = AudioTrack.getMinBufferSize(
             SAMPLE_FREQUENCY,
             AudioFormat.CHANNEL_OUT_MONO,
             AudioFormat.ENCODING_PCM_8BIT
@@ -77,36 +51,26 @@ final class Tones : ToneBufferBuilder(), ToneData {
             SAMPLE_FREQUENCY
         ).build()
 
-        dialTone = Tone(
-            setupSamples(minBufferSize, dialToneData()),
-            audioAttributes,
-            audioFormat
-        )
+        buffer = ByteArray(bufferSize)
 
-        misdialTone = Tone(
-            setupSamples(minBufferSize, misdialToneData()),
+        audioTrack = AudioTrack(
             audioAttributes,
-            audioFormat
-        )
-
-        engagedTone = Tone(
-            setupSamples(minBufferSize, engagedToneData()),
-            audioAttributes,
-            audioFormat
+            audioFormat,
+            bufferSize,
+            AudioTrack.MODE_STREAM,
+            AudioManager.AUDIO_SESSION_ID_GENERATE
         )
     }
 
     public fun finish() {
         stop()
-        misdialTone.release()
-        dialTone.release()
-        engagedTone.release()
+        audioTrack.release()
     }
 
-    public fun isPlaying(): Boolean = (playing != null || thread != null)
+    public fun isPlaying(): Boolean = (sampleSource != null || thread != null)
 
     public fun stop() {
-        playing = null
+        sampleSource = null
         try {
             thread?.join()
         } catch (e: InterruptedException) {
@@ -116,25 +80,24 @@ final class Tones : ToneBufferBuilder(), ToneData {
     }
 
     public fun play(selection: ToneSelection) {
-        if (selection == playing) {
-            return
-        }
-        val tone = when (selection) {
-            ToneSelection.DIAL -> dialTone
-            ToneSelection.MISDIAL -> misdialTone
-            ToneSelection.ENGAGED -> engagedTone
+        sampleSource = when (selection) {
+            ToneSelection.DIAL -> dialSamples
+            ToneSelection.MISDIAL -> misdialSamples
+            ToneSelection.ENGAGED -> engagedSamples
         }
         stop()
-        playing = selection
         Thread(
             Runnable {
-                tone.write()
-                tone.start()
-                while (playing != null) {
-                    tone.write()
+                write()
+                audioTrack.play()
+                while (sampleSource != null) {
+                    write()
                 }
-                tone.stop()
+                audioTrack.stop()
             }
         ).start()
+    }
+    private fun write() {
+        audioTrack.write(buffer, 0, buffer.size)
     }
 }

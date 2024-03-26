@@ -90,8 +90,16 @@ prog_start:
     ; But I'm still setting up the stack for completeness.
     ; There's no SPH to setup on the ATTiny2313 because it hasn't got enough
     ; RAM to need a high byte in it's stack pointer.
+.ifDevice ATTiny2313
     ldi _io, RamEnd
     out SPL, _io
+.endIf
+.ifDevice ATmega644P
+    ldi _io, high(RamEnd)
+    out SPH, _io
+    ldi _io, low(RamEnd)
+    out SPL, _io
+.endIf
 
     ; This isn't MIPS, if I want to pretend I've got a "zero" register, I need
     ; to clear it before use.

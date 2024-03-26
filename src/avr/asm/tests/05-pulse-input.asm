@@ -1,3 +1,4 @@
+    .device ATTiny2313
     .include "prelude.asm"
     .include "gpio.asm"
     .include "blinks.asm"

@@ -59,9 +59,19 @@
 timer_tick:
     start_interval_timers
     in _io, input_pins
+
+.ifDevice ATmega644P
+    out PORTA, _io
+.endIf
+
     lsl _bounce_state
     bst _io, pin_in_dial_pulse_pink
     bld _bounce_state, 0
+
+.ifDevice ATmega644P
+    out PORTC, _bounce_state
+.endIf
+
     cp _bounce_state, _all_bits_high
     brne still_waiting
 

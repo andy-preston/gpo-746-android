@@ -67,6 +67,14 @@
 .macro setup_outputs
     ldi _io, outputs
     out output_DDR, _io
+
+.ifDevice ATmega644P
+    out DDRA, _all_bits_high
+    out PORTA, _zero
+    out DDRC, _all_bits_high
+    out PORTC, _zero
+.endIf
+
     ; Clear all outputs except the LED.
     ; To ensure everything is switched off...
     ; ... apart from what's switched on, of course.

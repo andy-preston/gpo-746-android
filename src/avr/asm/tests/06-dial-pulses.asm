@@ -1,4 +1,4 @@
-    .device ATTiny2313
+    .device ATmega644P ; ATTiny2313
     .include "prelude.asm"
     .include "constants.asm"
     .include "gpio.asm"

@@ -1,6 +1,3 @@
-    .device ATTiny2313 ; 14745600 crystal
-
-
     ; I'm trying to arrange things so that each register has a single function
     ; so that on entering macros or subroutines, we don't need to concern
     ; ourselves with which registers we might be overwriting and saving

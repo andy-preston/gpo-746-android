@@ -23,10 +23,9 @@
 .endIf
 
 
-; Easier names for the bits to check in TIFR
-    .equ ring_interval = OCF1A
-    .equ debounce_interval = OCF1B
-
+    ; Easier names for the bits to check in TIFR
+    .equ ring_OCF1A = OCF1A
+    .equ debounce_OCF1B = OCF1B
 
 .macro setup_timer
     ; Set the timer in normal mode rather than any of the PWM options, etc.
@@ -57,6 +56,7 @@
     ; flags by writing a 1 to them. But that is how it works! Also, we're
     ; using `ldi` and `out` here because TIFR is out of range to be able to
     ; use `sbi`
-    ldi _io, (1 << ring_interval) | (1 << debounce_interval)
+    ldi _io, (1 << ring_OCF1A) | (1 << debounce_OCF1B)
     compatible_out TIFR, _io
 .endMacro
+

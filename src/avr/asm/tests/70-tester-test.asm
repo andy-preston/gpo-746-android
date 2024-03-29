@@ -19,7 +19,7 @@
 
 test_loop:
     in _timer_wait, TIFR
-    sbrc _timer_wait, debounce_interval
+    sbrc _timer_wait, debounce_OCF1B
     rjmp test_loop
 
 timer_tick:

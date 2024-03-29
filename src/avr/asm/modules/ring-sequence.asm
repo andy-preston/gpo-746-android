@@ -17,7 +17,7 @@
 ; every time round the loop
 .macro ring_sequence_step
     in _timer_wait, TIFR
-    sbrs _timer_wait, ring_interval
+    sbrs _timer_wait, ring_OCF1A
     rjmp nothing_left_to_do
 
 next_step:

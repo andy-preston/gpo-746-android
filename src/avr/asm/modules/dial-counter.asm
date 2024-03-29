@@ -53,7 +53,7 @@
 
 .macro count_incoming_pulses
     in _timer_wait, TIFR
-    sbrc _timer_wait, debounce_interval
+    sbrc _timer_wait, debounce_OCF1B
     rjmp still_waiting
 
 timer_tick:

@@ -5,7 +5,7 @@
     ; Wait for timer1_ring_ticks ticks to complete
 wait_for_timer:
     in _timer_wait, TIFR
-    sbrs _timer_wait, ring_interval
+    sbrs _timer_wait, ring_OCF1A
     rjmp wait_for_timer
 .endMacro
 

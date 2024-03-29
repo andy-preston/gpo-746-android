@@ -114,7 +114,7 @@ abstract class ToneGenerator : ConstantsSourceFile() {
     ) {
         @Suppress("MagicNumber")
         val indent = " ".repeat(8)
-        out.println("    protected val ${name}Samples = byteArrayOf(")
+        out.println("    protected override val ${name}Samples = byteArrayOf(")
         out.println(scaler.bytes(tone).joinToString(",\n$indent", indent))
         out.println("    )")
     }
@@ -131,7 +131,7 @@ abstract class ToneGenerator : ConstantsSourceFile() {
                 "LongMethod"
             ).joinToString(prefix = "\"", postfix = "\"", separator = "\", \"")
             out.println("@Suppress($suppressions)")
-            out.println("abstract class ToneSamples {\n")
+            out.println("final class Tones : TonePlayer() {\n")
             arrayOutput("dial", tone.dial(), out)
             out.println("")
             arrayOutput("engaged", tone.engaged(), out)

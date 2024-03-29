@@ -4,39 +4,31 @@ import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioTrack
-import java.io.ByteArrayOutputStream
 import java.lang.Thread
 
 enum class ToneSelection { DIAL, MISDIAL, ENGAGED }
 
-abstract class ToneBufferFiller {
-
-    protected fun setupSamples(minimumSize: Int, waveform: ByteArray): ByteArray {
-        var bufferBytes = 0
-        val waveBytes = waveform.size
-        val stream = ByteArrayOutputStream()
-        while (bufferBytes < minimumSize) {
-            bufferBytes = bufferBytes + waveBytes
-            stream.write(waveform)
-        }
-        return stream.toByteArray()
-    }
-}
-
-final class Tones : ToneSamples() {
+abstract class TonePlayer : ToneBufferFiller() {
 
     private var thread: Thread? = null
+
     private var sampleSource: ByteArray? = null
-    private val buffer: ByteArray
+
     private val audioTrack: AudioTrack
 
-    init {
-        val bufferSize = AudioTrack.getMinBufferSize(
-            SAMPLE_FREQUENCY,
-            AudioFormat.CHANNEL_OUT_MONO,
-            AudioFormat.ENCODING_PCM_8BIT
-        )
+    protected abstract val dialSamples: ByteArray
 
+    protected abstract val engagedSamples: ByteArray
+
+    protected abstract val misdialSamples: ByteArray
+
+    protected override val bufferSize: Int = AudioTrack.getMinBufferSize(
+        SAMPLE_FREQUENCY,
+        AudioFormat.CHANNEL_OUT_MONO,
+        AudioFormat.ENCODING_PCM_8BIT
+    )
+
+    init {
         val audioAttributes = AudioAttributes.Builder().setUsage(
             AudioAttributes.USAGE_MEDIA
         ).setContentType(
@@ -50,8 +42,6 @@ final class Tones : ToneSamples() {
         ).setSampleRate(
             SAMPLE_FREQUENCY
         ).build()
-
-        buffer = ByteArray(bufferSize)
 
         audioTrack = AudioTrack(
             audioAttributes,
@@ -88,16 +78,13 @@ final class Tones : ToneSamples() {
         stop()
         Thread(
             Runnable {
-                write()
+                audioTrack.write(setupSamples(sampleSource!!), 0, bufferSize)
                 audioTrack.play()
                 while (sampleSource != null) {
-                    write()
+                    audioTrack.write(setupSamples(sampleSource!!), 0, bufferSize)
                 }
                 audioTrack.stop()
             }
         ).start()
-    }
-    private fun write() {
-        audioTrack.write(buffer, 0, buffer.size)
     }
 }

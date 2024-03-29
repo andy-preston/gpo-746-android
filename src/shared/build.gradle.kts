@@ -61,7 +61,7 @@ tasks.register<Ch340gConstants>("prepareConstants") {
 
 tasks.register<ToneGenerator>("prepareTones") {
     directory(sourceDirectory.dir("androidMain").dir("kotlin").dir("gpo746"))
-    file("ToneSamples.kt")
+    file("Tones.kt")
 }
 
 tasks.named("compileKotlinLinuxX64") {

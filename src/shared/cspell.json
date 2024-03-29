@@ -12,6 +12,7 @@
         "initialised",
         "jetbrains",
         "kotlinx",
+        "lateinit",
         "libusb",
         "lusb",
         "multiplatform",

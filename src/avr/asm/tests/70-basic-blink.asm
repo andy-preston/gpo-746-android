@@ -41,7 +41,6 @@ delay:
     sts TCNT1H, _zero
     sts TCNT1L, _zero
     ldi _io, (1 << ring_OCF1A) | (1 << debounce_OCF1B)
-    ; TIFR is an `out` not an sts
     out TIFR1, _io
 
 wait_for_timer:

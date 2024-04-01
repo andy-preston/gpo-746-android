@@ -57,6 +57,6 @@
     ; using `ldi` and `out` here because TIFR is out of range to be able to
     ; use `sbi`
     ldi _io, (1 << ring_OCF1A) | (1 << debounce_OCF1B)
-    compatible_out TIFR, _io
+    out TIFR, _io
 .endMacro
 

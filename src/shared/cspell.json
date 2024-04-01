@@ -16,6 +16,7 @@
         "libusb",
         "lusb",
         "multiplatform",
+        "PLAYSTATE",
         "posix",
         "prescaler",
         "println",

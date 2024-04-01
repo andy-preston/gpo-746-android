@@ -12,8 +12,6 @@ abstract class TonePlayer {
 
     private var thread: Thread? = null
 
-    private var playing: Boolean = false
-
     protected val audioTrack: AudioTrack
 
     protected val bufferSize: Int = AudioTrack.getMinBufferSize(
@@ -59,10 +57,14 @@ abstract class TonePlayer {
         audioTrack.release()
     }
 
-    public fun isPlaying(): Boolean = (playing || thread != null)
+    public fun isPlaying(): Boolean = (
+        audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING ||
+        thread != null
+    )
 
     public fun stop() {
-        playing = false
+        audioTrack.stop()
+        audioTrack.flush()
         if (thread != null) {
             try {
                 thread?.join()
@@ -84,10 +86,9 @@ abstract class TonePlayer {
             Runnable {
                 source.fillBuffer()
                 audioTrack.play()
-                while (playing) {
+                while (audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
                     source.nextBlock()
                 }
-                audioTrack.stop()
             }
         )
         thread!!.start()

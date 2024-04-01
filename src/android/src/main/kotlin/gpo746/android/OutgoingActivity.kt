@@ -34,6 +34,13 @@ open class OutgoingActivity : IncomingActivity() {
                 tones.play(ToneSelection.MISDIAL)
             }
         }
+        toneEngagedButton.setOnClickListener {
+            if (tones.isPlaying()) {
+                tones.stop()
+            } else {
+                tones.play(ToneSelection.ENGAGED)
+            }
+        }
     }
 
     public override fun onDestroy() {

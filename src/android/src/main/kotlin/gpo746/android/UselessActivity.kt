@@ -16,6 +16,7 @@ open class UselessActivity : Activity() {
     protected lateinit var ringButton: Button
     protected lateinit var toneDialButton: Button
     protected lateinit var toneMisdialButton: Button
+    protected lateinit var toneEngagedButton: Button
     protected lateinit var numberDisplay: TextView
     protected lateinit var statusDisplay: TextView
 
@@ -30,6 +31,7 @@ open class UselessActivity : Activity() {
         ringButton = findViewById<Button>(R.id.ringButton)
         toneDialButton = findViewById<Button>(R.id.toneDialButton)
         toneMisdialButton = findViewById<Button>(R.id.toneMisdialButton)
+        toneEngagedButton = findViewById<Button>(R.id.toneEngagedButton)
         numberDisplay = findViewById<TextView>(R.id.numberDisplay)
         statusDisplay = findViewById<TextView>(R.id.statusDisplay)
     }

@@ -1,5 +1,6 @@
     .device ATmega164P
     .include "prelude.asm"
+    .include "constants.asm"
     .include "gpio.asm"
 
     ; Hopefully, you'll never need to run this one.
@@ -10,25 +11,46 @@
     ; Sigrok. This test is to do some preliminary testing on that board to make
     ; sure it will work.
 
+    .equ ring_OCF1A = OCF1A
+    .equ debounce_OCF1B = OCF1B
+
     setup_outputs
+
+    sts TCCR1A, _zero
+
+    ldi _io, timer1_clock_select
+    sts TCCR1B, _io
+
+    ldi _io, high(timer1_ring_ticks)
+    sts OCR1AH, _io
+
+    ldi _io, low(timer1_ring_ticks)
+    sts OCR1AL, _io
+
+    ldi _io, high(timer1_debounce_ticks)
+    sts OCR1BH, _io
+
+    ldi _io, low(timer1_debounce_ticks)
+    sts OCR1BL, _io
 
 top_of_test:
 
-    ldi r25, 24
+    ldi _delay_repeat, 40
 
-outer_loop:
-    ldi r24, 255
+delay:
+    sts TCNT1H, _zero
+    sts TCNT1L, _zero
+    ldi _io, (1 << ring_OCF1A) | (1 << debounce_OCF1B)
+    ; TIFR is an `out` not an sts
+    out TIFR1, _io
 
-middle_loop:
-    ldi r23, 255
+wait_for_timer:
+    in _timer_wait, TIFR1
+    sbrs _timer_wait, debounce_OCF1B
+    rjmp wait_for_timer
 
-inner_loop:
-    dec r23
-    brne inner_loop
-    dec r24
-    brne middle_loop
-    dec r25
-    brne outer_loop
+    dec _delay_repeat
+    brne delay
 
 blink_check:
     sbic output_port, pin_out_LED

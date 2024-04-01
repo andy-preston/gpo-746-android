@@ -113,9 +113,13 @@ abstract class ToneGenerator : ConstantsSourceFile() {
         out: PrintWriter
     ) {
         @Suppress("MagicNumber")
-        val indent = " ".repeat(8)
-        out.println("    protected override val ${name}Samples = byteArrayOf(")
+        val indent = " ".repeat(12)
+        out.println("    protected override val ${name}Tone = ToneSource(")
+        out.println("        bufferSize,")
+        out.println("        audioTrack,")
+        out.println("        byteArrayOf(")
         out.println(scaler.bytes(tone).joinToString(",\n$indent", indent))
+        out.println("        )")
         out.println("    )")
     }
 

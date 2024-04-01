@@ -8,25 +8,27 @@ import java.lang.Thread
 
 enum class ToneSelection { DIAL, MISDIAL, ENGAGED }
 
-abstract class TonePlayer : ToneBufferFiller() {
+abstract class TonePlayer {
 
     private var thread: Thread? = null
 
-    private var sampleSource: ByteArray? = null
+    private var playing: Boolean = false
 
-    private val audioTrack: AudioTrack
+    protected val audioTrack: AudioTrack
 
-    protected abstract val dialSamples: ByteArray
-
-    protected abstract val engagedSamples: ByteArray
-
-    protected abstract val misdialSamples: ByteArray
-
-    protected override val bufferSize: Int = AudioTrack.getMinBufferSize(
+    protected val bufferSize: Int = AudioTrack.getMinBufferSize(
         SAMPLE_FREQUENCY,
         AudioFormat.CHANNEL_OUT_MONO,
         AudioFormat.ENCODING_PCM_8BIT
     )
+
+    private lateinit var source: ToneSource
+
+    protected abstract val dialTone: ToneSource
+
+    protected abstract val engagedTone: ToneSource
+
+    protected abstract val misdialTone: ToneSource
 
     init {
         val audioAttributes = AudioAttributes.Builder().setUsage(
@@ -57,34 +59,37 @@ abstract class TonePlayer : ToneBufferFiller() {
         audioTrack.release()
     }
 
-    public fun isPlaying(): Boolean = (sampleSource != null || thread != null)
+    public fun isPlaying(): Boolean = (playing || thread != null)
 
     public fun stop() {
-        sampleSource = null
-        try {
-            thread?.join()
-        } catch (e: InterruptedException) {
-            // pass
+        playing = false
+        if (thread != null) {
+            try {
+                thread?.join()
+            } catch (e: InterruptedException) {
+                // pass
+            }
+            thread = null
         }
-        thread = null
     }
 
     public fun play(selection: ToneSelection) {
-        sampleSource = when (selection) {
-            ToneSelection.DIAL -> dialSamples
-            ToneSelection.MISDIAL -> misdialSamples
-            ToneSelection.ENGAGED -> engagedSamples
-        }
         stop()
-        Thread(
+        source = when (selection) {
+            ToneSelection.DIAL -> dialTone
+            ToneSelection.MISDIAL -> misdialTone
+            ToneSelection.ENGAGED -> engagedTone
+        }
+        thread = Thread(
             Runnable {
-                audioTrack.write(setupSamples(sampleSource!!), 0, bufferSize)
+                source.fillBuffer()
                 audioTrack.play()
-                while (sampleSource != null) {
-                    audioTrack.write(setupSamples(sampleSource!!), 0, bufferSize)
+                while (playing) {
+                    source.nextBlock()
                 }
                 audioTrack.stop()
             }
-        ).start()
+        )
+        thread!!.start()
     }
 }

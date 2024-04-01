@@ -94,7 +94,7 @@ prog_start:
     ldi _io, RamEnd
     out SPL, _io
 .endIf
-.ifDevice ATmega644P
+.ifDevice ATmega164P
     ldi _io, high(RamEnd)
     out SPH, _io
     ldi _io, low(RamEnd)

@@ -1,4 +1,4 @@
-    .device ATmega644P
+    .device ATmega164P
     .include "prelude.asm"
     .include "constants.asm"
     .include "gpio.asm"
@@ -7,7 +7,7 @@
     ; Hopefully, you'll never need to run this one.
     ;
     ; I was having trouble getting the debounce working on the dial pulse
-    ; reader and ended up building a special tester with an ATMega644P chip
+    ; reader and ended up building a special tester with an ATmega164P chip
     ; with it's two extra ports hooked up to a CY7C68013A for testing with
     ; Sigrok. This test is to do some preliminary testing on that board to make
     ; sure it will work.

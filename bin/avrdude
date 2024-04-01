@@ -1,24 +1,43 @@
 #!/bin/bash
 
-#PROGRAMMER='-c usbasp'
-#PROGRAMMER='-c stk500v1 -P /dev/ttyUSB0 -b 19200'
-PROGRAMMER='-c stk500v1 -P net:avrnude.lan:5000'
-
-AVRDUDE="avrdude ${PROGRAMMER} -p t2313 -V"
-
 if [ -z "$1" ]
 then
-    echo ./bin/avrdude hex_file
-    echo ./bin/avrdude fuses
+    echo './bin/avrdude hex_file {2313|164}'
+    echo './bin/avrdude fuses'
     echo
-    echo Available Hex Files:
+    echo 'Available Hex Files':
     ls share/build/avr/*.hex
     exit
 fi
 
+case "${2:-2313}" in
+    "none")
+        # For future use and/or reference only
+        PROGRAMMER='-c stk500v1 -P /dev/ttyUSB0 -b 19200'
+        CHIP="none"
+        ;;
+    "164")
+        # ATMega 164P test board on local USBASP
+        PROGRAMMER='-c usbasp'
+        CHIP='m164p'
+        ;;
+    "2313")
+        # ATTiny 2313 on networked programmer
+        PROGRAMMER='-c stk500v1 -P net:avrnude.lan:5000'
+        CHIP='t2313'
+        ;;
+    *)
+        echo "unknown chip/programmer"
+        exit
+        ;;
+esac
+
+AVRDUDE="avrdude ${PROGRAMMER} -p ${CHIP} -V"
+
 if [ "$1" = "fuses" ]
 then
-    ${AVRDUDE} -U lfuse:w:0xFF:m -U  hfuse:w:0xDF:m -U efuse:w:0xFF:m
+    # 2313 values
+    ${AVRDUDE} -U lfuse:w:0xFF:m -U hfuse:w:0xDF:m -U efuse:w:0xFF:m
     exit
 fi
 

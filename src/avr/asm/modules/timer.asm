@@ -12,13 +12,13 @@
     .ifDevice ATTiny2313
         out @0, @1
     .endIf
-    .ifDevice ATmega644P
+    .ifDevice ATmega164P
         sts @0, @1
     .endIf
 .endMacro
 
 
-.ifDevice ATmega644P
+.ifDevice ATmega164P
     .equ TIFR = TIFR1
 .endIf
 

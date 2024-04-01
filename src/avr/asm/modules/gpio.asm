@@ -68,7 +68,7 @@
     ldi _io, outputs
     out output_DDR, _io
 
-.ifDevice ATmega644P
+.ifDevice ATmega164P
     out DDRA, _all_bits_high
     out PORTA, _zero
     out DDRC, _all_bits_high

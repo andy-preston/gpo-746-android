@@ -1,19 +1,5 @@
-FROM gradle:8.3.0-jdk17-alpine
-
-ADD https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip \
-    /usr/local/share/tools.zip
-
-RUN mkdir /opt/android && \
-    unzip -d /opt/android /usr/local/share/tools.zip && \
-    mv /opt/android/cmdline-tools/ /opt/android/latest && \
-    mkdir /opt/android/cmdline-tools/ && \
-    mv /opt/android/latest /opt/android/cmdline-tools/latest
-
-RUN yes | /opt/android/cmdline-tools/latest/bin/sdkmanager \
-        'platforms;android-31' \
-        'build-tools;31.0.0'
-
-ENV ANDROID_SDK_ROOT=/opt/android
+# We need to use jammy not alpine because the Android build tools need glibc
+FROM gradle:8.3.0-jdk17-jammy
 
 # Temporary bodge to get GAVRASM from local file system
 # www.avr-asm-tutorial.net seems to be no longer available
@@ -28,6 +14,7 @@ RUN mkdir /opt/gavrasm && \
         gavrasm_lin_i386_x64_en_v54 && \
     mv /opt/gavrasm/gavrasm_lin_i386_x64_en_v54 /opt/gavrasm/gavrasm
 
-    RUN apk add libusb-dev
+RUN apt-get update && \
+    apt-get -y --no-install-recommends install libusb-1.0-0-dev
 
 CMD ["bash"]

@@ -5,6 +5,7 @@ CONTAINER_SRC="/usr/local/src"
 CONTAINER_BIN="/usr/local/bin"
 GRADLE="/opt/gradle/bin/gradle"
 DOCKER_DIRECTORY="$(pwd)/docker/gradle"
+ANDROID_SDK_ROOT="${CONTAINER_SHARE}/android"
 
 case $1 in
 'pretest')
@@ -24,6 +25,7 @@ case $1 in
     COMMAND="${GRADLE} ${@:1}"
     ;;
 esac
+
 UNDERLINE=$(head -c ${#COMMAND} < /dev/zero | tr '\0' '=')
 echo -e "${UNDERLINE}\n${COMMAND}\n${UNDERLINE}"
 
@@ -33,35 +35,70 @@ then
 else
     LOCAL_SRC="$(pwd)/src"
     LOCAL_BIN="$(pwd)/bin"
+
     LOCAL_SHARE="$(pwd)/share"
+
     LOCAL_BUILD="${LOCAL_SHARE}/build"
-    LOCAL_CACHE="${LOCAL_SHARE}/cache"
     for BUILD_DIR in android avr buildSrc shared reports
     do
         mkdir -p ${LOCAL_BUILD}/${BUILD_DIR}
     done
+
+    LOCAL_CACHE="${LOCAL_SHARE}/cache"
     for CACHE_DIR in buildSrc project
     do
         mkdir -p ${LOCAL_CACHE}/${CACHE_DIR}
     done
-    # Note for write-up re: local_share/gradle
-    #
-    # Gradle likes to save stuff in your home directory
-    # If you're running in Docker and you've got no home directory
-    # it gets confused and starts creating directories called `(?)`
-    # willy-nilly all over your codebases
+
     mkdir -p ${LOCAL_SHARE}/gradle
     mkdir -p ${LOCAL_SHARE}/konan
+
     docker build --tag android_gpo ${DOCKER_DIRECTORY}
-    docker run \
-        --rm --interactive --tty \
-        --volume "${LOCAL_BIN}/gradle:${CONTAINER_BIN}/gradle" \
+
+    LOCAL_SDK="${LOCAL_SHARE}/android"
+    mkdir -p ${LOCAL_SDK}
+
+    # All this Android guff ends up in a shared directory and therefore not
+    # in the Dockerfile because ADB is such a pain to run from inside the
+    # container but most of the SDK_ROOT stuff is needed inside the container.
+    if [ ! -e ${LOCAL_SDK}/cmdline-tools ]
+    then
+        curl --output /var/tmp/tools.zip \
+            https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+        unzip -d ${LOCAL_SDK} /var/tmp/tools.zip
+        rm /var/tmp/tools.zip
+        mv ${LOCAL_SDK}/cmdline-tools/ ${LOCAL_SDK}/latest && \
+        mkdir -p ${LOCAL_SDK}/cmdline-tools/ && \
+        mv ${LOCAL_SDK}/latest ${LOCAL_SDK}/cmdline-tools/latest
+    fi
+
+    DOCKER_RUN='docker run --rm --interactive --tty'
+    DOCKER_RUN+=" --volume ${LOCAL_SDK}:${ANDROID_SDK_ROOT}"
+    DOCKER_RUN+=" --env ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}"
+    DOCKER_RUN+=" --user $(id -u):$(id -g)"
+    DOCKER_RUN+=" --workdir ${CONTAINER_SRC}"
+    DOCKER_RUN+=" --name android_gpo"
+
+    if [ ! -e ${LOCAL_SDK}/build-tools ]
+    then
+        SDK_COMMAND='yes |'
+        SDK_COMMAND+=" ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+        SDK_COMMAND+=' platforms\;android-31'
+        SDK_COMMAND+=' build-tools\;33.0.1'
+        SDK_COMMAND+=' platform-tools'
+        echo "${SDK_COMMAND}" > /var/tmp/sdk
+        ${DOCKER_RUN} --volume "/var/tmp/sdk:${CONTAINER_BIN}/sdk" \
+            android_gpo \
+            bash ${CONTAINER_BIN}/sdk
+        rm /var/tmp/sdk
+    fi
+
+    ${DOCKER_RUN} --volume "${LOCAL_BIN}/gradle:${CONTAINER_BIN}/gradle" \
         --volume "${LOCAL_SHARE}/gradle:${CONTAINER_SHARE}/gradle" \
         --env "GRADLE_USER_HOME=${CONTAINER_SHARE}/gradle" \
         --volume "${LOCAL_SHARE}/konan:${CONTAINER_SHARE}/konan" \
         --env "KONAN_DATA_DIR=${CONTAINER_SHARE}/konan" \
         --volume "${LOCAL_SRC}:${CONTAINER_SRC}" \
-        --workdir "${CONTAINER_SRC}" \
         --volume "${LOCAL_CACHE}/project:${CONTAINER_SRC}/.gradle" \
         --volume "${LOCAL_CACHE}/buildSrc:${CONTAINER_SRC}/buildSrc/.gradle" \
         --volume "${LOCAL_BUILD}/reports:${CONTAINER_SRC}/build" \
@@ -69,12 +106,10 @@ else
         --volume "${LOCAL_BUILD}/avr:${CONTAINER_SRC}/avr/build" \
         --volume "${LOCAL_BUILD}/buildSrc:${CONTAINER_SRC}/buildSrc/build" \
         --volume "${LOCAL_BUILD}/shared:${CONTAINER_SRC}/shared/build" \
-        --user $(id -u):$(id -g) \
-        --name android_gpo \
-        android_gpo ${COMMAND}
+        android_gpo \
+        ${COMMAND}
     for BIND in $(cd src ; find -name build -or -name .gradle)
     do
         rmdir src/$BIND
     done
 fi
-

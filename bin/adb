@@ -3,17 +3,6 @@
 # adb install
 # adb shell
 
-BINARY='./share/platform-tools/adb'
-ZIP='/var/tmp/tools.zip'
-URL='https://dl.google.com/android/repository/platform-tools-latest-linux.zip'
-
-if [ ! -f $BINARY ]
-then
-    curl --output $ZIP $URL
-    unzip -d ./share/ $ZIP
-    rm $ZIP
-fi
-
 case $1 in
 'install')
     COMMAND="install -r -d ./share/build/android/outputs/apk/debug/android-debug.apk"
@@ -26,4 +15,4 @@ case $1 in
     ;;
 esac
 
-$BINARY $COMMAND
+./share/android/platform-tools/adb $COMMAND

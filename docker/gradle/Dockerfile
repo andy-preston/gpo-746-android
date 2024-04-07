@@ -3,8 +3,13 @@ FROM alpine:latest as builder
 ADD https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip \
     /usr/local/share/tools.zip
 
-ADD http://www.avr-asm-tutorial.net/gavrasm/v54/gavrasm_lin_i386_x64_en_54.zip \
-    /usr/local/share/gavrasm.zip
+# Temporary bodge to get GAVRASM from local file system
+# www.avr-asm-tutorial.net seems to be no longer available
+# We need a more permanent solution but I haven't worked out what that solution
+# will be at this stage
+ADD gavrasm_lin_i386_x64_en_54.zip /usr/local/share/gavrasm.zip
+#ADD http://www.avr-asm-tutorial.net/gavrasm/v54/gavrasm_lin_i386_x64_en_54.zip \
+#    /usr/local/share/gavrasm.zip
 
 RUN apk add unzip && \
     mkdir /opt/android && \

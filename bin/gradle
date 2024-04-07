@@ -4,16 +4,9 @@ CONTAINER_SHARE="/usr/local/share"
 CONTAINER_SRC="/usr/local/src"
 CONTAINER_BIN="/usr/local/bin"
 GRADLE="/opt/gradle/bin/gradle"
-ANDROID_SDK_ROOT="${CONTAINER_SHARE}/android"
 DOCKER_DIRECTORY="$(pwd)/docker/gradle"
 
 case $1 in
-'sdk')
-    COMMAND=/opt/android/cmdline-tools/bin/sdkmanager
-    COMMAND+=" --sdk_root=${ANDROID_SDK_ROOT}"
-    COMMAND+=" platforms;android-31"
-    COMMAND+=" build-tools;31.0.0"
-    ;;
 'pretest')
     COMMAND="${GRADLE} -p buildSrc test"
     ;;
@@ -21,7 +14,7 @@ case $1 in
     if [ -f /.dockerenv ]
     then
         echo 'Already running in container use:'
-        echo "$(basename $0) pretest|sdk|[any gradle command]"
+        echo "$(basename $0) pretest|[any gradle command]"
         exit
     else
         COMMAND='bash'
@@ -59,13 +52,10 @@ else
     # willy-nilly all over your codebases
     mkdir -p ${LOCAL_SHARE}/gradle
     mkdir -p ${LOCAL_SHARE}/konan
-    mkdir -p ${LOCAL_SHARE}/android
     docker build --tag android_gpo ${DOCKER_DIRECTORY}
     docker run \
         --rm --interactive --tty \
         --volume "${LOCAL_BIN}/gradle:${CONTAINER_BIN}/gradle" \
-        --volume "${LOCAL_SHARE}/android:${ANDROID_SDK_ROOT}" \
-        --env "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}" \
         --volume "${LOCAL_SHARE}/gradle:${CONTAINER_SHARE}/gradle" \
         --env "GRADLE_USER_HOME=${CONTAINER_SHARE}/gradle" \
         --volume "${LOCAL_SHARE}/konan:${CONTAINER_SHARE}/konan" \

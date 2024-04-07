@@ -36,12 +36,6 @@ This launches a Docker container with `gradle` and other build tools.
 `./bin/gradle` Will run the container with a shell that you can enter
 further `gradle` commands into.
 
-`./bin/gradle sdk` outside the container or `gradle sdk` inside the container
-will download the required files for the Android SDK. You will need to do this
-before the Android app can be built. This step couldn't be included in the
-docker container because it includes "I accept the license (Y/N)"
-shenanigans.
-
 `./bin/gradle pretest` outside the container or `gradle pretest` inside the
 container will run the tests for the `buildSrc` sub-project.
 

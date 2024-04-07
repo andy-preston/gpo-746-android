@@ -2,6 +2,7 @@
     "version": "0.2",
     "language": "en",
     "words": [
+        "cmdline",
         "deno",
         "gavrasm",
         "libusb",
@@ -11,6 +12,7 @@
         "pylint",
         "PYLINTHOME",
         "PYTHONPYCACHEPREFIX",
-        "schemdraw"
+        "schemdraw",
+        "sdkmanager"
     ]
 }

@@ -19,16 +19,14 @@ top_of_test:
 
     ldi _delay_repeat, 40
 
-delay:
-    start_interval_timers
-
 wait_for_timer:
     in _timer_wait, TIFR1
     sbrs _timer_wait, debounce_OCF1B
     rjmp wait_for_timer
 
+    start_interval_timers
     dec _delay_repeat
-    brne delay
+    brne wait_for_timer
 
 blink_check:
     sbic output_port, pin_out_LED

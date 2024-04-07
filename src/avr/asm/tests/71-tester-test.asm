@@ -23,9 +23,9 @@ test_loop:
     rjmp test_loop
 
 timer_tick:
+    start_interval_timers
     out PORTA, _bounce_state
     out PORTC, _pulse_count
     inc _bounce_state
     dec _pulse_count
-    start_interval_timers
     rjmp test_loop

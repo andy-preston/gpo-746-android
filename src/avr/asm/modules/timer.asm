@@ -18,14 +18,29 @@
 .endMacro
 
 
-.ifDevice ATmega164P
-    .equ TIFR = TIFR1
-.endIf
+    .ifDevice ATmega164P
+        .equ TIFR = TIFR1
+    .endIf
 
 
     ; Easier names for the bits to check in TIFR
     .equ ring_OCF1A = OCF1A
     .equ debounce_OCF1B = OCF1B
+
+
+.macro start_interval_timers
+    ; Start the timer counts at zero
+    compatible_out TCNT1H, _zero
+    compatible_out TCNT1L, _zero
+    ; Clear the output compare flags, which will be set again when the timer
+    ; counts are complete. It looks like it's wrong because we're clearing
+    ; flags by writing a 1 to them. But that is how it works! Also, we're
+    ; using `ldi` and `out` here because TIFR is out of range to be able to
+    ; use `sbi`
+    ldi _io, (1 << ring_OCF1A) | (1 << debounce_OCF1B)
+    out TIFR, _io
+.endMacro
+
 
 .macro setup_timer
     ; Set the timer in normal mode rather than any of the PWM options, etc.
@@ -44,19 +59,6 @@
     compatible_out OCR1BH, _io
     ldi _io, low(timer1_debounce_ticks)
     compatible_out OCR1BL, _io
+
+    start_interval_timers
 .endMacro
-
-
-.macro start_interval_timers
-    ; Start the timer counts at zero
-    compatible_out TCNT1H, _zero
-    compatible_out TCNT1L, _zero
-    ; Clear the output compare flags, which will be set again when the timer
-    ; counts are complete. It looks like it's wrong because we're clearing
-    ; flags by writing a 1 to them. But that is how it works! Also, we're
-    ; using `ldi` and `out` here because TIFR is out of range to be able to
-    ; use `sbi`
-    ldi _io, (1 << ring_OCF1A) | (1 << debounce_OCF1B)
-    out TIFR, _io
-.endMacro
-

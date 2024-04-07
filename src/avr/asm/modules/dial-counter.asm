@@ -60,7 +60,7 @@ timer_tick:
     start_interval_timers
     in _io, input_pins
 
-.ifDevice ATmega644P
+.ifDevice ATmega164P
     out PORTA, _io
 .endIf
 
@@ -68,7 +68,7 @@ timer_tick:
     bst _io, pin_in_dial_pulse_pink
     bld _bounce_state, 0
 
-.ifDevice ATmega644P
+.ifDevice ATmega164P
     out PORTC, _bounce_state
 .endIf
 

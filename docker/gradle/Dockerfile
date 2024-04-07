@@ -1,4 +1,4 @@
-FROM alpine:3.19.1 as builder
+FROM alpine:latest as builder
 
 ADD https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip \
     /usr/local/share/tools.zip
@@ -15,10 +15,9 @@ RUN apk add unzip && \
     mv /opt/gavrasm/gavrasm_lin_i386_x64_en_v54 /opt/gavrasm/gavrasm
 
 
-FROM gradle:8.3.0-jdk17-jammy
+FROM gradle:8.3.0-jdk17-alpine
 
-RUN apt-get update && \
-    apt-get -y --no-install-recommends install libusb-1.0-0-dev
+RUN apk add libusb-dev
 
 CMD ["bash"]
 

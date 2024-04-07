@@ -10,7 +10,7 @@ class AvrConstantsTest {
         val generator = AvrConstantsGenerator()
         assertEquals(95, generator.baud())
         assertEquals(1152, generator.timer1Ticks(RING_HALF_PERIOD_MILLISECONDS))
-        assertEquals(1728, generator.timer1Ticks(DEBOUNCE_PERIOD_MILLISECONDS))
+        assertEquals(288, generator.timer1Ticks(DEBOUNCE_PERIOD_MILLISECONDS))
         assertEquals("(1 << CS12)", generator.timer1ClockSelect())
     }
 }

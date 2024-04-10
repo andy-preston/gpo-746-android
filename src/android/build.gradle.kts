@@ -54,6 +54,18 @@ android {
     }
 }
 
+tasks.register<DefaultTask>("prepareIcons") {
+}
+val dependentTasks = listOf(
+    "processDebugResources",
+    "processReleaseResources"
+)
+tasks.whenTaskAdded {
+    if (dependentTasks.contains(name)) {
+        dependsOn("prepareIcons")
+    }
+}
+
 dependencies {
     implementation(project(":shared"))
     implementation("androidx.appcompat:appcompat:1.4.2")

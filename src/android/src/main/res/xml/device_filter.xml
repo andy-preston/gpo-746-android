@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- QinHeng Electronics - CH340 serial converter -->
+    <!-- vendor-id="1a86" product-id="7523" -->
+    <usb-device vendor-id="6790" product-id="29987" />
+</resources>

@@ -14,8 +14,8 @@ case $1 in
 '')
     if [ -f /.dockerenv ]
     then
-        echo 'Already running in container use:'
-        echo "$(basename $0) pretest|[any gradle command]"
+        echo 'Already running in container! Use:'
+        echo "$(basename $0) pretest|[any gradle task]"
         exit
     else
         COMMAND='bash'

@@ -56,7 +56,7 @@ android {
 
 val icons = tasks.register<IconScaler>("prepareIcons") {
     directory(layout.projectDirectory.dir("src").dir("main").dir("res"))
-    source("icon.jpg")
+    source("android/src/main/res/mipmap-xxxhdpi/ic_launcher.png")
 }
 tasks.named("preBuild") {
     dependsOn(icons)

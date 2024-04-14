@@ -1,5 +1,4 @@
-src/icon.jpg
-src/**/*.png
+**/*.png
 src/shared/src/commonMain/kotlin/gpo746/Ch340Constants.kt
 src/shared/src/androidMain/kotlin/gpo746/Tones.kt
 share

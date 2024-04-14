@@ -10,8 +10,10 @@
 >
     <TextView
         android:id="@+id/statusLabel"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:paddingVertical="4dp"
+        android:paddingHorizontal="16dp"
         android:text="Status"
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -52,8 +54,10 @@
     </androidx.appcompat.widget.Toolbar>
     <TextView
         android:id="@+id/dialLabel"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:paddingVertical="4dp"
+        android:paddingHorizontal="16dp"
         android:text="Dialing"
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -69,17 +73,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dialLabel"
     >
-        <CheckBox
-            android:id="@+id/ringIndicator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="false"
-            android:clickable="false"
-            android:text="Ringing"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-        />
         <CheckBox
             android:id="@+id/hookIndicator"
             android:layout_width="wrap_content"
@@ -104,29 +97,42 @@
         />
     </androidx.appcompat.widget.Toolbar>
     <TextView
-        android:id="@+id/testRingLabel"
-        android:layout_width="wrap_content"
+        android:id="@+id/ringLabel"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Test"
+        android:paddingVertical="4dp"
+        android:paddingHorizontal="16dp"
+        android:text="Ring"
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dialBar"
     />
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/testRingBar"
+        android:id="@+id/ringBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:minHeight="?attr/actionBarSize"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/testRingLabel"
+        app:layout_constraintTop_toBottomOf="@+id/ringLabel"
     >
+        <CheckBox
+            android:id="@+id/ringIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:clickable="false"
+            android:text="Ringing"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+        />
         <Button
             android:id="@+id/ringButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ring"
+            android:text="Test"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -134,12 +140,14 @@
     </androidx.appcompat.widget.Toolbar>
     <TextView
         android:id="@+id/testToneLabel"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:paddingVertical="4dp"
+        android:paddingHorizontal="16dp"
         android:text="Tones"
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/testRingBar"
+        app:layout_constraintTop_toBottomOf="@+id/ringBar"
     />
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/testToneBar"
@@ -181,8 +189,10 @@
     </androidx.appcompat.widget.Toolbar>
     <TextView
         android:id="@+id/numberDisplay"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:paddingVertical="4dp"
+        android:paddingHorizontal="16dp"
         android:text="GPO 746 Handset"
         android:textSize="36sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -197,8 +207,10 @@
     />
     <TextView
         android:id="@+id/statusDisplay"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:paddingVertical="4dp"
+        android:paddingHorizontal="16dp"
         android:text="GPO 746 Handset"
         android:textSize="36sp"
         app:layout_constraintStart_toStartOf="parent"

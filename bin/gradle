@@ -72,6 +72,13 @@ else
         mv ${LOCAL_SDK}/latest ${LOCAL_SDK}/cmdline-tools/latest
     fi
 
+    ICON_FILE=${LOCAL_SRC}/android/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+    if [ ! -e ${ICON_FILE} ]
+    then
+        mkdir -p $(dirname ${ICON_FILE})
+        curl --output $ICON_FILE https://i.imgur.com/JIl8sn9.png
+    fi
+
     DOCKER_RUN='docker run --rm --interactive --tty'
     DOCKER_RUN+=" --volume ${LOCAL_SDK}:${ANDROID_SDK_ROOT}"
     DOCKER_RUN+=" --env ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}"

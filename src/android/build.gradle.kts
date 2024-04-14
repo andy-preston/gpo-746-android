@@ -54,16 +54,12 @@ android {
     }
 }
 
-tasks.register<DefaultTask>("prepareIcons") {
+val icons = tasks.register<IconScaler>("prepareIcons") {
+    directory(layout.projectDirectory.dir("src").dir("main").dir("res"))
+    source("icon.jpg")
 }
-val dependentTasks = listOf(
-    "processDebugResources",
-    "processReleaseResources"
-)
-tasks.whenTaskAdded {
-    if (dependentTasks.contains(name)) {
-        dependsOn("prepareIcons")
-    }
+tasks.named("preBuild") {
+    dependsOn(icons)
 }
 
 dependencies {

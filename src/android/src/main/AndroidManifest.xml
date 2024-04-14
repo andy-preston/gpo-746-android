@@ -10,7 +10,7 @@
         android:supportsRtl="false"
         android:icon="@mipmap/ic_launcher"
         android:label="GPO 746"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_launcher"
         android:theme="@style/Theme.AppCompat"
     >
         <activity

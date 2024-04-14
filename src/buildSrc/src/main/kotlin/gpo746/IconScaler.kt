@@ -22,6 +22,7 @@ open class IconScaler : DefaultTask() {
 
     private var sourceImage: BufferedImage? = null
 
+    @Suppress("MagicNumber")
     private val sizes = mapOf(
         "mdpi" to 48,
         "hdpi" to 72,
@@ -68,7 +69,7 @@ open class IconScaler : DefaultTask() {
 
     private fun destinationFile(directoryName: String): File {
         val subDirectory = resourceDirectory.dir(directoryName)
-        subDirectory.asFile.mkdirs();
+        subDirectory.asFile.mkdirs()
         return subDirectory.file("ic_launcher.png").asFile
     }
 }

@@ -69,6 +69,7 @@ const val ZERO_BYTE: UByte = 0u
 @Suppress("MagicNumber")
 @OptIn(kotlin.ExperimentalUnsignedTypes::class)
 abstract class UsbResultBuffer {
+
     protected fun shortFromBuffer(buffer: ByteArray?): UShort {
         // As this buffer may possibly have come from C code, there is very
         // little we can do about the possibility of a null pointer. So, here,

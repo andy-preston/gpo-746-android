@@ -10,18 +10,17 @@ import android.telephony.TelephonyManager
 open class IncomingActivity : IdleActivity() {
 
     private val phoneStateReceiver = object : BroadcastReceiver() {
+
         public override fun onReceive(context: Context, intent: Intent) {
             val state: String? = intent.getStringExtra(TelephonyManager.EXTRA_STATE)
             state?.let {
                 if (state == TelephonyManager.EXTRA_STATE_RINGING) {
                     logInfo("IncomingActivity", "ringing")
-                    ringingIndicator.setChecked(true)
-                    outputMode(ring = true, amp = false)
+                    ring(true)
                 }
                 if (state == TelephonyManager.EXTRA_STATE_IDLE) {
                     logInfo("IncomingActivity", "idle")
-                    ringingIndicator.setChecked(false)
-                    outputMode(ring = false, amp = false)
+                    ring(false)
                 }
             }
         }
@@ -29,13 +28,13 @@ open class IncomingActivity : IdleActivity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         val filter = IntentFilter()
         filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
         registerReceiver(phoneStateReceiver, filter)
+
         ringButton.setOnClickListener {
-            if (connectedIndicator.isChecked()) {
-                ring(!ringingIndicator.isChecked())
-            }
+            ring(!ringingIndicator.isChecked())
         }
     }
 

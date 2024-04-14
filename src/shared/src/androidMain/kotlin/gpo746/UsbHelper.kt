@@ -82,7 +82,8 @@ class UsbHelper : UsbSystemInterface {
             )
         }
         if (bytesRead == null) {
-            exception("Attempted bulk transfer with null connection")
+            Log.e("gpo746", "Attempted bulk transfer with null connection")
+            buffer[0] = 0
         } else if (bytesRead < 0) {
             /* Regarding the return value of bulk transfer, the docs say:
              * "length of data transferred (or zero) for success,

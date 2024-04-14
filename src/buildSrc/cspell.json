@@ -4,15 +4,22 @@
     "words": [
         "ALaw",
         "AndyP",
+        "hdpi",
         "imageio",
         "JavaX",
         "lateinit",
+        "mdpi",
+        "mipmap",
+        "mkdirs",
         "prescale",
         "prescaler",
         "prescalers",
         "println",
         "Stdlib",
         "ULaw",
-        "USART"
+        "USART",
+        "xhdpi",
+        "xxhdpi",
+        "xxxhdpi"
     ]
 }

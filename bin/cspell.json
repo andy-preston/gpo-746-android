@@ -16,12 +16,14 @@
         "lfuse",
         "logcat",
         "microcontroller",
+        "mipmap",
         "plugdev",
         "pylint",
         "sdkmanager",
         "udev",
         "usbasp",
         "willy-nilly",
-        "workdir"
+        "workdir",
+        "xxxhdpi"
     ]
 }

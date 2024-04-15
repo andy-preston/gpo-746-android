@@ -5,28 +5,39 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
-private const val ARBITRARY_REQUEST_CODE_READ_PHONE_STATE = 418
+private const val ARBITRARY_REQUEST_CODE = 418
 
 abstract class PermissionActivity : UselessActivity() {
 
+    private val permissionsRequired = arrayOf(
+        Manifest.permission.READ_PHONE_STATE,
+        Manifest.permission.ANSWER_PHONE_CALLS
+    )
+
     public override fun onStart() {
         super.onStart()
-        checkPermission()
+        checkPermissions()
     }
 
-    private fun checkPermission() {
-        val permission = Manifest.permission.READ_PHONE_STATE
-        val grantState = ContextCompat.checkSelfPermission(this, permission)
-        val granted = grantState == PackageManager.PERMISSION_GRANTED
+    private fun allAlreadyGranted(): Boolean =
+        permissionsRequired.fold(true) { allGrantedSoFar, permission ->
+            val grantState = ContextCompat.checkSelfPermission(this, permission)
+            val granted = grantState == PackageManager.PERMISSION_GRANTED
+            return if (allGrantedSoFar) granted else false
+        }
+
+
+    private fun checkPermissions() {
+        val granted = allAlreadyGranted()
         permissionIndicator.setChecked(granted)
         if (granted) {
-            logInfo("PermissionActivity", "Permission already granted")
+            logInfo("PermissionActivity", "Permissions already granted")
         } else {
-            logInfo("PermissionActivity", "Requesting permission")
+            logInfo("PermissionActivity", "Requesting permissions")
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(permission),
-                ARBITRARY_REQUEST_CODE_READ_PHONE_STATE
+                permissionsRequired,
+                ARBITRARY_REQUEST_CODE
             )
         }
     }
@@ -37,7 +48,7 @@ abstract class PermissionActivity : UselessActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == ARBITRARY_REQUEST_CODE_READ_PHONE_STATE) {
+        if (requestCode == ARBITRARY_REQUEST_CODE) {
             val granted = grantResults.isNotEmpty() &&
                 grantResults[0] == PackageManager.PERMISSION_GRANTED
             permissionIndicator.setChecked(granted)

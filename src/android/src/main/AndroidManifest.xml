@@ -6,6 +6,7 @@
     <uses-feature android:name="android.hardware.telephony"/>
     <uses-permission android:name="android.permission.USB_PERMISSION"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS"/>
     <application
         android:supportsRtl="false"
         android:icon="@mipmap/ic_launcher"

@@ -31,6 +31,12 @@ abstract class OutgoingActivity : IncomingActivity() {
         tones.finish()
     }
 
+    public override fun onStart() {
+        super.onStart()
+        logInfo("OutgoingActivity", "onStart")
+        pollOutgoing()
+    }
+
     private val toneClickListener = object : View.OnClickListener {
         override fun onClick(view: View?) {
             if (tones.isPlaying()) {
@@ -41,7 +47,7 @@ abstract class OutgoingActivity : IncomingActivity() {
         }
     }
 
-    private fun pollOutgoing() {
+    protected override fun pollOutgoing() {
         logInfo("OutgoingActivity", "pollOutgoing")
         if (hookIsUp()) {
             number = number + ch340g.readSerial()
@@ -56,13 +62,7 @@ abstract class OutgoingActivity : IncomingActivity() {
             ValidatorResult.Incomplete -> incompleteNumber()
             ValidatorResult.Good -> dialNumber()
         }
-        hookPolling(pollHandlerForOutgoing)
-    }
-
-    protected override val pollHandlerForOutgoing = object : Runnable {
-        override fun run() {
-            pollOutgoing()
-        }
+        super.pollOutgoing()
     }
 
     private fun invalidNumber() {

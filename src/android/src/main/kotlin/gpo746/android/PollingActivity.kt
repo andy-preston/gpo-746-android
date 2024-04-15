@@ -7,21 +7,33 @@ private const val LOOPER_DELAY_MILLISECONDS: Long = 1000
 
 abstract class PollingActivity : IdleActivity() {
 
-    protected val handler = Handler(Looper.getMainLooper())
+    private val handler = Handler(Looper.getMainLooper())
 
-    protected abstract val pollHandlerForIncoming: Runnable
+    protected open fun pollIncoming() {
+        handler.removeCallbacks(pollHandlerForOutgoing)
+        handler.postDelayed(pollHandlerForIncoming, LOOPER_DELAY_MILLISECONDS)
+    }
 
-    protected abstract val pollHandlerForOutgoing: Runnable
+    private val pollHandlerForIncoming = object : Runnable {
+        override fun run() {
+            pollIncoming()
+        }
+    }
+
+    protected open fun pollOutgoing() {
+        handler.removeCallbacks(pollHandlerForIncoming)
+        handler.postDelayed(pollHandlerForOutgoing, LOOPER_DELAY_MILLISECONDS)
+    }
+
+    private val pollHandlerForOutgoing = object : Runnable {
+        override fun run() {
+            pollOutgoing()
+        }
+    }
 
     protected fun hookIsUp(): Boolean {
         val hookUp = ch340g.readHandshake()
         hookIndicator.setChecked(hookUp)
         return hookUp
-    }
-
-    protected fun hookPolling(pollHandler: Runnable) {
-        handler.removeCallbacks(pollHandlerForIncoming)
-        handler.removeCallbacks(pollHandlerForOutgoing)
-        handler.postDelayed(pollHandler, LOOPER_DELAY_MILLISECONDS)
     }
 }

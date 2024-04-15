@@ -57,10 +57,9 @@ abstract class TonePlayer {
         audioTrack.release()
     }
 
-    public fun isPlaying(): Boolean = (
+    public fun isPlaying(): Boolean =
         audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING ||
-        thread != null
-    )
+            thread != null
 
     public fun stop() {
         audioTrack.stop()

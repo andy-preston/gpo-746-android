@@ -9,10 +9,10 @@ import android.hardware.usb.UsbManager
 import andyp.gpo746.Ch340g
 import andyp.gpo746.UsbHelper
 
-open class IdleActivity : PermissionActivity() {
+abstract class IdleActivity : PermissionActivity() {
 
     private val usbHelper = UsbHelper()
-    private val ch340g = Ch340g(usbHelper)
+    protected val ch340g = Ch340g(usbHelper)
 
     private val disconnectedReceiver = object : BroadcastReceiver() {
         public override fun onReceive(context: Context, intent: Intent) {
@@ -57,17 +57,7 @@ open class IdleActivity : PermissionActivity() {
         connectedIndicator.setChecked(true)
     }
 
-    protected fun hookIsUp(): Boolean {
-        val hookUp = ch340g.readHandshake()
-        hookIndicator.setChecked(hookUp)
-        return hookUp
-    }
-
     protected fun outputMode(ring: Boolean, amp: Boolean) {
         ch340g.writeHandshake(ring, amp)
-    }
-
-    protected fun dialledDigits(): String {
-        return ch340g.readSerial()
     }
 }

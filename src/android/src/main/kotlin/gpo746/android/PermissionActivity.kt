@@ -7,7 +7,7 @@ import androidx.core.content.ContextCompat
 
 private const val ARBITRARY_REQUEST_CODE_READ_PHONE_STATE = 418
 
-open class PermissionActivity : UselessActivity() {
+abstract class PermissionActivity : UselessActivity() {
 
     public override fun onStart() {
         super.onStart()

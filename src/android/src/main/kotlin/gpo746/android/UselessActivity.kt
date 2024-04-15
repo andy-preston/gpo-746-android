@@ -7,7 +7,7 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
 
-open class UselessActivity : Activity() {
+abstract class UselessActivity : Activity() {
 
     protected lateinit var permissionIndicator: CheckBox
     protected lateinit var connectedIndicator: CheckBox

@@ -3,16 +3,13 @@ package andyp.gpo746.android
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.view.View
 import andyp.gpo746.PhoneNumberValidator
 import andyp.gpo746.ToneSelection
 import andyp.gpo746.Tones
 import andyp.gpo746.ValidatorResult
 
-private const val LOOPER_DELAY_MILLISECONDS: Long = 1000
-
-open class OutgoingActivity : IncomingActivity() {
+abstract class OutgoingActivity : IncomingActivity() {
 
     private val tones = Tones()
     private val validator = PhoneNumberValidator()
@@ -20,27 +17,13 @@ open class OutgoingActivity : IncomingActivity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        toneDialButton.setOnClickListener {
-            if (tones.isPlaying()) {
-                tones.stop()
-            } else {
-                tones.play(ToneSelection.DIAL)
-            }
-        }
-        toneMisdialButton.setOnClickListener {
-            if (tones.isPlaying()) {
-                tones.stop()
-            } else {
-                tones.play(ToneSelection.MISDIAL)
-            }
-        }
-        toneEngagedButton.setOnClickListener {
-            if (tones.isPlaying()) {
-                tones.stop()
-            } else {
-                tones.play(ToneSelection.ENGAGED)
-            }
-        }
+
+        toneDialButton.setTag(ToneSelection.DIAL)
+        toneDialButton.setOnClickListener(toneClickListener)
+        toneMisdialButton.setTag(ToneSelection.MISDIAL)
+        toneMisdialButton.setOnClickListener(toneClickListener)
+        toneEngagedButton.setTag(ToneSelection.ENGAGED)
+        toneEngagedButton.setOnClickListener(toneClickListener)
     }
 
     public override fun onDestroy() {
@@ -48,10 +31,20 @@ open class OutgoingActivity : IncomingActivity() {
         tones.finish()
     }
 
-    private fun poll() {
-        logInfo("OutgoingActivity", "Poll")
+    private val toneClickListener = object : View.OnClickListener {
+        override fun onClick(view: View?) {
+            if (tones.isPlaying()) {
+                tones.stop()
+            } else {
+                tones.play(view!!.getTag() as ToneSelection)
+            }
+        }
+    }
+
+    private fun pollOutgoing() {
+        logInfo("OutgoingActivity", "pollOutgoing")
         if (hookIsUp()) {
-            number + dialledDigits()
+            number = number + ch340g.readSerial()
         } else {
             number = ""
             tones.stop()
@@ -63,11 +56,13 @@ open class OutgoingActivity : IncomingActivity() {
             ValidatorResult.Incomplete -> incompleteNumber()
             ValidatorResult.Good -> dialNumber()
         }
-        Handler(Looper.getMainLooper()).postDelayed(
-            { poll() },
-            "OutgoingActivity",
-            LOOPER_DELAY_MILLISECONDS
-        )
+        hookPolling(pollHandlerForOutgoing)
+    }
+
+    protected override val pollHandlerForOutgoing = object : Runnable {
+        override fun run() {
+            pollOutgoing()
+        }
     }
 
     private fun invalidNumber() {

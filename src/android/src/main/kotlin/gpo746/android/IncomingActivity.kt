@@ -7,7 +7,7 @@ import android.content.IntentFilter
 import android.os.Bundle
 import android.telephony.TelephonyManager
 
-open class IncomingActivity : IdleActivity() {
+abstract class IncomingActivity : PollingActivity() {
 
     private val phoneStateReceiver = object : BroadcastReceiver() {
 
@@ -23,6 +23,17 @@ open class IncomingActivity : IdleActivity() {
                     ring(false)
                 }
             }
+        }
+    }
+
+    private fun pollIncoming() {
+        logInfo("IncomingActivity", "pollIncoming")
+        hookPolling(pollHandlerForIncoming)
+    }
+
+    protected override val pollHandlerForIncoming = object : Runnable {
+        override fun run() {
+            pollIncoming()
         }
     }
 

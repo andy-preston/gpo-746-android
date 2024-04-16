@@ -8,6 +8,19 @@ enum class ValidatorResult {
 
 class PhoneNumberValidator {
 
+    private var theNumber: String = ""
+
+    public fun number(): String = theNumber
+
+    public fun clear() {
+        theNumber = ""
+    }
+
+    public fun digits(moreDigits: String): ValidatorResult {
+        theNumber = theNumber + moreDigits
+        return validate()
+    }
+
     @Suppress("MagicNumber")
     private val codeLengthMap = mapOf(
         "0800" to 10,
@@ -56,17 +69,17 @@ class PhoneNumberValidator {
     )
 
     @Suppress("ReturnCount")
-    public fun result(number: String): ValidatorResult {
-        if (number.length == 0) {
+    private fun validate(): ValidatorResult {
+        if (theNumber.length == 0) {
             return ValidatorResult.Incomplete
         }
-        if (!number.startsWith("0")) {
+        if (!theNumber.startsWith("0")) {
             return ValidatorResult.Invalid
         }
-        if (number.startsWith("04")) {
+        if (theNumber.startsWith("04")) {
             return ValidatorResult.Invalid
         }
-        if (number.startsWith("06")) {
+        if (theNumber.startsWith("06")) {
             return ValidatorResult.Invalid
         }
         var maximumCodeLength = 0
@@ -74,17 +87,17 @@ class PhoneNumberValidator {
             if (code.length > maximumCodeLength) {
                 maximumCodeLength = code.length
             }
-            if (number.startsWith(code)) {
-                if (number.length > digits) {
+            if (theNumber.startsWith(code)) {
+                if (theNumber.length > digits) {
                     return ValidatorResult.Invalid
                 }
-                if (number.length < digits) {
+                if (theNumber.length < digits) {
                     return ValidatorResult.Incomplete
                 }
                 return ValidatorResult.Good
             }
         }
-        if (number.length > maximumCodeLength) {
+        if (theNumber.length > maximumCodeLength) {
             return ValidatorResult.Invalid
         }
         return ValidatorResult.Incomplete

@@ -13,7 +13,6 @@ abstract class OutgoingActivity : IncomingActivity() {
 
     private val tones = Tones()
     private val validator = PhoneNumberValidator()
-    private var number: String = ""
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,18 +49,17 @@ abstract class OutgoingActivity : IncomingActivity() {
     protected override fun pollOutgoing() {
         logInfo("OutgoingActivity", "pollOutgoing")
         if (hookIsUp()) {
-            number = number + ch340g.readSerial()
+            when (validator.digits(ch340g.readSerial())) {
+                ValidatorResult.Invalid -> invalidNumber()
+                ValidatorResult.Incomplete -> incompleteNumber()
+                ValidatorResult.Good -> dialNumber()
+            }
         } else {
-            number = ""
+            validator.clear()
             tones.stop()
             outputMode(ring = false, amp = false)
         }
-        numberDisplay.apply { text = number }
-        when (validator.result(number)) {
-            ValidatorResult.Invalid -> invalidNumber()
-            ValidatorResult.Incomplete -> incompleteNumber()
-            ValidatorResult.Good -> dialNumber()
-        }
+        numberDisplay.apply { text = validator.number() }
         super.pollOutgoing()
     }
 
@@ -78,7 +76,7 @@ abstract class OutgoingActivity : IncomingActivity() {
     private fun dialNumber() {
         tones.stop()
         val intent = Intent(Intent.ACTION_CALL)
-        intent.data = Uri.parse("tel:$number")
+        intent.data = Uri.parse("tel:" + validator.number())
         startActivity(intent)
     }
 }

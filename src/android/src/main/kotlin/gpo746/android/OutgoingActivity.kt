@@ -12,7 +12,7 @@ import andyp.gpo746.ValidatorResult
 abstract class OutgoingActivity : IncomingActivity() {
 
     private val tones = Tones()
-    private val validator = PhoneNumber()
+    private val phoneNumber = PhoneNumber()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +33,7 @@ abstract class OutgoingActivity : IncomingActivity() {
     public override fun onStart() {
         super.onStart()
         logInfo("OutgoingActivity", "onStart")
-        pollOutgoing()
+        //pollOutgoing()
     }
 
     private val toneClickListener = object : View.OnClickListener {
@@ -49,17 +49,17 @@ abstract class OutgoingActivity : IncomingActivity() {
     protected override fun pollOutgoing() {
         logInfo("OutgoingActivity", "pollOutgoing")
         if (hookIsUp()) {
-            when (validator.digits(ch340g.readSerial())) {
+            when (phoneNumber.digits(ch340g.readSerial())) {
                 ValidatorResult.Invalid -> invalidNumber()
                 ValidatorResult.Incomplete -> incompleteNumber()
                 ValidatorResult.Good -> dialNumber()
             }
         } else {
-            validator.clear()
+            phoneNumber.clear()
             tones.stop()
             outputMode(ring = false, amp = false)
         }
-        numberDisplay.apply { text = validator.number() }
+        numberDisplay.apply { text = phoneNumber.number() }
         super.pollOutgoing()
     }
 
@@ -76,7 +76,7 @@ abstract class OutgoingActivity : IncomingActivity() {
     private fun dialNumber() {
         tones.stop()
         val intent = Intent(Intent.ACTION_CALL)
-        intent.data = Uri.parse("tel:" + validator.number())
+        intent.data = Uri.parse("tel:" + phoneNumber.number())
         startActivity(intent)
     }
 }

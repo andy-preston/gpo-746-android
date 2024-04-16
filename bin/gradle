@@ -76,7 +76,7 @@ else
     if [ ! -e ${ICON_FILE} ]
     then
         mkdir -p $(dirname ${ICON_FILE})
-        curl --output $ICON_FILE https://i.imgur.com/JIl8sn9.png
+        curl --output $ICON_FILE https://i.imgur.com/Gd03TJo.png
     fi
 
     DOCKER_RUN='docker run --rm --interactive --tty'

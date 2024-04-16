@@ -16,7 +16,6 @@ abstract class IncomingActivity : PollingActivity() {
     private val telecomManager = getSystemService(Context.TELECOM_SERVICE) as TelecomManager
 
     private val phoneStateReceiver = object : BroadcastReceiver() {
-
         public override fun onReceive(context: Context, intent: Intent) {
             val state: String? = intent.getStringExtra(TelephonyManager.EXTRA_STATE)
             state?.let {
@@ -77,11 +76,9 @@ abstract class IncomingActivity : PollingActivity() {
 
     @SuppressLint("MissingPermission")
     private fun endCall() {
-        if (callInProgress) {
-            if (allAlreadyGranted()) {
-                @Suppress("DEPRECATION")
-                telecomManager.endCall()
-            }
+        if (callInProgress && allAlreadyGranted()) {
+            @Suppress("DEPRECATION")
+            telecomManager.endCall()
         }
     }
 }

@@ -13,6 +13,8 @@ abstract class IncomingActivity : PollingActivity() {
 
     private var callInProgress: Boolean = false
 
+    private val telecomManager = getSystemService(Context.TELECOM_SERVICE) as TelecomManager
+
     private val phoneStateReceiver = object : BroadcastReceiver() {
 
         public override fun onReceive(context: Context, intent: Intent) {
@@ -36,9 +38,9 @@ abstract class IncomingActivity : PollingActivity() {
     protected override fun pollIncoming() {
         logInfo("IncomingActivity", "pollIncoming")
         if (hookIsUp()) {
-            answer()
+            acceptRingingCall()
         } else {
-            hangUp()
+            endCall()
         }
         super.pollIncoming()
     }
@@ -63,22 +65,23 @@ abstract class IncomingActivity : PollingActivity() {
     // I'm suppressing the lint here because the Android linter hasn't got the
     // brains to see what `allAlreadyGranted` does.
     @SuppressLint("MissingPermission")
-    private fun answer() {
-        if (!callInProgress) {
-            val manager = getSystemService(Context.TELECOM_SERVICE) as TelecomManager
-            if (allAlreadyGranted()) {
-                // Yeah... I know this is deprecated but it's going to have to
-                // do because the alternative is hugely over-complicated and,
-                // at least for now, I just want to get it working.
-                @Suppress("DEPRECATION")
-                manager.acceptRingingCall()
-            }
+    private fun acceptRingingCall() {
+        if (!callInProgress && allAlreadyGranted()) {
+            // Yeah... I know this is deprecated but it's going to have to do
+            // because the alternative is hugely over-complicated and, at least
+            // for now, I just want to get it working.
+            @Suppress("DEPRECATION")
+            telecomManager.acceptRingingCall()
         }
     }
 
-    private fun hangUp() {
-        if (!callInProgress) {
-            return
+    @SuppressLint("MissingPermission")
+    private fun endCall() {
+        if (callInProgress) {
+            if (allAlreadyGranted()) {
+                @Suppress("DEPRECATION")
+                telecomManager.endCall()
+            }
         }
     }
 }

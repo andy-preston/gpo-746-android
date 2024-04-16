@@ -6,7 +6,7 @@ enum class ValidatorResult {
     Good
 }
 
-class PhoneNumberValidator {
+class PhoneNumber {
 
     private var theNumber: String = ""
 

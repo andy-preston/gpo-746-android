@@ -4,7 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import andyp.gpo746.PhoneNumberValidator
+import andyp.gpo746.PhoneNumber
 import andyp.gpo746.ToneSelection
 import andyp.gpo746.Tones
 import andyp.gpo746.ValidatorResult
@@ -12,7 +12,7 @@ import andyp.gpo746.ValidatorResult
 abstract class OutgoingActivity : IncomingActivity() {
 
     private val tones = Tones()
-    private val validator = PhoneNumberValidator()
+    private val validator = PhoneNumber()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

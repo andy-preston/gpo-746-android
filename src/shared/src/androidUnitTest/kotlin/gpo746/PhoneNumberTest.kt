@@ -6,9 +6,9 @@ import kotlin.test.assertTrue
 
 // https://en.wikipedia.org/wiki/Telephone_numbers_in_the_United_Kingdom
 
-class PhoneNumberValidatorTest {
+class PhoneNumberTest {
 
-    private val validator = PhoneNumberValidator()
+    private val validator = PhoneNumber()
     private val testLengthLimit = 30
 
     private fun assertHasLength(number: String, correctLength: Int) {

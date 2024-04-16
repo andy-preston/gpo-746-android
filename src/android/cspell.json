@@ -11,6 +11,7 @@
         "libusb",
         "livedata",
         "mipmap",
+        "OFFHOOK",
         "Parcelable",
         "QinHeng",
         "xfer",

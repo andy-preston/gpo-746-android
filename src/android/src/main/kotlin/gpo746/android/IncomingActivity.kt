@@ -54,6 +54,14 @@ abstract class IncomingActivity : PollingActivity() {
         ringButton.setOnClickListener {
             ring(!ringingIndicator.isChecked())
         }
+
+        answerButton.setOnClickListener {
+            acceptRingingCall()
+        }
+
+        hangUpButton.setOnClickListener {
+            endCall()
+        }
     }
 
     private fun ring(ringing: Boolean) {

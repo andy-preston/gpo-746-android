@@ -14,6 +14,8 @@ abstract class UselessActivity : Activity() {
     protected lateinit var ringingIndicator: CheckBox
     protected lateinit var hookIndicator: CheckBox
     protected lateinit var ringButton: Button
+    protected lateinit var answerButton: Button
+    protected lateinit var hangUpButton: Button
     protected lateinit var toneDialButton: Button
     protected lateinit var toneMisdialButton: Button
     protected lateinit var toneEngagedButton: Button
@@ -29,6 +31,8 @@ abstract class UselessActivity : Activity() {
         ringingIndicator = findViewById<CheckBox>(R.id.ringIndicator)
         hookIndicator = findViewById<CheckBox>(R.id.hookIndicator)
         ringButton = findViewById<Button>(R.id.ringButton)
+        answerButton = findViewById<Button>(R.id.answerButton)
+        hangUpButton = findViewById<Button>(R.id.hangUpButton)
         toneDialButton = findViewById<Button>(R.id.toneDialButton)
         toneMisdialButton = findViewById<Button>(R.id.toneMisdialButton)
         toneEngagedButton = findViewById<Button>(R.id.toneEngagedButton)

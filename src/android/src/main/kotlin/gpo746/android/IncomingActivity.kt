@@ -1,10 +1,12 @@
 package andyp.gpo746.android
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.telecom.TelecomManager
 import android.telephony.TelephonyManager
 
 abstract class IncomingActivity : PollingActivity() {
@@ -58,9 +60,19 @@ abstract class IncomingActivity : PollingActivity() {
         outputMode(ringing, false)
     }
 
+    // I'm suppressing the lint here because the Android linter hasn't got the
+    // brains to see what `allAlreadyGranted` does.
+    @SuppressLint("MissingPermission")
     private fun answer() {
-        if (callInProgress) {
-            return
+        if (!callInProgress) {
+            val manager = getSystemService(Context.TELECOM_SERVICE) as TelecomManager
+            if (allAlreadyGranted()) {
+                // Yeah... I know this is deprecated but it's going to have to
+                // do because the alternative is hugely over-complicated and,
+                // at least for now, I just want to get it working.
+                @Suppress("DEPRECATION")
+                manager.acceptRingingCall()
+            }
         }
     }
 

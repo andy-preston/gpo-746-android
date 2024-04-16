@@ -19,7 +19,7 @@ abstract class PermissionActivity : UselessActivity() {
         checkPermissions()
     }
 
-    private fun allAlreadyGranted(): Boolean =
+    protected fun allAlreadyGranted(): Boolean =
         permissionsRequired.fold(true) { allGrantedSoFar, permission ->
             val grantState = ContextCompat.checkSelfPermission(this, permission)
             val granted = grantState == PackageManager.PERMISSION_GRANTED

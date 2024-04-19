@@ -10,7 +10,7 @@ import kotlin.test.assertTrue
 // to test the hell out of it to work out if it does anything like what I want
 // it to.
 
-class PhoneNumberTest {
+class LibPhoneNumberTest {
     @Test
     public fun start_with_a_failing_test() {
         assertTrue(false)

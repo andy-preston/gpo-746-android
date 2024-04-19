@@ -23,6 +23,11 @@ abstract class OutgoingActivity : IncomingActivity() {
         toneMisdialButton.setOnClickListener(toneClickListener)
         toneEngagedButton.setTag(ToneSelection.ENGAGED)
         toneEngagedButton.setOnClickListener(toneClickListener)
+
+        dialButton.setOnClickListener {
+            phoneNumber.clear()
+            dialing("02087599036")
+        }
     }
 
     public override fun onDestroy() {
@@ -50,12 +55,11 @@ abstract class OutgoingActivity : IncomingActivity() {
         logInfo("OutgoingActivity", "pollOutgoing")
         if (connectedIndicator.isChecked()) {
             if (hookIsUp()) {
-                dialing()
+                dialing(ch340g.readSerial())
             } else {
                 noDialing()
             }
         }
-        numberDisplay.apply { text = phoneNumber.number() }
         super.pollOutgoing()
     }
 
@@ -63,10 +67,13 @@ abstract class OutgoingActivity : IncomingActivity() {
         phoneNumber.clear()
         tones.stop()
         outputMode(ring = false, amp = false)
+        numberDisplay.setText("Not dialing")
     }
 
-    private fun dialing() {
-        when (phoneNumber.digits(ch340g.readSerial())) {
+    private fun dialing(digits: String) {
+        val validatorResult = phoneNumber.digits(digits)
+        numberDisplay.setText(phoneNumber.number())
+        when (validatorResult) {
             ValidatorResult.Invalid -> {
                 tones.play(ToneSelection.MISDIAL)
                 outputMode(ring = false, amp = true)
@@ -78,7 +85,7 @@ abstract class OutgoingActivity : IncomingActivity() {
             ValidatorResult.Good -> {
                 tones.stop()
                 val intent = Intent(Intent.ACTION_CALL)
-                intent.data = Uri.parse("tel:" + phoneNumber.number())
+                intent.data = Uri.parse("tel:" + numberDisplay.text)
                 startActivity(intent)
             }
         }

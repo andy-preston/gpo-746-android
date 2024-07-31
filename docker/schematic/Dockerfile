@@ -1,4 +1,4 @@
-FROM alpine:3.19.1 as builder
+FROM alpine:3.19.1 AS builder
 
 ADD https://github.com/denoland/deno/releases/download/v1.39.4/deno-x86_64-unknown-linux-gnu.zip \
     /usr/local/share/deno.zip

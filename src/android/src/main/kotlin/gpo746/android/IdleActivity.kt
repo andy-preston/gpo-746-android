@@ -6,18 +6,28 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
+import android.os.Bundle
+import android.telecom.TelecomManager
 import andyp.gpo746.Ch340g
 import andyp.gpo746.UsbHelper
 
 abstract class IdleActivity : PermissionActivity() {
 
     private val usbHelper = UsbHelper()
+
     protected val ch340g = Ch340g(usbHelper)
+
+    protected lateinit var telecomManager: TelecomManager
 
     private val disconnectedReceiver = object : BroadcastReceiver() {
         public override fun onReceive(context: Context, intent: Intent) {
             deviceDetached()
         }
+    }
+
+    public override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        telecomManager = getSystemService(Context.TELECOM_SERVICE) as TelecomManager
     }
 
     public override fun onStart() {

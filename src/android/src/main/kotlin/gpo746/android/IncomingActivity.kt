@@ -6,14 +6,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.telecom.TelecomManager
 import android.telephony.TelephonyManager
 
 abstract class IncomingActivity : PollingActivity() {
 
     private var callInProgress: Boolean = false
-
-    private lateinit var telecomManager: TelecomManager
 
     private val phoneStateReceiver = object : BroadcastReceiver() {
         public override fun onReceive(context: Context, intent: Intent) {
@@ -50,8 +47,6 @@ abstract class IncomingActivity : PollingActivity() {
         val filter = IntentFilter()
         filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
         registerReceiver(phoneStateReceiver, filter)
-
-        telecomManager = getSystemService(Context.TELECOM_SERVICE) as TelecomManager
 
         ringButton.setOnClickListener {
             ring(!ringingIndicator.isChecked())

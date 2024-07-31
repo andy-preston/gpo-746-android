@@ -23,6 +23,11 @@ abstract class OutgoingActivity : IncomingActivity() {
         toneMisdialButton.setOnClickListener(toneClickListener)
         toneEngagedButton.setTag(ToneSelection.ENGAGED)
         toneEngagedButton.setOnClickListener(toneClickListener)
+
+        dialButton.setOnClickListener {
+            phoneNumber.clear()
+            dialing("02087599036")
+        }
     }
 
     public override fun onDestroy() {
@@ -33,7 +38,7 @@ abstract class OutgoingActivity : IncomingActivity() {
     public override fun onStart() {
         super.onStart()
         logInfo("OutgoingActivity", "onStart")
-        //pollOutgoing()
+        pollOutgoing()
     }
 
     private val toneClickListener = object : View.OnClickListener {
@@ -48,35 +53,41 @@ abstract class OutgoingActivity : IncomingActivity() {
 
     protected override fun pollOutgoing() {
         logInfo("OutgoingActivity", "pollOutgoing")
-        if (hookIsUp()) {
-            when (phoneNumber.digits(ch340g.readSerial())) {
-                ValidatorResult.Invalid -> invalidNumber()
-                ValidatorResult.Incomplete -> incompleteNumber()
-                ValidatorResult.Good -> dialNumber()
+        if (connectedIndicator.isChecked()) {
+            if (hookIsUp()) {
+                dialing(ch340g.readSerial())
+            } else {
+                noDialing()
             }
-        } else {
-            phoneNumber.clear()
-            tones.stop()
-            outputMode(ring = false, amp = false)
         }
-        numberDisplay.apply { text = phoneNumber.number() }
         super.pollOutgoing()
     }
 
-    private fun invalidNumber() {
-        tones.play(ToneSelection.MISDIAL)
-        outputMode(ring = false, amp = true)
-    }
-
-    private fun incompleteNumber() {
-        tones.play(ToneSelection.DIAL)
-        outputMode(ring = false, amp = true)
-    }
-
-    private fun dialNumber() {
+    private fun noDialing() {
+        phoneNumber.clear()
         tones.stop()
-        val intent = Intent(Intent.ACTION_CALL)
-        intent.data = Uri.parse("tel:" + phoneNumber.number())
-        startActivity(intent)
+        outputMode(ring = false, amp = false)
+        numberDisplay.setText("Not dialing")
+    }
+
+    private fun dialing(digits: String) {
+        val validatorResult = phoneNumber.digits(digits)
+        numberDisplay.setText(phoneNumber.number())
+        when (validatorResult) {
+            ValidatorResult.Invalid -> {
+                tones.play(ToneSelection.MISDIAL)
+                outputMode(ring = false, amp = true)
+            }
+            ValidatorResult.Incomplete -> {
+                tones.play(ToneSelection.DIAL)
+                outputMode(ring = false, amp = true)
+            }
+            ValidatorResult.Good -> {
+                tones.stop()
+                val intent = Intent(Intent.ACTION_CALL)
+                intent.data = Uri.parse("tel:" + numberDisplay.text)
+                startActivity(intent)
+            }
+        }
     }
 }

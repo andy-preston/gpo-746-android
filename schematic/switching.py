@@ -1,4 +1,4 @@
-""""The switching components and the 5V power supply"""
+"""The switching components and the 5V power supply"""
 
 from schemdraw import Drawing
 from schemdraw.util import Point
